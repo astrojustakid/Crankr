@@ -26,9 +26,9 @@ object MusicStreamResolver {
     private val thumbnailCache = ConcurrentHashMap<String, String>()
     private val blacklistedVideoIds = ConcurrentHashMap.newKeySet<String>()
 
-    // Blacklist filter for Official Music Videos, Live performances, compilations, remixes, covers, bootlegs, and mashups
+    // Blacklist filter for Official Music Videos, Live performances, compilations, remixes, covers, bootlegs, podcasts, and mashups
     val studioBlacklistRegex = Regex(
-        """(?i)(?:best\s+album\s+of|album\s+populer|kumpulan\s+lagu|full\s+album|greatest\s+hits|\bbest\s+of\b|top\s+tracks|kompilasi|compilation|pilihan\s+terbaik|tembang\s+kenangan|mixtape|\bmashup\b|official\s+music\s+video|\bmv\b|\bm/v\b|live\s+at|live\s+performance|\bconcert\b|\bremix\b|\bcover\b|acoustic\s+cover|\btribute\b|\bbootleg\b|best\s+songs|nonstop|slowed|reverb|karaoke|\blofi\b|\blo-fi\b|rekaman\s+penonton|audience|fancam|reaction|tutorial|1\s+hour|hour\s+loop|how\s+to\s+play|pintasan\s+keyboard|keyboard\s+shortcuts?|video\s+bundar|round\s+video|watch\s+full|subscribe|\bteaser\b|\btrailer\b|official\s+video|music\s+video|video\s+musik)"""
+        """(?i)(?:best\s+album\s+of|album\s+populer|kumpulan\s+lagu|full\s+album|greatest\s+hits|\bbest\s+of\b|top\s+tracks|kompilasi|compilation|pilihan\s+terbaik|tembang\s+kenangan|mixtape|\bmashup\b|official\s+music\s+video|\bmv\b|\bm/v\b|live\s+at|live\s+performance|\bconcert\b|\bremix\b|\bcover\b|acoustic\s+cover|\btribute\b|\bbootleg\b|best\s+songs|nonstop|slowed|reverb|karaoke|\blofi\b|\blo-fi\b|rekaman\s+penonton|audience|fancam|reaction|tutorial|1\s+hour|hour\s+loop|how\s+to\s+play|pintasan\s+keyboard|keyboard\s+shortcuts?|video\s+bundar|round\s+video|watch\s+full|subscribe|\bteaser\b|\btrailer\b|official\s+video|music\s+video|video\s+musik|\bpodcast\b|\binterview\b|\btalkshow\b|\btalk\s+show\b|full\s+episode|podcast\s+episode|\bepisode\s*#?\d+\b|\bep\.\s*\d+\b|\bwawancara\b|\bdiscussion\b)"""
     )
 
     fun isCompilationOrBootleg(title: String, artist: String = ""): Boolean {
@@ -275,7 +275,18 @@ object MusicStreamResolver {
                                 subRuns.optJSONObject(2)?.optString("text").orEmpty()
                             } else subRuns?.optJSONObject(0)?.optString("text").orEmpty()
 
-                            val isMvOrLive = studioBlacklistRegex.containsMatchIn(cardTitle) ||
+                            val isPodcastOrEpisode = cardType.equals("Episode", ignoreCase = true) ||
+                                cardType.equals("Podcast", ignoreCase = true) ||
+                                cardType.contains("Episode", ignoreCase = true) ||
+                                cardSubtitle.contains("podcast", ignoreCase = true) ||
+                                cardSubtitle.contains("episode", ignoreCase = true) ||
+                                cardTitle.contains("podcast", ignoreCase = true) ||
+                                Regex("""(?i)\b(?:podcast|episode|interview|talkshow|wawancara)\b""").containsMatchIn(cardType) ||
+                                Regex("""(?i)\b(?:podcast|interview|talkshow|wawancara|full\s+episode|podcast\s+episode)\b""").containsMatchIn(cardTitle) ||
+                                Regex("""(?i)\b(?:podcast|interview|talkshow|wawancara)\b""").containsMatchIn(cardSubtitle)
+
+                            val isMvOrLive = isPodcastOrEpisode ||
+                                studioBlacklistRegex.containsMatchIn(cardTitle) ||
                                 studioBlacklistRegex.containsMatchIn(cardSubtitle) ||
                                 cardTitle.contains("video", ignoreCase = true) ||
                                 cardType.equals("Video", ignoreCase = true)
@@ -299,6 +310,15 @@ object MusicStreamResolver {
                                             break
                                         }
                                     }
+                                }
+
+                                val maxAllowedDuration = if (expectedDurationSeconds != null && expectedDurationSeconds > 480) {
+                                    expectedDurationSeconds + 30
+                                } else {
+                                    480
+                                }
+                                if (cardDuration > maxAllowedDuration) {
+                                    continue
                                 }
 
                                 // Bandingkan durasi stream hasil pencarian dengan durasi asli metadata lagu (toleransi 8 detik, 5-10 detik)
@@ -354,14 +374,19 @@ object MusicStreamResolver {
                                 }
                             }
 
-                            // Tolak video klip, rekaman live, remix, cover, atau bootleg
+                            // Tolak video klip, rekaman live, remix, cover, podcast, interview, atau bootleg
                             if (studioBlacklistRegex.containsMatchIn(title) || (uploaderOrArtist.isNotBlank() && studioBlacklistRegex.containsMatchIn(uploaderOrArtist))) {
                                 continue
                             }
 
                             val candDuration = extractDurationSeconds(renderer)
-                            // Tolak kompilasi penuh melebihi 10 menit
-                            if (candDuration > 600) {
+                            val maxAllowedDuration = if (expectedDurationSeconds != null && expectedDurationSeconds > 480) {
+                                expectedDurationSeconds + 30
+                            } else {
+                                480
+                            }
+                            // Tolak durasi abnormal melebihi 8 menit (podcast / kompilasi panjang)
+                            if (candDuration > maxAllowedDuration) {
                                 continue
                             }
 
@@ -411,7 +436,12 @@ object MusicStreamResolver {
                     if (expectedOriginalTitle != null && !isTitleMatching(expectedOriginalTitle, candTitle)) continue
 
                     val candDuration = parseDurationToSeconds(candLengthStr)
-                    if (candDuration > 600) continue
+                    val maxAllowedDuration = if (expectedDurationSeconds != null && expectedDurationSeconds > 480) {
+                        expectedDurationSeconds + 30
+                    } else {
+                        480
+                    }
+                    if (candDuration > maxAllowedDuration) continue
                     if (expectedDurationSeconds != null && expectedDurationSeconds > 0) {
                         if (candDuration <= 0) continue
                         val delta = kotlin.math.abs(candDuration - expectedDurationSeconds)

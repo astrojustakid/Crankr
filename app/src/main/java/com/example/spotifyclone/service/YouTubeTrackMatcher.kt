@@ -173,6 +173,7 @@ object YouTubeTrackMatcher {
                             if (!MusicStreamResolver.isTitleMatching(expectedTitle, itemTitle)) continue
 
                             val duration = item.optInt("duration", 210)
+                            if (duration > 480) continue // Tolak podcast / video berdurasi panjang
                             val thumb = item.optString("thumbnail", "")
                             return MatchedTrackResult(
                                 videoId = vid,
@@ -225,6 +226,7 @@ object YouTubeTrackMatcher {
                             if (!MusicStreamResolver.isTitleMatching(expectedTitle, itemTitle)) continue
 
                             val duration = item.optInt("lengthSeconds", 210)
+                            if (duration > 480) continue // Tolak podcast / video berdurasi panjang
                             val thumbs = item.optJSONArray("videoThumbnails")
                             val thumb = thumbs?.optJSONObject(0)?.optString("url") ?: ""
                             return MatchedTrackResult(

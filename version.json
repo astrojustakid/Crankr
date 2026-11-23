@@ -1,7 +1,7 @@
 ﻿{
-    "versionCode":  66,
-    "versionName":  "1.65",
+    "versionCode":  67,
+    "versionName":  "1.66",
     "downloadUrl":  "https://github.com/astrojustakid/Crankr/releases/latest/download/crankr.apk",
-    "changelog":  "[FITUR BARU]\n- Rangkaian Unit Test otomatis Crankr (ArtistParserTest \u0026 MetadataSanitizerTest)\n\n[CATATAN]\n- 23 skenario unit test lolos 100% memverifikasi parsing musisi, sanitasi judul, dan filter studio",
+    "changelog":  "[PERBAIKAN BUG]\n- Pencegahan audio podcast, interview, dan talkshow menggantikan lagu musik (kasus Rich Brian - C\u0027est La Vie)\r\n- Validasi ketat batas durasi lagu (maksimal 8 menit) pada AudioStreamResolver \u0026 MusicStreamResolver\r\n- Pencocokan artis kolaborator fleksibel untuk trek fitur (feat. / ft.)\n\n[CATATAN]\n- Penambahan suite Unit Test untuk filter podcast \u0026 toleransi durasi (31 tests passed)",
     "mandatory":  false
 }

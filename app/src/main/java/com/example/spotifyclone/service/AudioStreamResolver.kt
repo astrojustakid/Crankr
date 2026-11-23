@@ -158,7 +158,7 @@ object AudioStreamResolver {
     }
 
     private val forbiddenVideoRegex = Regex(
-        """(?i)(?:\b(mv|m/v|live|cover|karaoke|lyric|lyrics|lirik)\b|music\s+video|official\s+video|video\s+clip|videoclip)"""
+        """(?i)(?:\b(mv|m/v|live|cover|karaoke|lyric|lyrics|lirik|podcast|interview|talkshow|wawancara)\b|music\s+video|official\s+video|video\s+clip|videoclip|full\s+episode|podcast\s+episode|\bepisode\s*#?\d+\b|\bep\.\s*\d+\b)"""
     )
 
     fun isForbiddenVideo(title: String, subtitle: String = "", originalTrackTitle: String = ""): Boolean {
@@ -247,10 +247,22 @@ object AudioStreamResolver {
 
         // TAHAP 2: Pencarian YouTube Music InnerTube API dengan Filter Songs (params: EgWKAQIIAWoKEAkQBRAKEAMQBA==)
         // Kata kunci: nama artis dan judul lagu dengan pencocokan nama artis serta selisih durasi maksimal 5 detik
-        val primaryQueries = listOf(
+        val baseTitle = cleanTitle.replace(Regex("""\s*[\(\[\{](?:feat|ft)\.?\s+[^\)\]\}]+[\)\]\}]""", RegexOption.IGNORE_CASE), "").trim()
+        val primaryQueries = mutableListOf(
             "$cleanArtist - $cleanTitle",
             "$cleanTitle $cleanArtist"
         )
+        if (baseTitle.isNotBlank() && !baseTitle.equals(cleanTitle, ignoreCase = true)) {
+            primaryQueries.add("$cleanArtist - $baseTitle")
+            primaryQueries.add("$baseTitle $cleanArtist")
+        }
+        val artistList = cleanArtist.split(Regex("""[,&/]|(?i)\b(?:feat|ft)\.?\b""")).map { it.trim() }.filter { it.isNotBlank() }
+        for (subArtist in artistList) {
+            if (!subArtist.equals(cleanArtist, ignoreCase = true) && subArtist.length >= 3) {
+                primaryQueries.add("$subArtist - $baseTitle")
+                primaryQueries.add("$baseTitle $subArtist")
+            }
+        }
 
         for (query in primaryQueries) {
             val vid = searchYouTubeMusicSongs(
@@ -284,7 +296,7 @@ object AudioStreamResolver {
         }
 
         // Fallback terakhir: MusicStreamResolver
-        val fallback = MusicStreamResolver.resolveYouTubeVideoId(cleanTitle, cleanArtist, null)
+        val fallback = MusicStreamResolver.resolveYouTubeVideoId(cleanTitle, cleanArtist, expectedDurationSeconds)
         if (!fallback.isNullOrBlank() && !blacklistedVideoIds.contains(fallback)) {
             videoCache[cacheKey] = fallback
             return@withContext fallback
@@ -788,19 +800,34 @@ object AudioStreamResolver {
                             if (!expectedArtist.isNullOrBlank() && candArtist.isNotBlank()) {
                                 val cleanExpected = expectedArtist.lowercase().trim()
                                 val cleanCand = candArtist.lowercase().trim()
+                                val expectedParts = cleanExpected.split(Regex("""[,&/]|(?i)\b(?:feat|ft)\.?\b""")).map { it.trim() }.filter { it.length >= 3 }
+                                val candParts = cleanCand.split(Regex("""[,&/]|(?i)\b(?:feat|ft)\.?\b""")).map { it.trim() }.filter { it.length >= 3 }
+                                val titleHasArtist = expectedParts.any { ep -> candTitle.lowercase().contains(ep) }
                                 val artistMatches = cleanCand.contains(cleanExpected) ||
                                         cleanExpected.contains(cleanCand) ||
-                                        cleanExpected.split(",", "&", "feat", "ft", "/").any { part ->
-                                            val p = part.trim()
-                                            p.length >= 3 && cleanCand.contains(p)
-                                        }
+                                        titleHasArtist ||
+                                        expectedParts.any { ep -> cleanCand.contains(ep) || candParts.any { cp -> cp.contains(ep) || ep.contains(cp) } }
                                 if (!artistMatches) continue
                             }
 
+                            // Batas maksimal durasi lagu normal (8 menit / 480s), kecuali jika metadata lagu asli memang lebih panjang
+                            val maxAllowedDuration = if (expectedDurationSeconds != null && expectedDurationSeconds > 480) {
+                                expectedDurationSeconds + 30
+                            } else {
+                                480
+                            }
+                            if (candDuration > maxAllowedDuration) {
+                                continue
+                            }
+
                             // 4. Validasi Durasi: selisih durasi maksimal dari durasi asli Spotify
-                            if (expectedDurationSeconds != null && expectedDurationSeconds > 0 && candDuration > 0) {
-                                val delta = kotlin.math.abs(candDuration - expectedDurationSeconds)
-                                if (delta > maxDurationDiffSeconds) continue
+                            if (expectedDurationSeconds != null && expectedDurationSeconds > 0) {
+                                if (candDuration > 0) {
+                                    val delta = kotlin.math.abs(candDuration - expectedDurationSeconds)
+                                    if (delta > maxDurationDiffSeconds) continue
+                                } else if (!isIsrcSearch) {
+                                    continue
+                                }
                             }
 
                             // 5. Prioritaskan trek yang memiliki metadata album studio resmi

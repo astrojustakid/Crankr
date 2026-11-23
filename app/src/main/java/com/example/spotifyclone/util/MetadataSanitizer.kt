@@ -30,6 +30,14 @@ object MetadataSanitizer {
         "teaser",
         "trailer",
         "full episode",
+        "podcast",
+        "full podcast",
+        "podcast episode",
+        "interview",
+        "exclusive interview",
+        "talkshow",
+        "talk show",
+        "wawancara",
         "shorts",
         "short",
         "official lyric video",
@@ -43,7 +51,7 @@ object MetadataSanitizer {
     )
 
     private val ARTIFACT_REGEX = Regex(
-        """(?i)(?:pintasan\s+keyboard|keyboard\s+shortcuts?|video\s+bundar|round\s+video|watch\s+full|watch\s+video|audio\s+only|audio\s+resmi|subscribe|\bteaser\b|\btrailer\b|full\s+episode|\bshorts?\b)"""
+        """(?i)(?:pintasan\s+keyboard|keyboard\s+shortcuts?|video\s+bundar|round\s+video|watch\s+full|watch\s+video|audio\s+only|audio\s+resmi|subscribe|\bteaser\b|\btrailer\b|full\s+episode|podcast\s+episode|\bpodcasts?\b|\binterviews?\b|\btalkshows?\b|talk\s+show|wawancara|\bshorts?\b)"""
     )
 
     private val BRACKET_NOISE_REGEX = Regex(
@@ -97,15 +105,26 @@ object MetadataSanitizer {
             "akustik live",
             "konser live",
             "live at",
-            "live in"
+            "live in",
+            "full episode",
+            "podcast episode",
+            "the zach sang show",
+            "talk show",
+            "exclusive interview"
         )
         for (phrase in forbiddenPhrases) {
             if (safeCombined.contains(phrase)) return false
         }
 
         // 2. Kata kunci terlarang dengan batas kata (word boundary)
-        val generalForbiddenRegex = Regex("""(?i)\b(?:cover|akustik|acoustic|karaoke|tribute|parodi|parody|bootleg)\b""")
+        val generalForbiddenRegex = Regex("""(?i)\b(?:cover|akustik|acoustic|karaoke|tribute|parodi|parody|bootleg|podcast|interview|talkshow|wawancara)\b""")
         if (generalForbiddenRegex.containsMatchIn(safeT) || generalForbiddenRegex.containsMatchIn(safeD)) {
+            return false
+        }
+
+        // Pengecekan episode podcast terlarang (menghindari 'Episode 12', 'Ep. 5', 'Podcast', namun menjaga 'The Next Episode')
+        val episodePatternRegex = Regex("""(?i)(?:full\s+episode|podcast\s+episode|\bepisode\s*#?\d+\b|\bep\.\s*\d+\b)""")
+        if (episodePatternRegex.containsMatchIn(safeT) || episodePatternRegex.containsMatchIn(safeD)) {
             return false
         }
 
@@ -118,7 +137,7 @@ object MetadataSanitizer {
         }
 
         // Pengecekan pada nama artis (hanya kata kunci yang relevan untuk musisi/channel)
-        val artistForbiddenRegex = Regex("""(?i)\b(?:cover|karaoke|tribute|parodi|parody|bootleg)\b""")
+        val artistForbiddenRegex = Regex("""(?i)\b(?:cover|karaoke|tribute|parodi|parody|bootleg|podcast)\b""")
         if (artistForbiddenRegex.containsMatchIn(safeA)) {
             return false
         }

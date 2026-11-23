@@ -126,4 +126,41 @@ class MetadataSanitizerTest {
         val sanitized = MetadataSanitizer.sanitizeTrack(badTrack)
         assertNull(sanitized)
     }
+
+    @Test
+    fun isOfficialStudioTrack_rejectsPodcastAndInterview() {
+        assertFalse(MetadataSanitizer.isOfficialStudioTrack("Rich Brian - C'est La Vie | The Zach Sang Show Podcast"))
+        assertFalse(MetadataSanitizer.isOfficialStudioTrack("Rich Brian Interview on C'est La Vie"))
+        assertFalse(MetadataSanitizer.isOfficialStudioTrack("C'est La Vie (Podcast Episode 42)"))
+        assertFalse(MetadataSanitizer.isOfficialStudioTrack("C'est La Vie", artist = "Rich Brian Podcast"))
+        assertFalse(MetadataSanitizer.isOfficialStudioTrack("Talkshow Musik Bersama Rich Brian"))
+    }
+
+    @Test
+    fun isOfficialStudioTrack_preservesLegendarySongWithEpisodeInTitle() {
+        // "The Next Episode" oleh Dr. Dre tidak boleh terblokir
+        assertTrue(MetadataSanitizer.isOfficialStudioTrack("The Next Episode", "Dr. Dre"))
+    }
+
+    @Test
+    fun isBlockedArtifact_detectsPodcastAndInterview() {
+        assertTrue(MetadataSanitizer.isBlockedArtifact("Podcast Episode 12"))
+        assertTrue(MetadataSanitizer.isBlockedArtifact("Zach Sang Interview"))
+        assertTrue(MetadataSanitizer.isBlockedArtifact("Talk Show Malam"))
+        assertFalse(MetadataSanitizer.isBlockedArtifact("C'est La Vie"))
+    }
+
+    @Test
+    fun isValidTrack_rejectsOversizedPodcastTrack() {
+        val podcastTrack = Track(
+            id = "yt_podcast_30min",
+            title = "Rich Brian Interview C'est La Vie",
+            artist = "The Zach Sang Show",
+            album = "Single",
+            durationSeconds = 1800, // 30 menit
+            streamUrl = "",
+            coverUrl = ""
+        )
+        assertFalse(MetadataSanitizer.isValidTrack(podcastTrack))
+    }
 }
