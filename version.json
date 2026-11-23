@@ -2,6 +2,6 @@
     "versionCode":  66,
     "versionName":  "1.65",
     "downloadUrl":  "https://github.com/astrojustakid/Crankr/releases/latest/download/crankr.apk",
-    "changelog":  "[FITUR BARU]\n- Sistem In-App OTA Auto-Updater mandiri (Cek Pembaruan di Pengaturan)\r\n- Seksi khusus \u0027PENGGEMAR JUGA MENYUKAI\u0027 di profil musisi dengan navigasi instan\n\n[PERBAIKAN BUG]\n- Pemisahan ketat diskografi album/single dari nama band lain\r\n- Watchdog anti-macet buffering audio \u0026 pemulihan antrean\r\n- Backup ganda playlist lokal anti-reset",
+    "changelog":  "[FITUR BARU]\n- Rangkaian Unit Test otomatis Crankr (ArtistParserTest \u0026 MetadataSanitizerTest)\n\n[CATATAN]\n- 23 skenario unit test lolos 100% memverifikasi parsing musisi, sanitasi judul, dan filter studio",
     "mandatory":  false
 }
