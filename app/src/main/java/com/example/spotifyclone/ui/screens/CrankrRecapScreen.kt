@@ -3,7 +3,6 @@ package com.example.spotifyclone.ui.screens
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -20,25 +19,16 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.spotifyclone.data.db.CrankrRecapData
@@ -47,171 +37,14 @@ import com.example.spotifyclone.ui.components.springPressable
 import com.example.spotifyclone.ui.viewmodel.RecapViewModel
 
 /**
- * Shape tiket konser berlubang (notched edges) di sisi kiri dan kanan.
+ * Crankr Recap Screen — Modern Industrial Punk Rock Minimalist
+ * 
+ * Mengusung estetika editorial industrial:
+ * - Latar belakang hitam pekat solid (PitchBlack) tanpa bintik kotor/slop artifisial.
+ * - Tipografi berbobot masif (Oswald / Anton) sebagai pahlawan visual.
+ * - Garis pembatas hairline tajam dan aksen Crimson Red khas Crankr.
+ * - 100% data riil dan transparan dari riwayat pemutaran lokal.
  */
-class ConcertTicketShape(
-    private val cornerRadius: Dp = 4.dp,
-    private val notchRadius: Dp = 10.dp
-) : Shape {
-    override fun createOutline(size: Size, layoutDirection: LayoutDirection, density: Density): Outline {
-        val r = with(density) { cornerRadius.toPx() }
-        val nr = with(density) { notchRadius.toPx() }
-        val w = size.width
-        val h = size.height
-        val cy = h / 2f
-
-        val path = Path().apply {
-            reset()
-            moveTo(r, 0f)
-            lineTo(w - r, 0f)
-            quadraticTo(w, 0f, w, r)
-            lineTo(w, cy - nr)
-            arcTo(
-                rect = Rect(w - nr, cy - nr, w + nr, cy + nr),
-                startAngleDegrees = 270f,
-                sweepAngleDegrees = -180f,
-                forceMoveTo = false
-            )
-            lineTo(w, h - r)
-            quadraticTo(w, h, w - r, h)
-            lineTo(r, h)
-            quadraticTo(0f, h, 0f, h - r)
-            lineTo(0f, cy + nr)
-            arcTo(
-                rect = Rect(-nr, cy - nr, nr, cy + nr),
-                startAngleDegrees = 90f,
-                sweepAngleDegrees = -180f,
-                forceMoveTo = false
-            )
-            lineTo(0f, r)
-            quadraticTo(0f, 0f, r, 0f)
-            close()
-        }
-        return Outline.Generic(path)
-    }
-}
-
-/**
- * Efek bintik noise fotokopi kotor (photocopy grit & halftone pattern).
- */
-fun Modifier.photocopyGrit(): Modifier = this.drawBehind {
-    val step = 14f
-    val dotRadius = 1.1f
-    val dotColor = Color.White.copy(alpha = 0.045f)
-    var x = 0f
-    while (x < size.width) {
-        var y = 0f
-        while (y < size.height) {
-            drawCircle(dotColor, radius = dotRadius, center = Offset(x, y))
-            y += step
-        }
-        x += step
-    }
-
-    // Faint horizontal xerox drum scanlines
-    val linePaint = Color(0xFF1F1F1F).copy(alpha = 0.35f)
-    var ly = 20f
-    while (ly < size.height) {
-        drawLine(
-            color = linePaint,
-            start = Offset(0f, ly),
-            end = Offset(size.width, ly),
-            strokeWidth = 1f
-        )
-        ly += 48f
-    }
-}
-
-/**
- * Pita solasi / masking tape kertas zine miring buatan tangan.
- */
-@Composable
-fun ZineTapeLabel(
-    text: String,
-    modifier: Modifier = Modifier,
-    rotation: Float = -2f,
-    bgColor: Color = CrimsonRed,
-    textColor: Color = Color.White
-) {
-    Box(
-        modifier = modifier
-            .rotate(rotation)
-            .background(bgColor, RoundedCornerShape(1.dp))
-            .border(1.dp, Color.Black.copy(alpha = 0.5f), RoundedCornerShape(1.dp))
-            .padding(horizontal = 10.dp, vertical = 3.dp)
-    ) {
-        Text(
-            text = text,
-            fontFamily = FontFamily.Monospace,
-            fontSize = 11.sp,
-            fontWeight = FontWeight.Bold,
-            color = textColor,
-            letterSpacing = 1.sp
-        )
-    }
-}
-
-/**
- * Stempel tinta brutalist miring (distressed ink stamp).
- */
-@Composable
-fun DistressedStampBadge(
-    text: String,
-    modifier: Modifier = Modifier,
-    rotation: Float = 3f,
-    color: Color = CrimsonRed
-) {
-    Box(
-        modifier = modifier
-            .rotate(rotation)
-            .border(2.dp, color, RoundedCornerShape(2.dp))
-            .background(color.copy(alpha = 0.14f), RoundedCornerShape(2.dp))
-            .padding(horizontal = 7.dp, vertical = 3.dp)
-    ) {
-        Text(
-            text = text,
-            fontFamily = FontFamily.Monospace,
-            fontSize = 10.sp,
-            fontWeight = FontWeight.Black,
-            color = color,
-            letterSpacing = 0.8.sp,
-            softWrap = true
-        )
-    }
-}
-
-/**
- * Gelombang suara audio merah kasar di belakang angka audit waktu.
- */
-@Composable
-fun AudioWaveformGraphic(
-    modifier: Modifier = Modifier,
-    barCount: Int = 24,
-    color: Color = CrimsonRed.copy(alpha = 0.35f)
-) {
-    Canvas(modifier = modifier) {
-        val totalWidth = size.width
-        val barWidth = (totalWidth / barCount) * 0.65f
-        val gap = (totalWidth / barCount) * 0.35f
-        val seedHeights = floatArrayOf(
-            0.35f, 0.65f, 0.95f, 0.45f, 0.8f, 0.3f, 0.75f, 1.0f,
-            0.55f, 0.85f, 0.4f, 0.9f, 0.6f, 0.75f, 0.95f, 0.5f,
-            0.7f, 1.0f, 0.4f, 0.85f, 0.6f, 0.35f, 0.75f, 0.9f
-        )
-        for (i in 0 until barCount) {
-            val hRatio = seedHeights[i % seedHeights.size]
-            val h = size.height * hRatio
-            val left = i * (barWidth + gap)
-            val top = (size.height - h) / 2f
-            drawRect(
-                color = color,
-                topLeft = Offset(left, top),
-                size = Size(barWidth, h)
-            )
-        }
-    }
-}
-
 @Composable
 fun CrankrRecapScreen(
     onClose: () -> Unit,
@@ -235,8 +68,7 @@ fun CrankrRecapScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFF0A0A0A)) // Deep photocopy carbon black
-            .photocopyGrit()
+            .background(Color(0xFF0D0D0D))
             .statusBarsPadding()
             .navigationBarsPadding()
     ) {
@@ -249,7 +81,7 @@ fun CrankrRecapScreen(
                     CircularProgressIndicator(color = CrimsonRed, strokeWidth = 3.dp)
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = "Memindai Data Musik...",
+                        text = "MEMUAT AUDIT AUDIO...",
                         fontFamily = FontFamily.Monospace,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
@@ -268,11 +100,11 @@ fun CrankrRecapScreen(
                 topTracks = emptyList(),
                 personaTitle = "GARAGE ROOKIE",
                 personaBadge = "ROOKIE",
-                personaQuote = "Baru mulai menyetel distorsi amplifier."
+                personaQuote = "Baru mulai menyetel distorsi amplifier di garasi bawah tanah."
             )
 
             Column(modifier = Modifier.fillMaxSize()) {
-                // Top Story Progress Indicators (4 segmented tape bars)
+                // Top Story Progress Indicators (4 segmented bars)
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -283,13 +115,13 @@ fun CrankrRecapScreen(
                         Box(
                             modifier = Modifier
                                 .weight(1f)
-                                .height(4.dp)
+                                .height(3.dp)
                                 .clip(RoundedCornerShape(1.dp))
                                 .background(
                                     when {
                                         i < currentIndex -> CrimsonRed
                                         i == currentIndex -> Color.White
-                                        else -> Color(0xFF222222)
+                                        else -> Color(0xFF242424)
                                     }
                                 )
                                 .clickable { viewModel.setCardIndex(i) }
@@ -301,24 +133,24 @@ fun CrankrRecapScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 4.dp),
+                        .padding(horizontal = 20.dp, vertical = 6.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
                             modifier = Modifier
-                                .size(9.dp)
+                                .size(8.dp)
                                 .background(CrimsonRed)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = "CRANKR RECAP",
                             fontFamily = CrankrDisplayFont,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontSize = 17.sp,
+                            fontWeight = FontWeight.Black,
                             color = TextWhite,
-                            letterSpacing = 1.2.sp
+                            letterSpacing = 1.5.sp
                         )
                     }
 
@@ -343,7 +175,7 @@ fun CrankrRecapScreen(
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxWidth()
-                        .padding(horizontal = 14.dp, vertical = 6.dp)
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
                 ) {
                     AnimatedContent(
                         targetState = currentIndex,
@@ -376,22 +208,23 @@ fun CrankrRecapScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 10.dp),
+                        .padding(horizontal = 20.dp, vertical = 12.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     if (currentIndex > 0) {
                         TextButton(
                             onClick = { viewModel.prevCard() },
-                            colors = ButtonDefaults.textButtonColors(contentColor = TextSecondary)
+                            colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFFAAAAAA))
                         ) {
                             Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null, modifier = Modifier.size(16.dp))
-                            Spacer(modifier = Modifier.width(4.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
                             Text(
                                 text = "SEBELUMNYA",
                                 fontFamily = FontFamily.Monospace,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 0.5.sp
                             )
                         }
                     } else {
@@ -403,23 +236,26 @@ fun CrankrRecapScreen(
                         fontFamily = FontFamily.Monospace,
                         fontSize = 12.sp,
                         color = CrimsonRed,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.sp
                     )
 
                     if (currentIndex < 3) {
                         Button(
                             onClick = { viewModel.nextCard() },
                             shape = RoundedCornerShape(2.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = CrimsonRed)
+                            colors = ButtonDefaults.buttonColors(containerColor = CrimsonRed),
+                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
                         ) {
                             Text(
                                 text = "LANJUT",
                                 fontFamily = FontFamily.Monospace,
-                                fontSize = 12.sp,
+                                fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color.White
+                                color = Color.White,
+                                letterSpacing = 0.5.sp
                             )
-                            Spacer(modifier = Modifier.width(4.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
                             Icon(imageVector = Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, modifier = Modifier.size(16.dp))
                         }
                     } else {
@@ -432,248 +268,203 @@ fun CrankrRecapScreen(
 }
 
 /**
- * Slide 1 (Audit Waktu):
- * Menampilkan tipografi brutalist stencil besar dengan waveform bar kasar merah di latar belakang,
- * metrik tempo ~160 BPM // POGO COMPATIBLE, serta jarak vertikal 12.dp yang rapi dan konsisten.
+ * Slide 1 (Audit Waktu Pemutaran):
+ * Mengutamakan tipografi industrial berbobot masif, kontras tinggi,
+ * dan penyajian data riil yang transparan tanpa visualizer/fake BPM artifisial.
  */
 @Composable
 private fun TotalTimeCard(recap: CrankrRecapData) {
     Card(
         shape = RoundedCornerShape(2.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF111111)),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF141414)),
         modifier = Modifier
             .fillMaxSize()
-            .border(2.dp, Color(0xFF333333), RoundedCornerShape(2.dp))
-            .photocopyGrit()
+            .border(1.dp, Color(0xFF262626), RoundedCornerShape(2.dp))
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(22.dp),
+                .padding(24.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
+            // Header Kategori
             Column {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    ZineTapeLabel(
-                        text = "TAPE 01: AUDIT WAKTU",
-                        rotation = -2f,
-                        bgColor = CrimsonRed,
-                        textColor = Color.White
+                    Text(
+                        text = "// 01. LISTENING AUDIT",
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = CrimsonRed,
+                        letterSpacing = 1.sp
                     )
                     Text(
-                        text = "DECIBEL METER",
+                        text = "ANNUAL STATS",
                         fontFamily = FontFamily.Monospace,
                         fontSize = 10.sp,
-                        color = Color(0xFF888888),
-                        fontWeight = FontWeight.Bold,
-                        softWrap = true
+                        color = Color(0xFF777777),
+                        fontWeight = FontWeight.Bold
                     )
                 }
 
-                // Batas aman sebelum judul utama
-                Spacer(modifier = Modifier.padding(top = 16.dp, bottom = 12.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = "SEBERAPA BISING TAHUN INI?",
+                    text = "TOTAL WAKTU ROTASI",
                     fontFamily = CrankrDisplayFont,
                     fontSize = 32.sp,
                     fontWeight = FontWeight.Black,
                     color = TextWhite,
                     lineHeight = 36.sp,
-                    letterSpacing = 0.5.sp,
-                    softWrap = true,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
+                    letterSpacing = 0.5.sp
                 )
 
                 Spacer(modifier = Modifier.height(6.dp))
 
                 Text(
-                    text = "Total rekaman frekuensi keras yang lu putar tanpa kompromi.",
+                    text = "Total rekaman audio yang berhasil kamu putar tanpa kompromi.",
                     fontFamily = CrankrBodyFont,
                     fontSize = 13.sp,
-                    color = Color(0xFFAAAAAA),
-                    softWrap = true,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
+                    color = Color(0xFF999999),
+                    lineHeight = 18.sp
                 )
 
-                Spacer(modifier = Modifier.height(10.dp))
-                HorizontalDivider(color = Color(0xFF262626), thickness = 1.dp)
+                Spacer(modifier = Modifier.height(16.dp))
+                HorizontalDivider(color = Color(0xFF222222), thickness = 1.dp)
             }
 
-            // Big Stencil Numbers with Audio Waveform Bars behind
-            Box(
+            // Stat Angka Utama Masif
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(190.dp),
-                contentAlignment = Alignment.Center
+                    .padding(vertical = 12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Background Rough Red Audio Waveform Graphic
-                AudioWaveformGraphic(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(130.dp)
-                        .padding(horizontal = 8.dp),
-                    barCount = 22,
-                    color = CrimsonRed.copy(alpha = 0.32f)
-                )
+                val totalHours = recap.totalHours
+                val totalMinutes = recap.totalMinutes
 
-                // Brutalist Stencil Main Numbers
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    val mainNumberText = if (recap.totalHours > 0) "${recap.totalHours} JAM" else "${recap.totalMinutes} MENIT"
-
-                    // Print Misregistration Ghosting Effect
-                    Box(contentAlignment = Alignment.Center) {
-                        Text(
-                            text = mainNumberText,
-                            fontFamily = CrankrDisplayFont,
-                            fontSize = 62.sp,
-                            fontWeight = FontWeight.Black,
-                            color = CrimsonRed.copy(alpha = 0.5f),
-                            softWrap = true,
-                            modifier = Modifier
-                                .offset(x = 2.dp, y = 2.dp)
-                                .padding(horizontal = 16.dp)
-                        )
-                        Text(
-                            text = mainNumberText,
-                            fontFamily = CrankrDisplayFont,
-                            fontSize = 62.sp,
-                            fontWeight = FontWeight.Black,
-                            color = Color.White,
-                            softWrap = true,
-                            modifier = Modifier.padding(horizontal = 16.dp)
-                        )
-                    }
-
-                    if (recap.totalHours > 0) {
-                        ZineTapeLabel(
-                            text = "+ ${recap.totalMinutes % 60} MENIT DISTORSI PENUH",
-                            rotation = 1.5f,
-                            bgColor = Color.White,
-                            textColor = Color.Black
-                        )
-                    } else {
-                        ZineTapeLabel(
-                            text = "PUTARAN DI GARASI BAWAH TANAH",
-                            rotation = -1.5f,
-                            bgColor = CrimsonRed,
-                            textColor = Color.White
-                        )
-                    }
-
-                    // Metrik Tempo Skena
-                    Spacer(modifier = Modifier.height(8.dp))
+                if (totalHours > 0) {
                     Text(
-                        text = "RATA-RATA TEMPO: ~160 BPM",
+                        text = "$totalHours JAM",
+                        fontFamily = CrankrDisplayFont,
+                        fontSize = 64.sp,
+                        fontWeight = FontWeight.Black,
+                        color = Color.White,
+                        lineHeight = 68.sp,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = "${totalMinutes % 60} MENIT",
+                        fontFamily = CrankrDisplayFont,
+                        fontSize = 36.sp,
+                        fontWeight = FontWeight.Black,
+                        color = CrimsonRed,
+                        lineHeight = 40.sp,
+                        textAlign = TextAlign.Center
+                    )
+                } else {
+                    Text(
+                        text = "$totalMinutes",
+                        fontFamily = CrankrDisplayFont,
+                        fontSize = 72.sp,
+                        fontWeight = FontWeight.Black,
+                        color = Color.White,
+                        lineHeight = 76.sp,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = "MENIT DISTORSI",
+                        fontFamily = CrankrDisplayFont,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Black,
+                        color = CrimsonRed,
+                        textAlign = TextAlign.Center,
+                        letterSpacing = 1.sp
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Box(
+                    modifier = Modifier
+                        .background(Color(0xFF1C1C1C), RoundedCornerShape(2.dp))
+                        .border(1.dp, Color(0xFF333333), RoundedCornerShape(2.dp))
+                        .padding(horizontal = 14.dp, vertical = 6.dp)
+                ) {
+                    Text(
+                        text = "${recap.uniqueArtistsCount} BAND INDEPENDEN DIEKSPLORASI",
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                        letterSpacing = 0.5.sp
+                    )
+                }
+            }
+
+            // Footer Kartu: Persona Klasifikasi
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color(0xFF181818), RoundedCornerShape(2.dp))
+                    .border(1.dp, Color(0xFF2A2A2A), RoundedCornerShape(2.dp))
+                    .padding(16.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "STATUS KLASIFIKASI",
                         fontFamily = FontFamily.Monospace,
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
-                        color = CrimsonRed,
-                        letterSpacing = 0.5.sp,
-                        softWrap = true,
-                        modifier = Modifier.padding(horizontal = 16.dp)
+                        color = Color(0xFF777777),
+                        letterSpacing = 1.sp
                     )
-                }
-            }
-
-            // Bottom Section: Scene Exploration & Ticket Stamp
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                // Cutout Band Count Strip
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(Color(0xFF191919), RoundedCornerShape(2.dp))
-                        .border(1.dp, Color(0xFF333333), RoundedCornerShape(2.dp))
-                        .padding(horizontal = 14.dp, vertical = 9.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(7.dp)
-                            .background(CrimsonRed)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "${recap.uniqueArtistsCount} BAND INDEPENDEN BERHASIL DIEKSPLORASI",
+                        text = recap.personaBadge,
                         fontFamily = FontFamily.Monospace,
-                        fontSize = 11.5.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Black,
+                        color = CrimsonRed
                     )
                 }
 
-                // Persona Ticket Stub
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(ConcertTicketShape(cornerRadius = 2.dp, notchRadius = 8.dp))
-                        .background(Color(0xFF141414))
-                        .border(1.5.dp, CrimsonRed, ConcertTicketShape(cornerRadius = 2.dp, notchRadius = 8.dp))
-                        .padding(horizontal = 20.dp, vertical = 11.dp)
-                ) {
-                    Column {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "KLASIFIKASI PUNK RESMI:",
-                                fontFamily = FontFamily.Monospace,
-                                fontSize = 10.sp,
-                                color = Color(0xFF888888),
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = "OFFICIAL SCENE TICKET",
-                                fontFamily = FontFamily.Monospace,
-                                fontSize = 9.sp,
-                                color = CrimsonRed,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(3.dp))
-                        Text(
-                            text = recap.personaBadge,
-                            fontFamily = CrankrDisplayFont,
-                            fontSize = 19.sp,
-                            fontWeight = FontWeight.Black,
-                            color = Color.White
-                        )
-                        Spacer(modifier = Modifier.height(2.dp))
-                        Text(
-                            text = "\"${recap.personaQuote}\"",
-                            fontFamily = CrankrBodyFont,
-                            fontSize = 12.sp,
-                            color = Color(0xFFAAAAAA)
-                        )
-                    }
-                }
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = recap.personaTitle,
+                    fontFamily = CrankrDisplayFont,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Black,
+                    color = Color.White,
+                    letterSpacing = 0.5.sp
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = "\"${recap.personaQuote}\"",
+                    fontFamily = CrankrBodyFont,
+                    fontSize = 12.sp,
+                    color = Color(0xFFAAAAAA),
+                    lineHeight = 16.sp
+                )
             }
         }
     }
 }
 
 /**
- * Slide 2 (Trek Paling Rusak):
- * Susunan vertikal murni (Column) dari atas ke bawah:
- * - Header dengan pita teks /// TAPE 02: ROTASI MAKSIMAL /// dan judul TREK PALING RUSAK dengan margin jelas.
- * - Wadah Cover persegi mandiri berukuran tetap (220.dp x 220.dp) dengan ambient glow dan border merah tipis, tanpa stiker mengambang di atas gambar.
- * - Metadata Lagu (title besar tebal di bawah cover, artist berwarna CrimsonRed, info durasi resmi).
- * - Badge rotasi DIPUTAR X KALI DALAM ROTASI PENUH di bagian bawah dengan pembatas Spacer(16.dp).
+ * Slide 2 (Trek Paling Sering Diputar):
+ * Fokus pada artwork album beresolusi tinggi dalam bingkai persegi murni,
+ * bebas dari tempelan stiker atau distorsi yang mengganggu karya visual musisi.
  */
 @Composable
 private fun TopTrackCard(recap: CrankrRecapData) {
@@ -681,66 +472,68 @@ private fun TopTrackCard(recap: CrankrRecapData) {
 
     Card(
         shape = RoundedCornerShape(2.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF111111)),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF141414)),
         modifier = Modifier
             .fillMaxSize()
-            .border(2.dp, Color(0xFF333333), RoundedCornerShape(2.dp))
-            .photocopyGrit()
+            .border(1.dp, Color(0xFF262626), RoundedCornerShape(2.dp))
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(20.dp),
+                .padding(24.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            // Header: Pita teks penanda kategori dan judul TREK PALING RUSAK dengan margin bawah yang jelas
-            Column(modifier = Modifier.fillMaxWidth()) {
+            // Header Kategori
+            Column {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    ZineTapeLabel(
-                        text = "TAPE 02: ROTASI MAKSIMAL",
-                        rotation = 0f,
-                        bgColor = CrimsonRed,
-                        textColor = Color.White
+                    Text(
+                        text = "// 02. HEAVY ROTATION",
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = CrimsonRed,
+                        letterSpacing = 1.sp
                     )
                     Text(
-                        text = "SIDE A TRACK 01",
+                        text = "NO. 1 TRACK",
                         fontFamily = FontFamily.Monospace,
                         fontSize = 10.sp,
-                        color = Color(0xFF888888),
-                        fontWeight = FontWeight.Bold,
-                        softWrap = true
+                        color = Color(0xFF777777),
+                        fontWeight = FontWeight.Bold
                     )
                 }
 
-                Spacer(modifier = Modifier.height(14.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
                     text = "TREK PALING RUSAK",
                     fontFamily = CrankrDisplayFont,
-                    fontSize = 28.sp,
+                    fontSize = 32.sp,
                     fontWeight = FontWeight.Black,
                     color = TextWhite,
-                    lineHeight = 32.sp,
-                    softWrap = true
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "Lagu yang lu putar terus tanpa ampun sampai headphone lu jebol:",
-                    fontFamily = CrankrBodyFont,
-                    fontSize = 12.sp,
-                    color = Color(0xFFAAAAAA),
-                    softWrap = true
+                    lineHeight = 36.sp,
+                    letterSpacing = 0.5.sp
                 )
 
-                Spacer(modifier = Modifier.height(10.dp))
-                HorizontalDivider(color = Color(0xFF262626), thickness = 1.dp)
+                Spacer(modifier = Modifier.height(6.dp))
+
+                Text(
+                    text = "Lagu yang paling sering menguasai rotasi pemutar audio kamu:",
+                    fontFamily = CrankrBodyFont,
+                    fontSize = 13.sp,
+                    color = Color(0xFF999999),
+                    lineHeight = 18.sp
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+                HorizontalDivider(color = Color(0xFF222222), thickness = 1.dp)
             }
 
-            // Konten Tengah (Cover + Metadata) dengan weight(1f) dan susunan vertikal teratur
+            // Konten Tengah: Cover Album & Metadata
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -748,52 +541,37 @@ private fun TopTrackCard(recap: CrankrRecapData) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                // Wadah Cover: Tempatkan cover album dalam container persegi mandiri berukuran tetap (220.dp x 220.dp)
-                // Tambahkan border merah tipis atau bayangan ambient di belakang wadah, tanpa stiker apa pun di atas gambar.
+                // Wadah Cover Persegi Bersih
                 Box(
                     modifier = Modifier
-                        .size(220.dp)
-                        .background(
-                            brush = Brush.radialGradient(
-                                colors = listOf(CrimsonRed.copy(alpha = 0.35f), Color.Transparent),
-                                radius = 240f
-                            )
-                        ),
-                    contentAlignment = Alignment.Center
+                        .size(200.dp)
+                        .border(1.5.dp, Color(0xFF333333), RoundedCornerShape(2.dp))
+                        .background(Color(0xFF101010), RoundedCornerShape(2.dp))
+                        .clip(RoundedCornerShape(2.dp))
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .size(210.dp)
-                            .border(1.5.dp, CrimsonRed, RoundedCornerShape(2.dp))
-                            .background(Color(0xFF141414), RoundedCornerShape(2.dp))
-                            .clip(RoundedCornerShape(2.dp))
-                    ) {
-                        if (!topTrack?.albumArtUrl.isNullOrBlank()) {
-                            AsyncImage(
-                                model = topTrack.albumArtUrl,
-                                contentDescription = topTrack.trackTitle,
-                                modifier = Modifier.fillMaxSize(),
-                                contentScale = ContentScale.Crop
+                    if (!topTrack?.albumArtUrl.isNullOrBlank()) {
+                        AsyncImage(
+                            model = topTrack.albumArtUrl,
+                            contentDescription = topTrack.trackTitle,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            Text(
+                                text = "CRANKR\nTRACK",
+                                fontFamily = CrankrDisplayFont,
+                                fontSize = 28.sp,
+                                fontWeight = FontWeight.Black,
+                                color = Color(0xFF444444),
+                                textAlign = TextAlign.Center
                             )
-                        } else {
-                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                Text(
-                                    text = "NOISE\nTAPE",
-                                    fontFamily = CrankrDisplayFont,
-                                    fontSize = 32.sp,
-                                    fontWeight = FontWeight.Black,
-                                    color = Color(0xFF666666),
-                                    textAlign = TextAlign.Center
-                                )
-                            }
                         }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(14.dp))
+                Spacer(modifier = Modifier.height(18.dp))
 
-                // Metadata Lagu: Letakkan nama lagu (title) dengan font besar tebal tepat di bawah cover,
-                // diikuti nama musisi/band (artist) berwarna merah Crankr.
                 Text(
                     text = topTrack?.trackTitle ?: "Belum ada trek tercatat",
                     fontFamily = CrankrDisplayFont,
@@ -806,7 +584,7 @@ private fun TopTrackCard(recap: CrankrRecapData) {
                     modifier = Modifier.padding(horizontal = 8.dp)
                 )
 
-                Spacer(modifier = Modifier.height(3.dp))
+                Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
                     text = topTrack?.artistName ?: "Underground Artist",
@@ -820,110 +598,90 @@ private fun TopTrackCard(recap: CrankrRecapData) {
                     modifier = Modifier.padding(horizontal = 8.dp)
                 )
 
-                // Info durasi & rilisan
+                // Info Durasi Resmi
                 val avgSec = if ((topTrack?.playCount ?: 0) > 0) {
-                    (((topTrack?.totalDurationMs ?: 0L) / topTrack!!.playCount) / 1000).toInt().coerceIn(60, 600)
+                    (((topTrack?.totalDurationMs ?: 0L) / topTrack!!.playCount) / 1000).toInt().coerceIn(30, 600)
                 } else {
-                    195
+                    180
                 }
-                val min = avgSec / 60
-                val sec = avgSec % 60
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "DURASI: %d:%02d".format(min, sec),
+                    text = "DURASI: %d:%02d".format(avgSec / 60, avgSec % 60),
                     fontFamily = FontFamily.Monospace,
-                    fontSize = 10.5.sp,
-                    color = Color(0xFF888888),
+                    fontSize = 11.sp,
+                    color = Color(0xFF777777),
                     textAlign = TextAlign.Center
                 )
             }
 
-            // Badge Rotasi: Tempatkan kotak badge DIPUTAR X KALI DALAM ROTASI PENUH di posisi paling bawah wadah kartu
-            // dengan jarak pemisah (Spacer(16.dp)), bukan mengambang bebas.
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
+            // Footer Badge Rotasi
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(CrimsonRed.copy(alpha = 0.12f), RoundedCornerShape(2.dp))
+                    .border(1.dp, CrimsonRed.copy(alpha = 0.5f), RoundedCornerShape(2.dp))
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+                contentAlignment = Alignment.Center
             ) {
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .border(1.5.dp, CrimsonRed, RoundedCornerShape(2.dp))
-                        .background(CrimsonRed.copy(alpha = 0.12f), RoundedCornerShape(2.dp))
-                        .padding(horizontal = 14.dp, vertical = 10.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(6.dp)
-                                .background(CrimsonRed, CircleShape)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = "DIPUTAR ${topTrack?.playCount ?: 1} KALI DALAM ROTASI PENUH",
-                            fontFamily = FontFamily.Monospace,
-                            fontSize = 11.5.sp,
-                            fontWeight = FontWeight.Black,
-                            color = Color.White,
-                            letterSpacing = 0.8.sp,
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                }
+                Text(
+                    text = "DIPUTAR ${topTrack?.playCount ?: 1} KALI DALAM ROTASI RESMI",
+                    fontFamily = FontFamily.Monospace,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Black,
+                    color = Color.White,
+                    letterSpacing = 0.5.sp,
+                    textAlign = TextAlign.Center
+                )
             }
         }
     }
 }
 
 /**
- * Slide 3 (Penguasa Headphone):
- * Memisahkan teks deskripsi dengan stempel VERIFIED BY SCENE agar tidak bertabrakan,
- * serta memberi jarak aman antara teks terverifikasi kiri dan label CRANKR.ZINE kanan.
+ * Slide 3 (5 Musisi Teratas):
+ * Menampilkan daftar baris musisi independen dengan indeks nomor tajam (01 - 05),
+ * foto artis bersih, dan informasi putaran yang presisi.
  */
 @Composable
 private fun TopArtistsCard(recap: CrankrRecapData) {
     Card(
         shape = RoundedCornerShape(2.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF111111)),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF141414)),
         modifier = Modifier
             .fillMaxSize()
-            .border(2.dp, Color(0xFF333333), RoundedCornerShape(2.dp))
-            .photocopyGrit()
+            .border(1.dp, Color(0xFF262626), RoundedCornerShape(2.dp))
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(22.dp),
+                .padding(24.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
+            // Header Kategori
             Column {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    ZineTapeLabel(
-                        text = "TAPE 03: HEADPHONE LORDS",
-                        rotation = -1.5f,
-                        bgColor = CrimsonRed,
-                        textColor = Color.White
+                    Text(
+                        text = "// 03. HEADPHONE LORDS",
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = CrimsonRed,
+                        letterSpacing = 1.sp
                     )
                     Text(
-                        text = "LINEUP RESMI",
+                        text = "TOP 5 ARTISTS",
                         fontFamily = FontFamily.Monospace,
                         fontSize = 10.sp,
-                        color = Color(0xFF888888),
-                        fontWeight = FontWeight.Bold,
-                        softWrap = true
+                        color = Color(0xFF777777),
+                        fontWeight = FontWeight.Bold
                     )
                 }
 
-                Spacer(modifier = Modifier.padding(top = 16.dp, bottom = 12.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
                     text = "PENGUASA HEADPHONE",
@@ -932,28 +690,24 @@ private fun TopArtistsCard(recap: CrankrRecapData) {
                     fontWeight = FontWeight.Black,
                     color = TextWhite,
                     lineHeight = 36.sp,
-                    softWrap = true,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
+                    letterSpacing = 0.5.sp
                 )
-                Spacer(modifier = Modifier.height(4.dp))
+
+                Spacer(modifier = Modifier.height(6.dp))
+
                 Text(
-                    text = "5 Band yang paling sering menguasai gendang telinga lu:",
+                    text = "Musisi yang paling mendominasi riwayat pemutaran audasimu:",
                     fontFamily = CrankrBodyFont,
                     fontSize = 13.sp,
-                    color = Color(0xFFAAAAAA),
-                    softWrap = true,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
+                    color = Color(0xFF999999),
+                    lineHeight = 18.sp
                 )
 
-                Spacer(modifier = Modifier.height(10.dp))
-                HorizontalDivider(color = Color(0xFF262626), thickness = 1.dp)
+                Spacer(modifier = Modifier.height(16.dp))
+                HorizontalDivider(color = Color(0xFF222222), thickness = 1.dp)
             }
 
-            // Brutalist Artist List with Mini Polaroid Collages
+            // Daftar 5 Artis
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -963,11 +717,11 @@ private fun TopArtistsCard(recap: CrankrRecapData) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(20.dp),
+                            .padding(24.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "Belum ada riwayat band.",
+                            text = "Belum ada riwayat artis.",
                             fontFamily = FontFamily.Monospace,
                             fontSize = 13.sp,
                             color = TextSecondary
@@ -979,62 +733,61 @@ private fun TopArtistsCard(recap: CrankrRecapData) {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(if (isFirst) Color(0xFF1E1717) else Color(0xFF141414), RoundedCornerShape(2.dp))
+                                .background(
+                                    if (isFirst) Color(0xFF1E1717) else Color(0xFF181818),
+                                    RoundedCornerShape(2.dp)
+                                )
                                 .border(
-                                    width = if (isFirst) 2.dp else 1.dp,
+                                    width = 1.dp,
                                     color = if (isFirst) CrimsonRed else Color(0xFF262626),
                                     shape = RoundedCornerShape(2.dp)
                                 )
-                                .padding(horizontal = 10.dp, vertical = 8.dp),
+                                .padding(horizontal = 12.dp, vertical = 9.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            // Kolom 1 (Kiri): Nomor urut "01" dan foto profil artis
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(
-                                    text = "0${index + 1}",
-                                    fontFamily = FontFamily.Monospace,
-                                    fontSize = if (isFirst) 20.sp else 16.sp,
-                                    fontWeight = FontWeight.Black,
-                                    color = if (isFirst) CrimsonRed else Color.White
-                                )
+                            // Indeks nomor urut
+                            Text(
+                                text = "0${index + 1}",
+                                fontFamily = FontFamily.Monospace,
+                                fontSize = if (isFirst) 18.sp else 15.sp,
+                                fontWeight = FontWeight.Black,
+                                color = if (isFirst) CrimsonRed else Color(0xFF888888)
+                            )
 
-                                Spacer(modifier = Modifier.width(10.dp))
+                            Spacer(modifier = Modifier.width(12.dp))
 
-                                // Spotify Photo Mini Polaroid Frame
-                                Box(
-                                    modifier = Modifier
-                                        .size(if (isFirst) 42.dp else 36.dp)
-                                        .rotate(if (isFirst) -2.5f else 1.5f)
-                                        .border(1.5.dp, Color.White, RoundedCornerShape(1.dp))
-                                        .background(Color.Black)
-                                ) {
-                                    if (artistStat.albumArtUrl.isNotBlank()) {
-                                        AsyncImage(
-                                            model = artistStat.albumArtUrl,
-                                            contentDescription = artistStat.artistName,
-                                            modifier = Modifier.fillMaxSize(),
-                                            contentScale = ContentScale.Crop
+                            // Foto Profil Artis / Album
+                            Box(
+                                modifier = Modifier
+                                    .size(38.dp)
+                                    .border(1.dp, if (isFirst) CrimsonRed else Color(0xFF444444), RoundedCornerShape(2.dp))
+                                    .background(Color(0xFF101010), RoundedCornerShape(2.dp))
+                                    .clip(RoundedCornerShape(2.dp))
+                            ) {
+                                if (artistStat.albumArtUrl.isNotBlank()) {
+                                    AsyncImage(
+                                        model = artistStat.albumArtUrl,
+                                        contentDescription = artistStat.artistName,
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                } else {
+                                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                        Text(
+                                            text = "ART",
+                                            fontFamily = FontFamily.Monospace,
+                                            fontSize = 9.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Color.White
                                         )
-                                    } else {
-                                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                            Text(
-                                                text = "BAND",
-                                                fontFamily = FontFamily.Monospace,
-                                                fontSize = 9.sp,
-                                                fontWeight = FontWeight.Bold,
-                                                color = Color.White
-                                            )
-                                        }
                                     }
                                 }
                             }
 
-                            // Kolom 2 (Tengah): Gunakan Column(modifier = Modifier.weight(1f).padding(horizontal = 8.dp)) untuk menampung nama artis dan jumlah putaran. Pasang maxLines = 1 dengan textOverflow = TextOverflow.Ellipsis agar teks tidak pernah memanjang ke kanan.
-                            Column(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(horizontal = 8.dp)
-                            ) {
+                            Spacer(modifier = Modifier.width(12.dp))
+
+                            // Nama & Total Putaran
+                            Column(modifier = Modifier.weight(1f)) {
                                 Text(
                                     text = artistStat.artistName,
                                     fontFamily = CrankrDisplayFont,
@@ -1042,26 +795,27 @@ private fun TopArtistsCard(recap: CrankrRecapData) {
                                     fontWeight = FontWeight.Bold,
                                     color = Color.White,
                                     maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    softWrap = true
+                                    overflow = TextOverflow.Ellipsis
                                 )
                                 Text(
-                                    text = "${artistStat.playCount}x putaran di rotasi",
+                                    text = "${artistStat.playCount}x putaran",
                                     fontFamily = FontFamily.Monospace,
                                     fontSize = 11.sp,
-                                    color = if (isFirst) CrimsonRed else Color(0xFF888888),
+                                    color = if (isFirst) CrimsonRed else Color(0xFF777777),
                                     maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    softWrap = true
+                                    overflow = TextOverflow.Ellipsis
                                 )
                             }
 
-                            // Kolom 3 (Kanan): Tempatkan komponen stempel ★ VERIFIED BY SCENE secara mandiri tanpa absoluteOffset atau penumpukan layer, sehingga stempel memiliki ruangnya sendiri di sisi paling kanan.
+                            // Tag Nomor 1
                             if (isFirst) {
-                                DistressedStampBadge(
-                                    text = "VERIFIED BY SCENE",
-                                    rotation = 3f,
-                                    color = CrimsonRed
+                                Text(
+                                    text = "NO. 1",
+                                    fontFamily = FontFamily.Monospace,
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Black,
+                                    color = CrimsonRed,
+                                    letterSpacing = 0.5.sp
                                 )
                             }
                         }
@@ -1069,44 +823,24 @@ private fun TopArtistsCard(recap: CrankrRecapData) {
                 }
             }
 
-            // Bottom Zine Verification & Label
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(3.dp)
-            ) {
-                Text(
-                    text = "TERVERIFIKASI BERDASARKAN TOTAL PEMUTARAN AUDIO",
-                    fontFamily = FontFamily.Monospace,
-                    fontSize = 9.sp,
-                    color = Color(0xFF888888),
-                    softWrap = true,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    text = "CRANKR.ZINE",
-                    fontFamily = FontFamily.Monospace,
-                    fontSize = 9.5.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = CrimsonRed,
-                    softWrap = true
-                )
-            }
+            // Footer Label
+            Text(
+                text = "DATA DIANALISIS BERDASARKAN TOTAL PEMUTARAN AUDIO LOKAL",
+                fontFamily = FontFamily.Monospace,
+                fontSize = 9.5.sp,
+                color = Color(0xFF666666),
+                letterSpacing = 0.5.sp
+            )
         }
     }
 }
 
 /**
  * Slide 4 (Poster Ringkasan Resmi):
- * Layout poster gigs bergaris kisi (grid/segmented layout) yang rapi dan terisolasi:
- * - Baris Atas: Header judul recap tahunan berdampingan dengan badge status pengguna dalam satu Row fleksibel.
- * - Baris Tengah (Showcase Visual): 3 cover album teratas secara horizontal berjajar (bukan saling tumpuk)
- *   dengan ukuran proporsional (album utama di tengah sedikit lebih besar, dua album pendamping di kiri dan kanan
- *   dengan sudut miring rapi dan padding pembatas yang tegas).
- * - Baris Bawah (Blok Data): Tabel data sederhana bergaris batas brutalist untuk memuat TOTAL DISTORSI,
- *   BAND DIEKSPLORASI, dan TREK PALING RUSAK dengan pembatas vertikal & horizontal tegas.
- * - Area Tombol: Posisi terkunci di bagian bawah dengan padding aman dari tepi layar perangkat.
- * - Penyesuaian Ruang Fleksibel: weight(1f) dan layout terukur agar otomatis pas di semua dimensi layar.
+ * Layout poster editorial industrial yang terisolasi dan proporsional:
+ * - Showcase 3 cover album teratas berjejer rapi secara horizontal.
+ * - Blok data modular untuk total waktu, artis dieksplorasi, dan lagu teratas.
+ * - Tombol aksi berbagi Instagram Story & Simpan Gambar yang ergonomis dan kokoh.
  */
 @Composable
 private fun SummaryPosterCard(
@@ -1117,66 +851,65 @@ private fun SummaryPosterCard(
 ) {
     Card(
         shape = RoundedCornerShape(2.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF111111)),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF141414)),
         modifier = Modifier
             .fillMaxSize()
-            .border(2.dp, CrimsonRed, RoundedCornerShape(2.dp))
-            .photocopyGrit()
+            .border(1.dp, Color(0xFF262626), RoundedCornerShape(2.dp))
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
+                .padding(20.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            // Baris Atas: Header judul recap tahunan berdampingan dengan badge status pengguna dalam satu Row fleksibel
+            // Header Poster
             Column(modifier = Modifier.fillMaxWidth()) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column(modifier = Modifier.weight(1f, fill = false)) {
-                        ZineTapeLabel(
-                            text = "TAPE 04: NOISE POSTER",
-                            rotation = 0f,
-                            bgColor = CrimsonRed,
-                            textColor = Color.White
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
+                    Column {
                         Text(
-                            text = "CRANKR RECAP 2026",
+                            text = "// 04. NOISE POSTER",
+                            fontFamily = FontFamily.Monospace,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = CrimsonRed,
+                            letterSpacing = 1.sp
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = "CRANKR RECAP",
                             fontFamily = CrankrDisplayFont,
-                            fontSize = 22.sp,
+                            fontSize = 24.sp,
                             fontWeight = FontWeight.Black,
                             color = TextWhite,
-                            letterSpacing = 0.5.sp,
-                            softWrap = true
-                        )
-                        Text(
-                            text = "POSTER RINGKASAN RESMI",
-                            fontFamily = FontFamily.Monospace,
-                            fontSize = 9.sp,
-                            color = CrimsonRed,
-                            fontWeight = FontWeight.Bold,
-                            softWrap = true
+                            letterSpacing = 0.5.sp
                         )
                     }
 
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    DistressedStampBadge(
-                        text = recap.personaBadge,
-                        rotation = 0f,
-                        color = Color.White
-                    )
+                    Box(
+                        modifier = Modifier
+                            .background(Color(0xFF1F1F1F), RoundedCornerShape(2.dp))
+                            .border(1.dp, Color(0xFF333333), RoundedCornerShape(2.dp))
+                            .padding(horizontal = 10.dp, vertical = 4.dp)
+                    ) {
+                        Text(
+                            text = recap.personaBadge,
+                            fontFamily = FontFamily.Monospace,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = CrimsonRed
+                        )
+                    }
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
-                HorizontalDivider(color = Color(0xFF262626), thickness = 1.dp)
+                Spacer(modifier = Modifier.height(10.dp))
+                HorizontalDivider(color = Color(0xFF222222), thickness = 1.dp)
             }
 
-            // Konten Tengah (Showcase Visual + Blok Data Grid) dengan weight(1f) dan penyusunan teratur
+            // Konten Tengah: 3 Cover Album Berjajar & Blok Data Grid
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -1184,31 +917,26 @@ private fun SummaryPosterCard(
                 verticalArrangement = Arrangement.SpaceEvenly,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Baris Tengah (Showcase Visual): 3 cover album teratas secara horizontal berjajar (bukan saling tumpuk)
-                // ukuran proporsional (album utama di tengah sedikit lebih besar, dua album pendamping di kiri dan kanan dengan sudut miring rapi dan padding pembatas yang tegas)
                 val topTrack = recap.topTrack
                 val topArtists = recap.topArtists
                 val leftCover = if (topArtists.size > 1) topArtists[1].albumArtUrl else topTrack?.albumArtUrl
                 val centerCover = topTrack?.albumArtUrl ?: topArtists.firstOrNull()?.albumArtUrl
                 val rightCover = if (topArtists.size > 2) topArtists[2].albumArtUrl else (topArtists.firstOrNull()?.albumArtUrl ?: topTrack?.albumArtUrl)
 
+                // 3 Cover Album Horizontal (Proporsional & Seimbang)
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 4.dp),
-                    horizontalArrangement = Arrangement.spacedBy(14.dp, Alignment.CenterHorizontally),
+                        .padding(vertical = 6.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Album Pendamping Kiri (sudut miring rapi -4 deg, padding pembatas tegas)
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.padding(horizontal = 2.dp)
-                    ) {
+                    // Album Kiri (#02)
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Box(
                             modifier = Modifier
-                                .size(72.dp)
-                                .rotate(-4f)
-                                .border(1.5.dp, Color(0xFF666666), RoundedCornerShape(2.dp))
+                                .size(76.dp)
+                                .border(1.dp, Color(0xFF444444), RoundedCornerShape(2.dp))
                                 .background(Color(0xFF1A1A1A), RoundedCornerShape(2.dp))
                                 .clip(RoundedCornerShape(2.dp))
                         ) {
@@ -1221,24 +949,21 @@ private fun SummaryPosterCard(
                                 )
                             }
                         }
-                        Spacer(modifier = Modifier.height(6.dp))
+                        Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = "#02",
                             fontFamily = FontFamily.Monospace,
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF888888)
+                            color = Color(0xFF777777)
                         )
                     }
 
-                    // Album Utama di Tengah (Sedikit lebih besar, aksen merah neon)
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.padding(horizontal = 4.dp)
-                    ) {
+                    // Album Tengah (#01 Utama)
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Box(
                             modifier = Modifier
-                                .size(94.dp)
+                                .size(100.dp)
                                 .border(2.dp, CrimsonRed, RoundedCornerShape(2.dp))
                                 .background(Color(0xFF141414), RoundedCornerShape(2.dp))
                                 .clip(RoundedCornerShape(2.dp))
@@ -1252,26 +977,22 @@ private fun SummaryPosterCard(
                                 )
                             }
                         }
-                        Spacer(modifier = Modifier.height(6.dp))
+                        Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "#01 HEAVY",
+                            text = "#01 UTAMA",
                             fontFamily = FontFamily.Monospace,
-                            fontSize = 10.5.sp,
+                            fontSize = 11.sp,
                             fontWeight = FontWeight.Black,
                             color = CrimsonRed
                         )
                     }
 
-                    // Album Pendamping Kanan (sudut miring rapi 4 deg, padding pembatas tegas)
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.padding(horizontal = 2.dp)
-                    ) {
+                    // Album Kanan (#03)
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Box(
                             modifier = Modifier
-                                .size(72.dp)
-                                .rotate(4f)
-                                .border(1.5.dp, Color(0xFF666666), RoundedCornerShape(2.dp))
+                                .size(76.dp)
+                                .border(1.dp, Color(0xFF444444), RoundedCornerShape(2.dp))
                                 .background(Color(0xFF1A1A1A), RoundedCornerShape(2.dp))
                                 .clip(RoundedCornerShape(2.dp))
                         ) {
@@ -1284,38 +1005,34 @@ private fun SummaryPosterCard(
                                 )
                             }
                         }
-                        Spacer(modifier = Modifier.height(6.dp))
+                        Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = "#03",
                             fontFamily = FontFamily.Monospace,
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF888888)
+                            color = Color(0xFF777777)
                         )
                     }
                 }
 
-                // Baris Bawah (Blok Data): Tabel data sederhana bergaris batas brutalist
-                // untuk memuat TOTAL DISTORSI, BAND DIEKSPLORASI, dan TREK PALING RUSAK.
-                // Berikan tinggi baris yang cukup dan pembatas vertikal sehingga angka dan teks keterangan tidak pernah berdekatan.
+                // Tabel Ringkasan Data Industrial
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .border(1.5.dp, Color(0xFF333333), RoundedCornerShape(2.dp))
-                        .background(Color(0xFF141414), RoundedCornerShape(2.dp))
+                        .border(1.dp, Color(0xFF262626), RoundedCornerShape(2.dp))
+                        .background(Color(0xFF181818), RoundedCornerShape(2.dp))
                 ) {
-                    // Baris 1: TOTAL DISTORSI | BAND DIEKSPLORASI (dengan pembatas vertikal di tengah)
+                    // Baris 1: Total Distorsi | Band Dieksplorasi
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(IntrinsicSize.Min)
                     ) {
-                        // Kolom Kiri: TOTAL DISTORSI
                         Column(
                             modifier = Modifier
                                 .weight(1f)
-                                .padding(horizontal = 12.dp, vertical = 9.dp),
-                            verticalArrangement = Arrangement.Center
+                                .padding(horizontal = 14.dp, vertical = 10.dp)
                         ) {
                             Text(
                                 text = "TOTAL DISTORSI",
@@ -1325,7 +1042,7 @@ private fun SummaryPosterCard(
                                 color = Color(0xFF888888),
                                 letterSpacing = 0.5.sp
                             )
-                            Spacer(modifier = Modifier.height(3.dp))
+                            Spacer(modifier = Modifier.height(2.dp))
                             Text(
                                 text = if (recap.totalHours > 0) "${recap.totalHours} JAM ${recap.totalMinutes % 60}M" else "${recap.totalMinutes}M",
                                 fontFamily = CrankrDisplayFont,
@@ -1335,20 +1052,17 @@ private fun SummaryPosterCard(
                             )
                         }
 
-                        // Pembatas Vertikal
                         Box(
                             modifier = Modifier
                                 .fillMaxHeight()
-                                .width(1.5.dp)
-                                .background(Color(0xFF333333))
+                                .width(1.dp)
+                                .background(Color(0xFF262626))
                         )
 
-                        // Kolom Kanan: BAND DIEKSPLORASI
                         Column(
                             modifier = Modifier
                                 .weight(1f)
-                                .padding(horizontal = 12.dp, vertical = 9.dp),
-                            verticalArrangement = Arrangement.Center
+                                .padding(horizontal = 14.dp, vertical = 10.dp)
                         ) {
                             Text(
                                 text = "BAND DIEKSPLORASI",
@@ -1358,7 +1072,7 @@ private fun SummaryPosterCard(
                                 color = Color(0xFF888888),
                                 letterSpacing = 0.5.sp
                             )
-                            Spacer(modifier = Modifier.height(3.dp))
+                            Spacer(modifier = Modifier.height(2.dp))
                             Text(
                                 text = "${recap.uniqueArtistsCount} BAND",
                                 fontFamily = CrankrDisplayFont,
@@ -1369,14 +1083,13 @@ private fun SummaryPosterCard(
                         }
                     }
 
-                    // Pembatas Horizontal
-                    HorizontalDivider(color = Color(0xFF333333), thickness = 1.5.dp)
+                    HorizontalDivider(color = Color(0xFF262626), thickness = 1.dp)
 
-                    // Baris 2: TREK PALING RUSAK
+                    // Baris 2: Trek Paling Sering Diputar
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 12.dp, vertical = 9.dp)
+                            .padding(horizontal = 14.dp, vertical = 10.dp)
                     ) {
                         Text(
                             text = "TREK PALING RUSAK",
@@ -1386,11 +1099,11 @@ private fun SummaryPosterCard(
                             color = Color(0xFF888888),
                             letterSpacing = 0.5.sp
                         )
-                        Spacer(modifier = Modifier.height(3.dp))
+                        Spacer(modifier = Modifier.height(2.dp))
                         Text(
                             text = recap.topTrack?.trackTitle ?: "-",
                             fontFamily = CrankrDisplayFont,
-                            fontSize = 14.sp,
+                            fontSize = 15.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White,
                             maxLines = 1,
@@ -1399,127 +1112,95 @@ private fun SummaryPosterCard(
                         Text(
                             text = recap.topTrack?.artistName ?: "-",
                             fontFamily = CrankrBodyFont,
-                            fontSize = 11.sp,
+                            fontSize = 12.sp,
                             color = CrimsonRed,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
                     }
-
-                    // Pembatas Horizontal
-                    HorizontalDivider(color = Color(0xFF333333), thickness = 1.5.dp)
-
-                    // Baris 3: Edisi / Barcode strip
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 12.dp, vertical = 6.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "|||| ||| ||||| ||||||| ||",
-                            fontFamily = FontFamily.Monospace,
-                            fontSize = 10.sp,
-                            color = Color(0xFF666666)
-                        )
-                        Text(
-                            text = "EDISI: #CKR-2026-NZT OFFICIAL",
-                            fontFamily = FontFamily.Monospace,
-                            fontSize = 9.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = CrimsonRed
-                        )
-                    }
                 }
             }
 
-            // Area Tombol: Kunci posisi tombol aksi di bagian bawah dengan padding aman dari tepi layar perangkat
+            // Tombol Aksi Berbagi
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 8.dp),
+                    .padding(top = 10.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Concert Ticket Button (Torn Perforated Edge)
-                Surface(
+                // Tombol Utama: Instagram Story
+                Button(
                     onClick = onShareInstagram,
                     enabled = !isExporting,
-                    shape = ConcertTicketShape(cornerRadius = 2.dp, notchRadius = 9.dp),
-                    color = CrimsonRed,
+                    shape = RoundedCornerShape(2.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = CrimsonRed,
+                        disabledContainerColor = CrimsonRed.copy(alpha = 0.5f)
+                    ),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(46.dp)
+                        .height(48.dp)
                         .springPressable(0.96f)
                 ) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        if (isExporting) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                CircularProgressIndicator(
-                                    color = Color.White,
-                                    strokeWidth = 2.dp,
-                                    modifier = Modifier.size(16.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    text = "MEMPROSES TIKET POSTER...",
-                                    fontFamily = FontFamily.Monospace,
-                                    fontSize = 11.sp,
-                                    fontWeight = FontWeight.Black,
-                                    color = Color.White
-                                )
-                            }
-                        } else {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    imageVector = Icons.Default.Share,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(16.dp),
-                                    tint = Color.White
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    text = "BAGIKAN KE INSTAGRAM STORY",
-                                    fontFamily = FontFamily.Monospace,
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Black,
-                                    color = Color.White,
-                                    letterSpacing = 0.5.sp
-                                )
-                            }
+                    if (isExporting) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            CircularProgressIndicator(
+                                color = Color.White,
+                                strokeWidth = 2.dp,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Text(
+                                text = "MEMPROSES POSTER...",
+                                fontFamily = FontFamily.Monospace,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                        }
+                    } else {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.Share,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp),
+                                tint = Color.White
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Text(
+                                text = "BAGIKAN KE INSTAGRAM STORY",
+                                fontFamily = FontFamily.Monospace,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White,
+                                letterSpacing = 0.5.sp
+                            )
                         }
                     }
                 }
 
-                // Secondary Button (Gritty Bracket Outline)
-                Surface(
+                // Tombol Sekunder: Simpan / Bagikan Lainnya
+                OutlinedButton(
                     onClick = onShareGeneral,
                     enabled = !isExporting,
                     shape = RoundedCornerShape(2.dp),
-                    color = Color(0xFF141414),
-                    border = CardDefaults.outlinedCardBorder(enabled = !isExporting).copy(
-                        brush = SolidColor(Color.White)
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = Color.White
                     ),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF333333)),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(40.dp)
+                        .height(44.dp)
                         .springPressable(0.96f)
                 ) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "[ BAGIKAN GAMBAR LAINNYA / SIMPAN ]",
-                            fontFamily = FontFamily.Monospace,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White
-                        )
-                    }
+                    Text(
+                        text = "SIMPAN GAMBAR / BAGIKAN LAINNYA",
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                        letterSpacing = 0.5.sp
+                    )
                 }
             }
         }

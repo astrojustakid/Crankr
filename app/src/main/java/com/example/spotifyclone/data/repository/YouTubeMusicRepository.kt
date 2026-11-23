@@ -179,6 +179,7 @@ class YouTubeMusicRepository(private val context: Context? = null) {
                         if (!MetadataSanitizer.isOfficialStudioTrack(title, artistName, albumName)) continue
 
                         val durationSec = extractDurationSeconds(renderer).let { if (it > 0) it else 210 }
+                        if (durationSec > 480) continue // Tolak podcast / video berdurasi panjang (> 8 menit)
                         val thumb = extractThumbnail(renderer)
 
                         val track = Track(
@@ -276,6 +277,7 @@ class YouTubeMusicRepository(private val context: Context? = null) {
                                     if (!MetadataSanitizer.isOfficialStudioTrack(title, artistName, albumName)) continue
 
                                     val durationSec = extractDurationSeconds(renderer).let { if (it > 0) it else 210 }
+                        if (durationSec > 480) continue // Tolak podcast / video berdurasi panjang (> 8 menit)
                                     val thumb = extractThumbnail(renderer)
 
                                     results.add(
@@ -391,6 +393,7 @@ class YouTubeMusicRepository(private val context: Context? = null) {
                             if (!MetadataSanitizer.isOfficialStudioTrack(title, artistName, albumName)) continue
 
                             val durationSec = extractDurationSeconds(renderer).let { if (it > 0) it else 210 }
+                        if (durationSec > 480) continue // Tolak podcast / video berdurasi panjang (> 8 menit)
                             val thumb = extractThumbnail(renderer)
 
                             results.add(
@@ -691,6 +694,7 @@ class YouTubeMusicRepository(private val context: Context? = null) {
 
                                 val title = extractTitle(renderer)
                                 val durationSec = extractDurationSeconds(renderer).let { if (it > 0) it else 210 }
+                        if (durationSec > 480) continue // Tolak podcast / video berdurasi panjang (> 8 menit)
                                 val thumb = extractThumbnail(renderer)
 
                                 topTracks.add(
@@ -944,6 +948,7 @@ class YouTubeMusicRepository(private val context: Context? = null) {
 
                         val title = extractTitle(renderer)
                         val durationSec = extractDurationSeconds(renderer).let { if (it > 0) it else 210 }
+                        if (durationSec > 480) continue // Tolak podcast / video berdurasi panjang (> 8 menit)
                         val thumb = extractThumbnail(renderer).ifBlank { coverUrl }
 
                         tracks.add(
