@@ -1,0 +1,720 @@
+package com.example.spotifyclone.ui.components
+
+import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import com.example.spotifyclone.service.AudioQuality
+import com.example.spotifyclone.service.AuralysSettingsManager
+import com.example.spotifyclone.theme.*
+
+/**
+ * SettingsDialog:
+ * Halaman Pengaturan terpadu Crankr & Auralys Engine bergaya Industrial Minimalist Zine:
+ * - Pengaturan Audio Engine (Bitrate Streaming, Preamp Gain, Crossfade, Normalisasi Volume, Equalizer).
+ * - Manajemen Cache Streaming & Penyimpanan Offline.
+ * - Pintasan modul Kolaborasi Listen Together.
+ */
+@Composable
+fun SettingsDialog(
+    crossfadeDurationSeconds: Int,
+    onSelectCrossfade: (Int) -> Unit,
+    onOpenEqualizer: () -> Unit,
+    onOpenListenTogether: () -> Unit,
+    onOpenDownloads: () -> Unit,
+    onOpenAboutDeveloper: () -> Unit = {},
+    onCheckUpdate: () -> Unit = {},
+    onPreampChange: ((Float) -> Unit)? = null,
+    onDismiss: () -> Unit
+) {
+    val context = LocalContext.current
+    val settingsManager = remember { AuralysSettingsManager.getInstance(context) }
+    val updateManager = remember { com.example.spotifyclone.service.update.CrankrUpdateManager.getInstance(context) }
+    val currentVersionName = remember { updateManager.getCurrentVersionName() }
+    val currentVersionCode = remember { updateManager.getCurrentVersionCode() }
+
+    val isVolumeNormalization by settingsManager.isVolumeNormalizationEnabled.collectAsState()
+    val currentAudioQuality by settingsManager.audioQuality.collectAsState()
+    val preampGainDb by settingsManager.preampGainDb.collectAsState()
+    var cacheSizeFormatted by remember { mutableStateOf(settingsManager.getCacheSizeFormatted()) }
+
+    val accentColor = Primary
+
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Card(
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = Surface),
+            border = BorderStroke(1.dp, Border),
+            modifier = Modifier
+                .fillMaxWidth(0.94f)
+                .fillMaxHeight(0.82f)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(20.dp)
+            ) {
+                // Header Dialog
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(
+                                modifier = Modifier
+                                    .size(width = 3.dp, height = 16.dp)
+                                    .background(accentColor)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "PENGATURAN",
+                                fontFamily = CrankrDisplayFont,
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = TextWhite,
+                                letterSpacing = 1.sp
+                            )
+                        }
+                        Text(
+                            text = "AURALYS AUDIO & CRANKR DECK",
+                            fontFamily = CrankrDisplayFont,
+                            fontSize = 11.sp,
+                            color = TextSecondary,
+                            letterSpacing = 0.8.sp
+                        )
+                    }
+
+                    Surface(
+                        shape = CircleShape,
+                        color = Neutral,
+                        border = BorderStroke(1.dp, Border),
+                        modifier = Modifier
+                            .size(32.dp)
+                            .springPressable(0.95f)
+                            .clickable { onDismiss() }
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Tutup",
+                                tint = TextSecondary,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(14.dp))
+                HorizontalDivider(color = Border, thickness = 1.dp)
+                Spacer(modifier = Modifier.height(14.dp))
+
+                // Scrollable Content
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(18.dp)
+                ) {
+                    // SEKSI 1: AUDIO ENGINE & PEMUTARAN
+                    SettingsSection(title = "AUDIO ENGINE") {
+                        // Crossfade Duration
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(Neutral, RoundedCornerShape(12.dp))
+                                .border(1.dp, Border, RoundedCornerShape(12.dp))
+                                .padding(14.dp)
+                        ) {
+                            Text(
+                                text = "CROSSFADE & TRANSISI",
+                                fontFamily = CrankrDisplayFont,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = TextWhite
+                            )
+                            Spacer(modifier = Modifier.height(3.dp))
+                            Text(
+                                text = "Transisi mulus antar lagu tanpa jeda sunyi",
+                                fontFamily = CrankrBodyFont,
+                                fontSize = 10.5.sp,
+                                color = TextSecondary
+                            )
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                listOf(0, 3, 5, 8, 12).forEach { sec ->
+                                    val isSelected = crossfadeDurationSeconds == sec
+                                    Surface(
+                                        shape = RoundedCornerShape(8.dp),
+                                        color = if (isSelected) accentColor else Surface,
+                                        border = BorderStroke(1.dp, if (isSelected) accentColor else Border),
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .springPressable(0.96f)
+                                            .clickable { onSelectCrossfade(sec) }
+                                    ) {
+                                        Text(
+                                            text = if (sec == 0) "OFF" else "${sec}s",
+                                            fontFamily = CrankrDisplayFont,
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = if (isSelected) Color.Black else TextSecondary,
+                                            modifier = Modifier.padding(vertical = 8.dp),
+                                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        // Normalisasi Volume Switch
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(Neutral, RoundedCornerShape(12.dp))
+                                .border(1.dp, Border, RoundedCornerShape(12.dp))
+                                .padding(horizontal = 14.dp, vertical = 10.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "NORMALISASI VOLUME",
+                                    fontFamily = CrankrDisplayFont,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = TextWhite
+                                )
+                                Text(
+                                    text = "Seimbangkan level audio antar track streaming",
+                                    fontFamily = CrankrBodyFont,
+                                    fontSize = 10.5.sp,
+                                    color = TextSecondary
+                                )
+                            }
+                            Switch(
+                                checked = isVolumeNormalization,
+                                onCheckedChange = { settingsManager.setVolumeNormalization(it) },
+                                colors = SwitchDefaults.colors(
+                                    checkedThumbColor = Color.Black,
+                                    checkedTrackColor = accentColor,
+                                    uncheckedThumbColor = TextMuted,
+                                    uncheckedTrackColor = Surface
+                                )
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        // Pemilih Kualitas Audio Streaming (Bitrate)
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(Neutral, RoundedCornerShape(12.dp))
+                                .border(1.dp, Border, RoundedCornerShape(12.dp))
+                                .padding(14.dp)
+                        ) {
+                            Text(
+                                text = "KUALITAS AUDIO STREAMING",
+                                fontFamily = CrankrDisplayFont,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = TextWhite
+                            )
+                            Spacer(modifier = Modifier.height(3.dp))
+                            Text(
+                                text = "Bitrate aliran audio server InnerTube",
+                                fontFamily = CrankrBodyFont,
+                                fontSize = 10.5.sp,
+                                color = TextSecondary
+                            )
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                AudioQuality.values().forEach { quality ->
+                                    val isSelected = currentAudioQuality == quality
+                                    Surface(
+                                        shape = RoundedCornerShape(8.dp),
+                                        color = if (isSelected) accentColor else Surface,
+                                        border = BorderStroke(1.dp, if (isSelected) accentColor else Border),
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .springPressable(0.96f)
+                                            .clickable { settingsManager.setAudioQuality(quality) }
+                                    ) {
+                                        Column(
+                                            modifier = Modifier.padding(vertical = 8.dp, horizontal = 2.dp),
+                                            horizontalAlignment = Alignment.CenterHorizontally
+                                        ) {
+                                            Text(
+                                                text = quality.displayName.uppercase(),
+                                                fontFamily = CrankrDisplayFont,
+                                                fontSize = 11.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = if (isSelected) Color.Black else TextWhite,
+                                                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                                            )
+                                            Text(
+                                                text = quality.bitrateLabel,
+                                                fontFamily = CrankrBodyFont,
+                                                fontSize = 9.sp,
+                                                color = if (isSelected) Color.Black.copy(alpha = 0.85f) else TextSecondary,
+                                                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        // Penguat Volume Preamp Audio (0 dB s/d +12 dB)
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(Neutral, RoundedCornerShape(12.dp))
+                                .border(1.dp, Border, RoundedCornerShape(12.dp))
+                                .padding(14.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column {
+                                    Text(
+                                        text = "PENGUAT VOLUME PREAMP",
+                                        fontFamily = CrankrDisplayFont,
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = TextWhite
+                                    )
+                                    Spacer(modifier = Modifier.height(2.dp))
+                                    Text(
+                                        text = "Penguat gain hardware & software tanpa distorsi",
+                                        fontFamily = CrankrBodyFont,
+                                        fontSize = 10.5.sp,
+                                        color = TextSecondary
+                                    )
+                                }
+                                Text(
+                                    text = if (preampGainDb <= 0.05f) "0 dB" else "+%.1f dB".format(preampGainDb),
+                                    fontFamily = CrankrDisplayFont,
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (preampGainDb > 0.05f) accentColor else TextSecondary
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Slider(
+                                value = preampGainDb,
+                                onValueChange = { newGain ->
+                                    val rounded = (kotlin.math.round(newGain * 2f) / 2f)
+                                    settingsManager.setPreampGainDb(rounded)
+                                    onPreampChange?.invoke(rounded)
+                                },
+                                valueRange = 0f..12f,
+                                steps = 23,
+                                colors = SliderDefaults.colors(
+                                    thumbColor = Color.White,
+                                    activeTrackColor = accentColor,
+                                    inactiveTrackColor = Surface,
+                                    activeTickColor = Color.Transparent,
+                                    inactiveTickColor = Color.Transparent
+                                ),
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = "0 dB (FLAT)",
+                                    fontFamily = CrankrDisplayFont,
+                                    fontSize = 9.5.sp,
+                                    color = TextSecondary
+                                )
+                                Text(
+                                    text = "+6 dB",
+                                    fontFamily = CrankrDisplayFont,
+                                    fontSize = 9.5.sp,
+                                    color = TextSecondary
+                                )
+                                Text(
+                                    text = "+12 dB (MAX BOOST)",
+                                    fontFamily = CrankrDisplayFont,
+                                    fontSize = 9.5.sp,
+                                    color = if (preampGainDb >= 11.5f) accentColor else TextSecondary
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        // Equalizer Button
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = Neutral,
+                            border = BorderStroke(1.dp, Border),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .springPressable(0.97f)
+                                .clickable {
+                                    onDismiss()
+                                    onOpenEqualizer()
+                                }
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        imageVector = Icons.Default.Tune,
+                                        contentDescription = null,
+                                        tint = accentColor,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = "EQUALIZER & TONE CONTROLLER",
+                                        fontFamily = CrankrDisplayFont,
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = TextWhite
+                                    )
+                                }
+                                Text(
+                                    text = "ATUR >",
+                                    fontFamily = CrankrDisplayFont,
+                                    fontSize = 11.sp,
+                                    color = accentColor,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    }
+
+                    // SEKSI 2: CACHE & PENYIMPANAN
+                    SettingsSection(title = "CACHE & PENYIMPANAN") {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(Neutral, RoundedCornerShape(12.dp))
+                                .border(1.dp, Border, RoundedCornerShape(12.dp))
+                                .padding(14.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "CACHE STREAMING (SIMPLECACHE)",
+                                    fontFamily = CrankrDisplayFont,
+                                    fontSize = 11.5.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = TextWhite
+                                )
+                                Text(
+                                    text = cacheSizeFormatted,
+                                    fontFamily = CrankrDisplayFont,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = accentColor
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Button(
+                                    onClick = {
+                                        val freed = settingsManager.clearStreamingCache()
+                                        cacheSizeFormatted = settingsManager.getCacheSizeFormatted()
+                                        val mb = freed.toDouble() / (1024 * 1024)
+                                        Toast.makeText(context, "Cache dibersihkan (%.1f MB)".format(mb), Toast.LENGTH_SHORT).show()
+                                    },
+                                    shape = RoundedCornerShape(8.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = Surface,
+                                        contentColor = TextWhite
+                                    ),
+                                    border = BorderStroke(1.dp, Border),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .height(36.dp),
+                                    contentPadding = PaddingValues(horizontal = 8.dp)
+                                ) {
+                                    Text(
+                                        text = "BERSIHKAN CACHE",
+                                        fontFamily = CrankrDisplayFont,
+                                        fontSize = 10.5.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+
+                                Button(
+                                    onClick = {
+                                        onDismiss()
+                                        onOpenDownloads()
+                                    },
+                                    shape = RoundedCornerShape(8.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = Surface,
+                                        contentColor = TextWhite
+                                    ),
+                                    border = BorderStroke(1.dp, Border),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .height(36.dp),
+                                    contentPadding = PaddingValues(horizontal = 8.dp)
+                                ) {
+                                    Text(
+                                        text = "KELOLA UNDUHAN",
+                                        fontFamily = CrankrDisplayFont,
+                                        fontSize = 10.5.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    // SEKSI 3: LISTEN TOGETHER
+                    SettingsSection(title = "KOLABORASI") {
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = Neutral,
+                            border = BorderStroke(1.dp, Border),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .springPressable(0.97f)
+                                .clickable {
+                                    onDismiss()
+                                    onOpenListenTogether()
+                                }
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column {
+                                    Text(
+                                        text = "LISTEN TOGETHER (WEBSOCKET SYNC)",
+                                        fontFamily = CrankrDisplayFont,
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = TextWhite
+                                    )
+                                    Text(
+                                        text = "Dengarkan musik bersama teman secara real-time",
+                                        fontFamily = CrankrBodyFont,
+                                        fontSize = 10.5.sp,
+                                        color = TextSecondary
+                                    )
+                                }
+                                Text(
+                                    text = "MASUK >",
+                                    fontFamily = CrankrDisplayFont,
+                                    fontSize = 11.sp,
+                                    color = accentColor,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    }
+
+                    // SEKSI 4: TENTANG DEVELOPER
+                    SettingsSection(title = "TENTANG") {
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = Neutral,
+                            border = BorderStroke(1.dp, Border),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .springPressable(0.97f)
+                                .clickable {
+                                    onDismiss()
+                                    onOpenAboutDeveloper()
+                                }
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Surface(
+                                        shape = RoundedCornerShape(6.dp),
+                                        color = Surface,
+                                        border = BorderStroke(1.dp, accentColor.copy(alpha = 0.6f)),
+                                        modifier = Modifier.size(28.dp)
+                                    ) {
+                                        Box(contentAlignment = Alignment.Center) {
+                                            Text(
+                                                text = "DEV",
+                                                fontFamily = CrankrDisplayFont,
+                                                fontSize = 9.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = accentColor
+                                            )
+                                        }
+                                    }
+                                    Spacer(modifier = Modifier.width(10.dp))
+                                    Column {
+                                        Text(
+                                            text = "TENTANG DEVELOPER",
+                                            fontFamily = CrankrDisplayFont,
+                                            fontSize = 12.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = TextWhite
+                                        )
+                                        Text(
+                                            text = "Profil AstroKido, visual zine & media sosial",
+                                            fontFamily = CrankrBodyFont,
+                                            fontSize = 10.5.sp,
+                                            color = TextSecondary
+                                        )
+                                    }
+                                }
+                                Text(
+                                    text = "LIHAT >",
+                                    fontFamily = CrankrDisplayFont,
+                                    fontSize = 11.sp,
+                                    color = accentColor,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    // SEKSI 5: PEMBARUAN APLIKASI (OTA)
+                    SettingsSection(title = "PEMBARUAN SISTEM") {
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = Neutral,
+                            border = BorderStroke(1.dp, Border),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .springPressable(0.97f)
+                                .clickable {
+                                    onCheckUpdate()
+                                }
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Surface(
+                                        shape = RoundedCornerShape(6.dp),
+                                        color = Surface,
+                                        border = BorderStroke(1.dp, CrimsonRed.copy(alpha = 0.6f)),
+                                        modifier = Modifier.size(28.dp)
+                                    ) {
+                                        Box(contentAlignment = Alignment.Center) {
+                                            Text(
+                                                text = "OTA",
+                                                fontFamily = CrankrDisplayFont,
+                                                fontSize = 9.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = CrimsonRed
+                                            )
+                                        }
+                                    }
+                                    Spacer(modifier = Modifier.width(10.dp))
+                                    Column {
+                                        Text(
+                                            text = "CEK PEMBARUAN APLIKASI",
+                                            fontFamily = CrankrDisplayFont,
+                                            fontSize = 12.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = TextWhite
+                                        )
+                                        Text(
+                                            text = "Versi $currentVersionName (Build $currentVersionCode)",
+                                            fontFamily = CrankrBodyFont,
+                                            fontSize = 10.5.sp,
+                                            color = TextSecondary
+                                        )
+                                    }
+                                }
+                                Text(
+                                    text = "PERIKSA >",
+                                    fontFamily = CrankrDisplayFont,
+                                    fontSize = 11.sp,
+                                    color = CrimsonRed,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SettingsSection(
+    title: String,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = title,
+            fontFamily = CrankrDisplayFont,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Bold,
+            color = TextSecondary,
+            letterSpacing = 1.sp,
+            modifier = Modifier.padding(bottom = 6.dp)
+        )
+        content()
+    }
+}

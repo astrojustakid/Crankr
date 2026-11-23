@@ -1,0 +1,183 @@
+# UI/UX REDESIGN PROMPT: CRANKR AUDIO PLAYER (MODERN FLUID & DISTORTION SOUNDWAVE EDITION)
+
+Anda adalah seorang desainer antarmuka dan produk (UI/UX Designer) kelas dunia untuk aplikasi pemutar musik modern. Tugas Anda adalah merombak total seluruh desain antarmuka aplikasi pemutar musik "CRANKR" menjadi tampilan baru yang luwes, dinamis, berkelas tinggi, dan menonjolkan karakter audio analog yang berani.
+
+---
+
+## 1. INSTRUKSI MUTLAK: PENGGUNAAN LOGO TERLAMPIR (STRICT MANDATE)
+- SAYA MELAMPIRKAN GAMBAR LOGO ASLI CRANKR (berupa huruf "C" bergerigi berwarna krem tulang di atas gelombang kotak/square distortion wave berwarna oranye amber).
+- WAJIB gunakan dan pasang gambar logo terlampir tersebut secara langsung dan presisi pada bagian App Bar / Header utama di Halaman Home dan Layar Pembuka (Splash Screen).
+- DILARANG KERAS menggambar ulang, menyederhanakan, atau mengarang bentuk logo baru. Identitas logo asli yang terlampir harus dipertahankan 100%.
+
+---
+
+## 2. SKEMA WARNA BARU (BERDASARKAN LOGO CRANKR)
+Tinggalkan skema warna lama (merah neon kaku). Terapkan palet warna terkurasi berikut secara konsisten di seluruh layar:
+- Background Utama Aplikasi: #1A1918 (Hitam Arang Pekat / Charcoal Black) — gelap pekat, hangat, dan memberikan kedalaman visual yang imersif.
+- Teks Utama, Judul, & Ikon Utama: #EBE3D0 (Krem Tulang / Bone Cream) — identik dengan warna huruf "C" dan tulisan "CRANKR" pada logo, kontras tinggi dan nyaman di mata.
+- Warna Aksen Utama, Tombol Aksi, & Sorotan: #D9822B (Oranye Amber / Amber Orange) — diambil langsung dari gelombang distorsi kotak pada logo untuk tombol primer (Play/Pause, Import), bilah progres, visualizer aktif, badge, dan indikator terpilih.
+- Latar Kontainer, Kartu, & Panel (Glassmorphism): #242220 dengan transparansi (opacity 60%–80%) dan efek blur lembut (frosted glass effect), memancarkan aura analog modern.
+- Teks Sekunder & Keterangan: #A8A092 (Krem Pasir Muted) — untuk nama artis sekunder, durasi lagu, dan placeholder.
+- Garis Aksen & Pendaran: Translucent Amber Glow (rgba(217, 130, 43, 0.15)) dan Border Halus Kaca (rgba(235, 227, 208, 0.08)).
+
+---
+
+## 3. BAHASA VISUAL & ESTETIKA (LUWES, MENGALIR, ANTI-KOTAK KAKU)
+- Hapus Seluruh Desain Kotak Berbingkai Kaku: Hilangkan semua kotak berbingkai garis 1px tebal seragam.
+- Sampul Album Terbuka (Frameless Floating Artwork): Tampilkan sampul album tanpa bingkai kotak luar yang kaku. Gunakan sudut membulat modern (radius 12dp–16dp) dengan bayangan kedalaman lembut (ambient drop shadow).
+- Tombol Kapsul Mengalir (Sliding Fluid Pills): Semua tab filter, tombol kategori genre, dan chip navigasi berbentuk kapsul bulat penuh (fully rounded pill) yang bergeser mulus.
+- Bilah Navigasi Kaca Mengambang (Floating Frosted Glass Bottom Nav): Bilah bawah melayang bebas dengan latar transparan kabur (backdrop blur), sudut membulat elegan, dan indikator aktif gelombang audio oranye amber.
+- Aksen Gelombang Kotak (Square Soundwave Accents): Sisipkan motif gelombang suara distorsi khas logo Crankr pada elemen scrubber progres musik, audio visualizer animasi, pemisah seksi (divider), dan indikator buffering.
+
+---
+
+## 4. DAFTAR LENGKAP FITUR & DETAIL SETIAP LAYAR (SCREEN-BY-SCREEN)
+
+### A. HEADER UTAMA & SAPAAN WAKTU (HOME HEADER)
+- Brand Header:
+  - Logo asli Crankr (gambar terlampir) terpasang rapi di kiri atas berdampingan dengan tipografi industrial bersih "CRANKR" berwarna #EBE3D0.
+  - Sapaan kontekstual waktu dinamis di bawahnya: "GOOD MORNING", "GOOD AFTERNOON", "GOOD EVENING", atau "LATE NIGHT NOISE" dengan tipografi krem bersahabat.
+- Aksi Cepat Header (Kanan Atas):
+  - Tombol kapsul kecil "RECAP" (dengan pendaran oranye lembut #D9822B), tombol "STATS", dan tombol ikon "PENGATURAN" berdesain minimalis tanpa bingkai tebal.
+
+### B. FITUR IMPOR PLAYLIST DINAMIS (SPOTIFY & YOUTUBE)
+- Kartu Impor Mengambang:
+  - Panel kaca gelap luwes dengan aksen gelombang oranye di sisi samping.
+  - Judul: "IMPORT PLAYLIST // SPOTIFY & YOUTUBE".
+  - Dua tombol platform berbentuk kapsul modern:
+    1. Tombol "Spotify Playlist" dengan ikon khas Spotify.
+    2. Tombol "YouTube Music" dengan ikon khas YouTube Music.
+  - Kolom input tautan (URL input field) berlekuk bulat halus dengan tombol "Tempel / Paste dari Clipboard" otomatis dan tombol aksi utama "IMPOR & PUTAR" berwarna oranye amber #D9822B yang tegas.
+- Dialog Modal Loading Saat Impor Berjalan:
+  - Kotak dialog melayang di tengah layar berlatar #1A1918 dengan sudut membulat lembut dan pendaran oranye tipis di tepiannya.
+  - Animasi melingkar berputar (circular wave spinner) berwarna oranye amber #D9822B.
+  - Teks nama playlist yang sedang diimpor dengan warna krem #EBE3D0 tebal.
+  - Teks status hitungan progres real-time: IMPORTING X OF Y (contoh: IMPORTING 42 OF 120) dalam tipografi monospace industrial bersih.
+  - Indikator bar tipis gelombang distorsi kotak di bawahnya.
+
+### C. FEED & KONTEN HALAMAN UTAMA (HOME SCREEN)
+- Baru Saja Diputar (Last Played / Recently Played):
+  - Deret horizontal bergulir mulus menampilkan kartu lagu dengan sampul album terbuka tanpa bingkai luar, judul lagu krem #EBE3D0, nama artis, dan titik oranye penanda trek aktif.
+- Lagu Tren Untuk Anda (Trending Underground Feed):
+  - Deret horizontal lagu rekomendasi YouTube Music Charts dengan micro-interaction saat disentuh (tactile spring press).
+- Playlist Saya (My Playlists):
+  - Kartu hero khusus "Lagu Disukai" (Liked Songs) dengan gradien gelap hangat dan ikon hati oranye amber pendar.
+  - Deretan kartu playlist pengguna dengan cover art resolusi tinggi dan jumlah lagu.
+- Pilihan Genre "Signal Type":
+  - Bilah horizontal kapsul geser: ALL, ROCK, METAL, INDIE, PUNK, HARDCORE, ALTERNATIVE.
+  - Kapsul aktif berubah warna menjadi oranye amber #D9822B dengan teks gelap/krem kontras; kapsul non-aktif transparan kaca bertepi halus.
+- Daftar Lagu Populer (Recommended Feed List):
+  - Daftar vertikal lagu tanpa garis tabel kaku. Setiap baris menampilkan cover art terbuka 48dp, judul lagu berbobot, nama artis, durasi, tombol suka cepat, dan tombol menu aksi 3-titik.
+
+### D. HALAMAN PENCARIAN (SEARCH SCREEN)
+- Bilah Pencarian Mengambang:
+  - Kolom pencarian kaca melayang dengan ikon kaca pembesar krem #EBE3D0, placeholder "Cari judul, artis, album, atau lirik...", dan tombol hapus cepat.
+- Mode Pencarian Penggalan Lirik (Lyrics Search):
+  - Tombol pintas pencarian berbasis penggalan kalimat lirik untuk menemukan lagu meski pengguna lupa judulnya.
+- Riwayat Pencarian Terkini:
+  - Deretan kapsul riwayat pencarian yang dapat dihapus satu per satu atau dibersihkan sekaligus.
+- Jelajahi Kategori Genre & Mood:
+  - Grid 2-kolom kartu visual bertema audio analog (Distortion, Mid-90s Punk, Melodic Hardcore, Ambient Chill, Post-Rock).
+- Hasil Pencarian:
+  - Kartu Profil Artis Teratas (foto bulat artis dengan pendaran halo oranye, nama artis, dan status verifikasi).
+  - Bagian Lagu Teratas (Top Tracks) yang bisa langsung diputar seketika saat diketuk.
+  - Bagian Album Rilisan.
+
+### E. HALAMAN PERPUSTAKAAN & KOLEKSI (LIBRARY SCREEN)
+- Header Statistik Koleksi:
+  - Ringkasan cepat angka: Total Lagu Disukai, Total Playlist, dan Kapasitas Lagu Offline.
+- Tab Filter Kapsul:
+  - Pilihan cepat: Semua, Playlist, Lagu Disukai, Artis, Unduhan.
+- Hero Card "Lagu Disukai":
+  - Kartu menonjol dengan icon hati oranye menyala dan teks jumlah lagu.
+- Grid / List Playlist Pengguna:
+  - Tampilan kartu playlist kustom dengan opsi ganti cover, ubah nama/deskripsi, dan tombol aksi mengambang "+ Buat Playlist Baru".
+- Fitur Backup & Restore:
+  - Tombol aksi cadangkan dan pulihkan database playlist dalam format JSON lokal.
+
+### F. HALAMAN DETAIL PLAYLIST (PLAYLIST DETAIL SCREEN)
+- Hero Header Artistik:
+  - Sampul playlist ukuran besar terbuka tanpa bingkai luar dengan efek bayangan ambient drop shadow yang mewah.
+  - Judul playlist besar dalam warna krem tulang #EBE3D0.
+  - Deskripsi dan metadata durasi (contoh: "148 Lagu • 8 Jam 24 Menit").
+- Bilah Aksi Utama:
+  - Tombol bulat besar "PLAY ALL" berwarna oranye amber #D9822B dengan ikon play krem.
+  - Tombol kapsul "SHUFFLE", tombol "DOWNLOAD ALL" untuk offline, tombol bagikan, dan tombol menu playlist.
+- Daftar Trek Playlist:
+  - Baris lagu dengan nomor urut, judul, nama artis, nama album asli (bukan nama playlist), durasi, dan ikon opsi.
+  - Dukungan interaksi gestur usap ke samping (Swipe to Dismiss) untuk menghapus lagu dari playlist.
+- Seksi Rekomendasi Pintar (Smart Seed Recommendations):
+  - Terletak di bagian bawah daftar lagu playlist dengan judul "LAGU TERKAIT PLAYLIST INI".
+  - Rekomendasi otomatis berdasarkan 3–5 trek acak dari playlist aktif (bukan filter statis).
+  - Setiap kartu rekomendasi memiliki tombol cepat "+ TAMBAH KE PLAYLIST".
+
+### G. BILAH NAVIGASI BAWAH (FLOATING FROSTED GLASS BOTTOM NAV)
+- Bentuk & Karakter:
+  - Bilah melayang anggun dengan jarak 12dp dari dasar layar, sudut membulat penuh (capsule shape), berlatar kaca gelap transparan #1A1918 (alpha 80%) dengan efek blur latar belakang.
+- 3 Tab Navigasi:
+  1. HOME (Ikon Rumah)
+  2. SEARCH (Ikon Kaca Pembesar)
+  3. LIBRARY (Ikon Koleksi Musik)
+- Indikator Aktif:
+  - Ikon dan label tab terpilih menyala dalam warna oranye amber #D9822B disertai titik gelombang suara halus di bawahnya; tab tidak aktif berwarna krem redup #A8A092.
+
+### H. MINI PLAYER MENGAMBANG (FLOATING MINI PLAYER)
+- Bentuk & Posisi:
+  - Terletak mengambang tepat di atas bilah navigasi bawah dengan margin samping ergonomis.
+  - Berlatar kaca hitam arang pekat (#242220 frosted glass) dengan garis aksen oranye ultra-tipis di sisi atas sebagai indikator progres lagu yang sedang berjalan.
+- Komponen Mini Player:
+  - Thumbnail sampul album terbuka berukuran 40dp dengan sudut membulat lembut.
+  - Judul lagu teks berjalan (marquee) warna krem #EBE3D0 dan nama artis warna muted #A8A092.
+  - Audio visualizer animasi gelombang bergerigi mini (bouncing equalizer wave) berwarna oranye #D9822B.
+  - Tombol Suka Cepat (Love).
+  - Tombol Play/Pause melingkar oranye amber #D9822B.
+  - Gestur: Geser ke samping untuk berganti lagu, ketuk di mana saja untuk membuka Layar Pemutar Penuh (Now Playing Screen).
+
+### I. LAYAR PEMUTAR PENUH (NOW PLAYING SCREEN / FULL PLAYER)
+- Header Pemutar:
+  - Tombol panah bawah (Collapse Chevron) melingkar di kiri atas.
+  - Teks tengah: "PLAYING FROM PLAYLIST" dan nama album asli.
+  - Kanan atas: Tombol Bagikan Story (Instagram Story/Share Card), Tombol Antrean (Queue), dan Tombol Titik Tiga (Menu Opsi Lengkap).
+- Pusat Tampilan Audio (Interactive Retro Deck):
+  - Tampilan visual utama yang dapat dialihkan modenya dengan ketukan atau usapan:
+    1. Mode Cover Art Terbuka: Sampul album resolusi tinggi tanpa bingkai kaku, mengambang bebas dengan ambient glow warna album di sekelilingnya.
+    2. Mode Kaset Pita Analog (Cassette Tape): Animasi putaran rol kaset mekanik retro bergaya zine grunge.
+    3. Mode Piringan Hitam (Vinyl Turntable): Piringan vinil berputar halus dengan jarum pemutar tonearm.
+- Informasi Lagu & Aksi Suka:
+  - Judul lagu besar teks berjalan (marquee text) warna krem tulang #EBE3D0.
+  - Nama artis (interaktif: dapat diklik langsung untuk membuka profil artis lengkap).
+  - Nama album rilisan asli.
+  - Ikon tombol Unduh Offline dan Tombol Favorit Hati oranye menyala #D9822B.
+- Scrubber Progres Musik (Punk Overdrive Scrubber):
+  - Bilah gelombang audio bergerigi khas Crankr (waveform scrubber) berwarna oranye amber #D9822B dengan jarum penunjuk halus.
+  - Teks penanda waktu berjalan (kiri) dan sisa durasi (kanan) dalam warna krem muted.
+- Tombol Kontrol Pemutaran Ergonomis:
+  - Tombol Acak (Shuffle).
+  - Tombol Lagu Sebelumnya (Skip Previous).
+  - Tombol Utama Play / Pause: Berbentuk lingkaran besar 68dp berwarna oranye amber pekat #D9822B dengan ikon krem tulang #EBE3D0 dan bayangan lembut bertenaga.
+  - Tombol Lagu Berikutnya (Skip Next).
+  - Tombol Ulang 3-Mode (Repeat Off, Repeat All, Repeat One) dengan indikator titik oranye.
+- Toolbar Pengaturan Cepat Audio Engine:
+  - Pemilih Kecepatan Putar: Kapsul interaktif (0.75x, 1.0x, 1.25x, 1.5x).
+  - Tombol Buka Lirik (Lyrics Pill): Tombol kapsul tengah "LIRIK" untuk memunculkan panel lirik karaoke bersinkronisasi.
+  - Badge Kualitas Audio & Status Jaringan: Indikator "STREAM" (64k / 128k / 256k Opus) atau "OFFLINE".
+- Slide-up Karaoke Synchronized Lyrics Panel:
+  - Panel lirik meluncur dari bawah dengan latar belakang kaca gelap semi-transparan.
+  - Baris lirik lagu bersinkronisasi waktu (real-time scrolling): baris yang sedang dinyanyikan menyala tebal dalam warna oranye amber #D9822B, baris sebelum dan sesudahnya berwarna krem redup. Ketuk baris lirik untuk melompat (seek) ke detik tersebut.
+  - Tombol "Bagikan Kutipan Lirik" untuk mengekspor lirik terpilih ke kartu media sosial.
+- Lembar Antrean Putar Interaktif (Queue Bottom Sheet):
+  - Daftar antrean putar dengan fitur tahan & seret (drag-and-drop) untuk mengubah urutan lagu seketika.
+  - Fitur usap ke samping (swipe-to-dismiss) untuk menghapus lagu dari antrean putar.
+- Dialog Pengaturan Audio Terintegrasi (Audio Engine Modals):
+  - Dialog Equalizer & Bass Boost: Pengatur frekuensi 5-band grafis, slider dentingan bass (Bass Boost), dan preset genre (Rock, Pop, Vocal, Acoustic, Flat).
+  - Penguat Volume Preamp (Preamp Overdrive Booster): Slider penguat desibel dari 0 dB hingga +12 dB dengan tampilan level meter oranye tanpa distorsi pecah.
+  - Crossfade Duration: Pilihan durasi transisi mulus antar lagu (Off, 3s, 5s, 8s, 12s).
+  - Sleep Timer: Pengatur waktu tidur otomatis (15m, 30m, 45m, 60m, atau Berhenti di Akhir Lagu).
+  - Listen Together: Pembuat room putar bersama (Host & Guest) dengan kode sesi.
+  - Generator Kartu Story Medsos: Pembuat kartu visual lagu bergaya poster konser retro untuk dibagikan ke Instagram/WhatsApp Story.
+
+---
+
+## 5. KESIMPULAN OUTPUT DESAIN YANG DIHARAPKAN
+Hasilkan rangkaian desain antarmuka lengkap yang menampilkan seluruh layar di atas dengan transisi visual yang kohesif, modern, elegan, dan luwes. Semua elemen grafis harus bernafas dalam harmoni warna Hitam Arang Pekat (#1A1918), Krem Tulang (#EBE3D0), dan Oranye Amber Gelombang Distorsi (#D9822B) dengan penempatan logo asli Crankr terlampir secara sempurna pada posisi utamanya.
+

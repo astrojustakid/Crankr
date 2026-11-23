@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <cache-path name="shared_images" path="shared/" />
+    <cache-path name="updates" path="updates/" />
+    <external-cache-path name="shared_external" path="shared/" />
+    <external-cache-path name="updates_ext" path="updates/" />
+    <files-path name="shared_files" path="shared/" />
+</paths>
