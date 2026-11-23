@@ -94,8 +94,8 @@ class CrankrUpdateManager private constructor(private val appContext: Context) {
         }
 
         // Endpoint metadata rilis resmi Crankr
-        private const val DEFAULT_VERSION_URL = "https://raw.githubusercontent.com/AstroKido/crankr/main/version.json"
-        private const val GITHUB_RELEASES_API = "https://api.github.com/repos/AstroKido/crankr/releases/latest"
+        private const val DEFAULT_VERSION_URL = "https://raw.githubusercontent.com/astrojustakid/Crankr/main/version.json"
+        private const val GITHUB_RELEASES_API = "https://api.github.com/repos/astrojustakid/Crankr/releases/latest"
     }
 
     /**

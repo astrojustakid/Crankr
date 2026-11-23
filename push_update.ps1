@@ -1,4 +1,7 @@
 param(
+    [string]$Features = "",
+    [string]$Fixes = "",
+    [string]$Notes = "",
     [string]$Message = ""
 )
 
@@ -17,59 +20,81 @@ if (Test-Path $versionFile) {
 }
 
 $versionName = "$major.$minor"
-Write-Host "==============================================" -ForegroundColor Red
-Write-Host "  CRANKR AUTO-PUSH & RELEASE (v$versionName - Build $code)" -ForegroundColor White
-Write-Host "==============================================" -ForegroundColor Red
+Write-Host "==========================================================" -ForegroundColor Red
+Write-Host "   CRANKR AUTO-RELEASE & PUSH (v$versionName - Build $code)" -ForegroundColor White
+Write-Host "==========================================================" -ForegroundColor Red
 
-# 2. Sinkronisasi version.json
+# 2. Susun Catatan Rilis Terstruktur
+$changelogParts = @()
+
+if ($Features -ne "") {
+    $changelogParts += "[FITUR BARU]`n" + ($Features -split "`n" | ForEach-Object { if ($_ -match "^\s*-\s*") { $_ } else { "- $_" } } | Out-String).Trim()
+}
+
+if ($Fixes -ne "") {
+    $changelogParts += "[PERBAIKAN BUG]`n" + ($Fixes -split "`n" | ForEach-Object { if ($_ -match "^\s*-\s*") { $_ } else { "- $_" } } | Out-String).Trim()
+}
+
+if ($Notes -ne "") {
+    $changelogParts += "[CATATAN]`n" + ($Notes -split "`n" | ForEach-Object { if ($_ -match "^\s*-\s*") { $_ } else { "- $_" } } | Out-String).Trim()
+}
+
+if ($changelogParts.Count -eq 0 -and $Message -ne "") {
+    $changelogParts += $Message
+}
+
+$formattedChangelog = if ($changelogParts.Count -gt 0) {
+    $changelogParts -join "`n`n"
+} else {
+    "[RILIS v$versionName]`n- Pembaruan rutin stabilitas & audio streaming Crankr"
+}
+
+# 3. Sinkronisasi version.json
 $jsonFile = "version.json"
 if (Test-Path $jsonFile) {
     try {
         $json = Get-Content $jsonFile -Raw | ConvertFrom-Json
         $json.versionCode = [int]$code
         $json.versionName = $versionName
-        if ($Message -ne "") {
-            $json.changelog = $Message
-        }
+        $json.downloadUrl = "https://github.com/astrojustakid/Crankr/releases/latest/download/crankr.apk"
+        $json.changelog = $formattedChangelog
         $json | ConvertTo-Json -Depth 5 | Set-Content $jsonFile -Encoding UTF8
-        Write-Host "[OK] version.json berhasil disinkronkan ke v$versionName" -ForegroundColor Green
+        Write-Host "[OK] version.json disinkronkan ke v$versionName dengan catatan rilis terbaru." -ForegroundColor Green
     } catch {
         Write-Host "[WARN] Gagal update version.json: $_" -ForegroundColor Yellow
     }
 }
 
-# 3. Cek Remote Git
+# 4. Validasi Remote Git
 $remoteUrl = git remote get-url origin 2>$null
 if (-not $remoteUrl) {
-    Write-Host "[PERINGATAN] Remote 'origin' belum disetel!" -ForegroundColor Yellow
-    Write-Host "Silakan jalankan perintah berikut sekali:" -ForegroundColor Cyan
-    Write-Host "  git remote add origin <LINK_REPO_GITHUB_ANDA>" -ForegroundColor White
-    Write-Host "Contoh:" -ForegroundColor Gray
-    Write-Host "  git remote add origin https://github.com/username/crankr.git" -ForegroundColor Gray
+    Write-Host "[ERROR] Remote 'origin' belum disetel!" -ForegroundColor Red
     exit 1
 }
 
-# 4. Git Add, Commit & Tag
-$commitMsg = if ($Message -ne "") { "Release Crankr v$versionName: $Message" } else { "Release Crankr v$versionName (Build $code)" }
+# 5. Git Commit Message Terstruktur
+$commitTitle = "Release Crankr v$versionName (Build $code)"
+$fullCommitMsg = "$commitTitle`n`n$formattedChangelog"
 
-Write-Host "-> Menambahkan file ke Git..." -ForegroundColor Cyan
+Write-Host "-> Menambahkan berkas ke Git..." -ForegroundColor Cyan
 git add .
 
-Write-Host "-> Melakukan Git Commit: '$commitMsg'..." -ForegroundColor Cyan
-git commit -m "$commitMsg"
+Write-Host "-> Melakukan Git Commit..." -ForegroundColor Cyan
+git commit -m "$fullCommitMsg"
 
 Write-Host "-> Membuat Git Tag: 'v$versionName'..." -ForegroundColor Cyan
 git tag -f "v$versionName"
 
-# 5. Git Push ke Remote
+# 6. Git Push ke Remote
 Write-Host "-> Mendorong (Push) ke $remoteUrl..." -ForegroundColor Cyan
-git push origin main --tags
+git push -u origin main --tags
 
 if ($LASTEXITCODE -eq 0) {
     Write-Host ""
-    Write-Host "[BERHASIL] Seluruh pembaruan Crankr v$versionName telah sukses dipush ke Git!" -ForegroundColor Green
-    Write-Host "File version.json di repositori Anda sekarang aktif untuk OTA Auto-Updater." -ForegroundColor White
+    Write-Host "[BERHASIL] Seluruh pembaruan Crankr v$versionName sukses dipush ke Git!" -ForegroundColor Green
+    Write-Host "Catatan Rilis:" -ForegroundColor Yellow
+    Write-Host $formattedChangelog -ForegroundColor White
 } else {
     Write-Host ""
-    Write-Host "[GAGAL] Terjadi kendala saat git push. Pastikan Anda sudah login atau memiliki izin push ke repo tersebut." -ForegroundColor Red
+    Write-Host "[GAGAL] Kendala saat git push. Pastikan koneksi atau kredensial Git aktif." -ForegroundColor Red
 }
