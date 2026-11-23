@@ -1,7 +1,7 @@
 ﻿{
-    "versionCode":  69,
-    "versionName":  "1.68",
+    "versionCode":  70,
+    "versionName":  "1.69",
     "downloadUrl":  "https://github.com/astrojustakid/Crankr/releases/latest/download/crankr.apk",
-    "changelog":  "[PERBAIKAN BUG]\n- Perbaikan FileProvider authority pada PunkShareCardGenerator (mengatasi error \u0027gagal memuat gambar share\u0027 pada semua lagu)\n\n[CATATAN]\n- Mengganti authority hardcoded \u0027com.example.spotifyclone.fileprovider\u0027 menjadi \u0027.fileprovider\u0027 sesuai applicationId (fm.crankr.music) agar URI bitmap share card valid untuk Instagram Story \u0026 aplikasi eksternal",
+    "changelog":  "[PERBAIKAN BUG]\n- Perbaikan redirect loop \u0026 verifikasi package installer pada CrankrUpdateManager (mengatasi error \u0027package appears to be invalid\u0027)\r\n- Redesign tampilan dialog OTA \u0027Siap Dipasang\u0027 \u0026 \u0027Update Tersedia\u0027 bergaya Industrial Punk Rock\n\n[CATATAN]\n- Mengimplementasikan multi-hop redirect follower (hingga 8 hop), validasi integritas getPackageArchiveInfo, dan sinkronisasi otomatis GitHub Release asset crankr.apk",
     "mandatory":  false
 }

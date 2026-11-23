@@ -247,7 +247,7 @@ class CrankrUpdateManager private constructor(private val appContext: Context) {
         downloadJob?.cancel()
         downloadJob = scope.launch {
             _updateState.value = UpdateState.Downloading(0.01f, 0L, 0L)
-            var conn: HttpURLConnection? = null
+            var finalConn: HttpURLConnection? = null
             var inputStream: InputStream? = null
             var outputStream: FileOutputStream? = null
 
@@ -256,41 +256,62 @@ class CrankrUpdateManager private constructor(private val appContext: Context) {
                 val targetApk = File(updatesDir, "crankr_${info.versionCode}.apk")
                 val tempApk = File(updatesDir, "crankr_${info.versionCode}.tmp")
 
-                // Jika file APK versi ini sudah selesai diunduh sebelumnya dan utuh, langsung siap instal
+                // Jika file APK versi ini sudah selesai diunduh sebelumnya dan utuh & valid, langsung siap instal
                 if (targetApk.exists() && targetApk.length() > 5_000_000L) {
-                    _updateState.value = UpdateState.ReadyToInstall(targetApk, info)
-                    return@launch
+                    val existingPkg = appContext.packageManager.getPackageArchiveInfo(targetApk.absolutePath, 0)
+                    if (existingPkg != null && existingPkg.packageName == appContext.packageName) {
+                        _updateState.value = UpdateState.ReadyToInstall(targetApk, info)
+                        return@launch
+                    } else {
+                        targetApk.delete()
+                    }
                 }
 
-                val url = URL(info.downloadUrl)
-                conn = (url.openConnection() as HttpURLConnection).apply {
-                    connectTimeout = 15000
-                    readTimeout = 30000
-                    setRequestProperty("User-Agent", "Crankr-Music-App/${getCurrentVersionName()}")
-                    instanceFollowRedirects = true
-                    requestMethod = "GET"
-                }
+                var currentUrl = info.downloadUrl
+                var redirectCount = 0
+                val maxRedirects = 8
 
-                // Tangani redirect manual jika diperlukan
-                val responseCode = conn.responseCode
-                val finalConn = if (responseCode in 301..308) {
-                    val redirectUrl = conn.getHeaderField("Location")
-                    conn.disconnect()
-                    (URL(redirectUrl).openConnection() as HttpURLConnection).apply {
+                while (redirectCount < maxRedirects) {
+                    val u = URL(currentUrl)
+                    val conn = (u.openConnection() as HttpURLConnection).apply {
                         connectTimeout = 15000
                         readTimeout = 30000
                         setRequestProperty("User-Agent", "Crankr-Music-App/${getCurrentVersionName()}")
+                        setRequestProperty("Accept", "*/*")
+                        instanceFollowRedirects = false
                         requestMethod = "GET"
                     }
-                } else {
-                    conn
+                    val code = conn.responseCode
+                    if (code in 301..308) {
+                        val location = conn.getHeaderField("Location")
+                        conn.disconnect()
+                        if (location.isNullOrBlank()) {
+                            throw java.io.IOException("Redirect received without Location header")
+                        }
+                        currentUrl = if (location.startsWith("http://") || location.startsWith("https://")) {
+                            location
+                        } else {
+                            URL(u, location).toString()
+                        }
+                        redirectCount++
+                    } else if (code == 200) {
+                        finalConn = conn
+                        break
+                    } else {
+                        conn.disconnect()
+                        throw java.io.IOException("Gagal mengunduh (HTTP $code: ${conn.responseMessage})")
+                    }
+                }
+
+                if (finalConn == null) {
+                    throw java.io.IOException("Gagal terhubung ke server unduhan (terlalu banyak redirect).")
                 }
 
                 val totalBytes = finalConn.contentLengthLong
                 inputStream = finalConn.inputStream
                 outputStream = FileOutputStream(tempApk)
 
-                val buffer = ByteArray(8 * 1024)
+                val buffer = ByteArray(16 * 1024)
                 var downloadedBytes = 0L
                 var bytesRead: Int
                 var lastProgressEmit = 0L
@@ -300,7 +321,7 @@ class CrankrUpdateManager private constructor(private val appContext: Context) {
                     downloadedBytes += bytesRead
 
                     val now = System.currentTimeMillis()
-                    if (now - lastProgressEmit > 120 || downloadedBytes == totalBytes) {
+                    if (now - lastProgressEmit > 100 || downloadedBytes == totalBytes) {
                         lastProgressEmit = now
                         val progress = if (totalBytes > 0) downloadedBytes.toFloat() / totalBytes.toFloat() else 0.5f
                         _updateState.value = UpdateState.Downloading(
@@ -313,23 +334,57 @@ class CrankrUpdateManager private constructor(private val appContext: Context) {
 
                 outputStream.flush()
                 outputStream.close()
+                outputStream = null
                 inputStream.close()
+                inputStream = null
                 finalConn.disconnect()
+                finalConn = null
+
+                // Validasi integritas berkas unduhan
+                if (!tempApk.exists() || tempApk.length() < 5_000_000L) {
+                    tempApk.delete()
+                    throw java.io.IOException("Ukuran file APK tidak valid (${tempApk.length()} bytes). Unduhan belum lengkap.")
+                }
+
+                // Validasi keabsahan paket APK Android
+                val packageInfo = appContext.packageManager.getPackageArchiveInfo(tempApk.absolutePath, 0)
+                if (packageInfo == null) {
+                    tempApk.delete()
+                    throw java.io.IOException("File APK yang diunduh rusak atau gagal diverifikasi oleh Android.")
+                }
+
+                if (packageInfo.packageName != appContext.packageName) {
+                    tempApk.delete()
+                    throw java.io.IOException("Identitas paket APK tidak cocok (${packageInfo.packageName} != ${appContext.packageName}).")
+                }
+
+                val apkVersionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    packageInfo.longVersionCode.toInt()
+                } else {
+                    @Suppress("DEPRECATION")
+                    packageInfo.versionCode
+                }
+
+                if (apkVersionCode <= getCurrentVersionCode()) {
+                    tempApk.delete()
+                    throw java.io.IOException("Versi APK yang diunduh (v${packageInfo.versionName ?: apkVersionCode}) tidak lebih baru dari aplikasi yang terpasang.")
+                }
 
                 // Ganti nama dari file tmp ke apk target
-                if (tempApk.exists()) {
-                    if (targetApk.exists()) targetApk.delete()
-                    tempApk.renameTo(targetApk)
+                if (targetApk.exists()) targetApk.delete()
+                if (!tempApk.renameTo(targetApk)) {
+                    tempApk.copyTo(targetApk, overwrite = true)
+                    tempApk.delete()
                 }
 
                 _updateState.value = UpdateState.ReadyToInstall(targetApk, info)
 
             } catch (e: Exception) {
-                _updateState.value = UpdateState.Error("Gagal mengunduh APK: ${e.localizedMessage ?: "Koneksi terputus"}")
+                _updateState.value = UpdateState.Error(e.localizedMessage ?: "Gagal mengunduh berkas pembaruan.")
             } finally {
                 try { outputStream?.close() } catch (_: Exception) {}
                 try { inputStream?.close() } catch (_: Exception) {}
-                try { conn?.disconnect() } catch (_: Exception) {}
+                try { finalConn?.disconnect() } catch (_: Exception) {}
             }
         }
     }
@@ -339,8 +394,16 @@ class CrankrUpdateManager private constructor(private val appContext: Context) {
      */
     fun installApk(context: Context, apkFile: File) {
         try {
-            if (!apkFile.exists()) {
-                _updateState.value = UpdateState.Error("File APK tidak ditemukan. Silakan unduh ulang.")
+            if (!apkFile.exists() || apkFile.length() < 5_000_000L) {
+                _updateState.value = UpdateState.Error("File APK tidak ditemukan atau tidak lengkap. Silakan unduh ulang.")
+                return
+            }
+
+            // Validasi ulang integritas berkas sebelum memanggil PackageInstaller sistem
+            val packageInfo = context.packageManager.getPackageArchiveInfo(apkFile.absolutePath, 0)
+            if (packageInfo == null) {
+                apkFile.delete()
+                _updateState.value = UpdateState.Error("File APK rusak. Silakan unduh ulang.")
                 return
             }
 
@@ -365,7 +428,16 @@ class CrankrUpdateManager private constructor(private val appContext: Context) {
             val installIntent = Intent(Intent.ACTION_VIEW).apply {
                 setDataAndType(apkUri, "application/vnd.android.package-archive")
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            }
+
+            // Berikan izin akses URI secara eksplisit ke seluruh resolver PackageInstaller di perangkat
+            val resolvedActivities = context.packageManager.queryIntentActivities(installIntent, 0)
+            for (resolveInfo in resolvedActivities) {
+                val installerPkg = resolveInfo.activityInfo.packageName
+                context.grantUriPermission(installerPkg, apkUri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
 
             context.startActivity(installIntent)

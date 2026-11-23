@@ -95,6 +95,84 @@ if ($LASTEXITCODE -eq 0) {
     Write-Host "[BERHASIL] Seluruh pembaruan Crankr v$versionName sukses dipush ke Git!" -ForegroundColor Green
     Write-Host "Catatan Rilis:" -ForegroundColor Yellow
     Write-Host $formattedChangelog -ForegroundColor White
+
+    # 7. Otomatisasi GitHub Release & Upload APK
+    $apkPath = "app/build/outputs/apk/release/crankr.apk"
+    if (Test-Path $apkPath) {
+        Write-Host ""
+        Write-Host "-> Memeriksa kredensial GitHub untuk rilis asset APK..." -ForegroundColor Cyan
+        $credInput = @"
+protocol=https
+host=github.com
+"@
+        $credOutput = $credInput | git credential fill 2>$null
+        $ghToken = ""
+        foreach ($line in ($credOutput -split "`n")) {
+            if ($line.Trim().StartsWith("password=")) {
+                $ghToken = $line.Trim().Substring("password=".Length).Trim()
+            }
+        }
+
+        if ($ghToken -ne "") {
+            Write-Host "-> Menyinkronkan GitHub Release untuk tag 'v$versionName'..." -ForegroundColor Cyan
+            try {
+                $ghHeaders = @{
+                    "Authorization" = "Bearer $ghToken"
+                    "User-Agent"    = "Crankr-Release-Bot"
+                    "Accept"        = "application/vnd.github.v3+json"
+                }
+                
+                $releaseUrl = "https://api.github.com/repos/astrojustakid/Crankr/releases/tags/v$versionName"
+                $existingRelease = $null
+                try {
+                    $existingRelease = Invoke-RestMethod -Uri $releaseUrl -Headers $ghHeaders -Method Get -ErrorAction Stop
+                } catch {}
+
+                if (-not $existingRelease) {
+                    $createBody = @{
+                        tag_name   = "v$versionName"
+                        name       = "Release Crankr v$versionName (Build $code)"
+                        body       = $formattedChangelog
+                        draft      = $false
+                        prerelease = $false
+                    } | ConvertTo-Json
+                    
+                    $existingRelease = Invoke-RestMethod -Uri "https://api.github.com/repos/astrojustakid/Crankr/releases" `
+                        -Headers $ghHeaders -Method Post -Body $createBody -ContentType "application/json; charset=utf-8"
+                    Write-Host "[OK] GitHub Release 'v$versionName' berhasil dibuat." -ForegroundColor Green
+                }
+
+                if ($existingRelease -and $existingRelease.id) {
+                    $releaseId = $existingRelease.id
+                    
+                    # Cek jika ada asset crankr.apk sebelumnya, hapus dahulu
+                    if ($existingRelease.assets) {
+                        foreach ($asset in $existingRelease.assets) {
+                            if ($asset.name -eq "crankr.apk") {
+                                Write-Host "-> Menghapus asset crankr.apk lama (ID: $($asset.id))..." -ForegroundColor Yellow
+                                Invoke-RestMethod -Uri "https://api.github.com/repos/astrojustakid/Crankr/releases/assets/$($asset.id)" `
+                                    -Headers $ghHeaders -Method Delete
+                            }
+                        }
+                    }
+
+                    # Unggah file APK ke asset release
+                    $uploadUri = "https://uploads.github.com/repos/astrojustakid/Crankr/releases/$releaseId/assets?name=crankr.apk"
+                    Write-Host "-> Mengunggah berkas crankr.apk ke GitHub Release..." -ForegroundColor Cyan
+                    curl.exe -s -X POST -H "Authorization: Bearer $ghToken" `
+                        -H "Content-Type: application/vnd.android.package-archive" `
+                        --data-binary "@$apkPath" `
+                        $uploadUri | Out-Null
+                        
+                    Write-Host "[BERHASIL] crankr.apk sukses diunggah ke GitHub Release 'v$versionName'!" -ForegroundColor Green
+                }
+            } catch {
+                Write-Host "[WARN] Gagal menyinkronkan GitHub Release asset: $_" -ForegroundColor Yellow
+            }
+        } else {
+            Write-Host "[INFO] Token GitHub tidak ditemukan. Melewati upload release asset." -ForegroundColor Gray
+        }
+    }
 } else {
     Write-Host ""
     Write-Host "[GAGAL] Kendala saat git push. Pastikan koneksi atau kredensial Git aktif." -ForegroundColor Red
