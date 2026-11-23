@@ -87,7 +87,8 @@ git tag -f "v$versionName"
 
 # 6. Git Push ke Remote
 Write-Host "-> Mendorong (Push) ke $remoteUrl..." -ForegroundColor Cyan
-git push -u origin main --tags
+git push -u origin main
+git push origin --tags --force
 
 if ($LASTEXITCODE -eq 0) {
     Write-Host ""
