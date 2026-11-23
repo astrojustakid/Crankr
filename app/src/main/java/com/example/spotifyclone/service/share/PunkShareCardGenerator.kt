@@ -505,7 +505,7 @@ object PunkShareCardGenerator {
             FileOutputStream(file).use { out ->
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
             }
-            FileProvider.getUriForFile(context, "com.example.spotifyclone.fileprovider", file)
+            FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
         } catch (e: Exception) {
             e.printStackTrace()
             null

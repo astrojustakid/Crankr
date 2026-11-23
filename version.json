@@ -1,7 +1,7 @@
 ﻿{
-    "versionCode":  68,
-    "versionName":  "1.67",
+    "versionCode":  69,
+    "versionName":  "1.68",
     "downloadUrl":  "https://github.com/astrojustakid/Crankr/releases/latest/download/crankr.apk",
-    "changelog":  "[FITUR BARU]\n- Redesain Modern Industrial Minimalist pada fitur Crankr Recap (Anti-Slop)\n\n[PERBAIKAN BUG]\n- Pembersihan elemen dekoratif klise AI (halftone noise, scanline kotor, fake barcode, fake tempo 160 BPM)\r\n- Optimalisasi performa rendering dan efisiensi memori layar Recap\n\n[CATATAN]\n- Tipografi industrial tegas (Oswald / Anton) dan arsitektur konten riil transparan",
+    "changelog":  "[PERBAIKAN BUG]\n- Perbaikan FileProvider authority pada PunkShareCardGenerator (mengatasi error \u0027gagal memuat gambar share\u0027 pada semua lagu)\n\n[CATATAN]\n- Mengganti authority hardcoded \u0027com.example.spotifyclone.fileprovider\u0027 menjadi \u0027.fileprovider\u0027 sesuai applicationId (fm.crankr.music) agar URI bitmap share card valid untuk Instagram Story \u0026 aplikasi eksternal",
     "mandatory":  false
 }
