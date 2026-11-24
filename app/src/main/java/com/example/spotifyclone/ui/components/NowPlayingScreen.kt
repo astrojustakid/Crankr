@@ -33,12 +33,17 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
+import com.example.spotifyclone.service.CrankrAppearanceManager
+import com.example.spotifyclone.service.LyricsAlignment
+import com.example.spotifyclone.service.PlayerBackgroundStyle
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.geometry.Offset
@@ -134,6 +139,11 @@ fun NowPlayingScreen(
     }
 
     val context = LocalContext.current
+    val appearanceManager = remember(context) { CrankrAppearanceManager.getInstance(context) }
+    val playerBgStyle by appearanceManager.playerBackgroundStyle.collectAsState()
+    val lyricsAlign by appearanceManager.lyricsAlignment.collectAsState()
+    val lyricsScale by appearanceManager.lyricsTextScale.collectAsState()
+
     var palette by remember(track.id, track.coverUrl) {
         mutableStateOf(DynamicColorExtractor.defaultPalette)
     }
@@ -200,21 +210,60 @@ fun NowPlayingScreen(
             }
             .background(PitchBlack)
     ) {
-        // Aura Liquid Spatial Backdrop: Luminous album color wash fading smoothly into Midnight Navy
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.verticalGradient(
-                        colorStops = arrayOf(
-                            0.0f to palette.dominantColor.copy(alpha = 0.38f),
-                            0.38f to Color(0xFF0E1D3B),
-                            0.72f to Surface,
-                            1.0f to PitchBlack
-                        )
+        // Auralys-Grade Player Backdrop: Blurred Cover, Dynamic Gradient, or Solid Minimal
+        when (playerBgStyle) {
+            PlayerBackgroundStyle.BLUR -> {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    AsyncImage(
+                        model = track.coverUrl,
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .graphicsLayer {
+                                scaleX = 1.25f
+                                scaleY = 1.25f
+                            }
+                            .blur(56.dp)
                     )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(
+                                Brush.verticalGradient(
+                                    colorStops = arrayOf(
+                                        0.0f to Color.Black.copy(alpha = 0.45f),
+                                        0.50f to PitchBlack.copy(alpha = 0.78f),
+                                        1.0f to PitchBlack.copy(alpha = 0.96f)
+                                    )
+                                )
+                            )
+                    )
+                }
+            }
+            PlayerBackgroundStyle.GRADIENT -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            Brush.verticalGradient(
+                                colorStops = arrayOf(
+                                    0.0f to palette.dominantColor.copy(alpha = 0.42f),
+                                    0.42f to Surface,
+                                    1.0f to PitchBlack
+                                )
+                            )
+                        )
                 )
-        )
+            }
+            PlayerBackgroundStyle.SOLID -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(PitchBlack)
+                )
+            }
+        }
 
         Column(
             modifier = Modifier
@@ -1203,11 +1252,11 @@ fun NowPlayingScreen(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight(0.72f)
-                    .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
-                    .background(DarkCharcoal)
-                    .border(1.dp, BorderSubtle, RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
-                    .padding(16.dp)
+                    .fillMaxHeight(0.76f)
+                    .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
+                    .background(DarkCharcoal.copy(alpha = 0.96f))
+                    .border(1.dp, Border, RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
+                    .padding(horizontal = 20.dp, vertical = 18.dp)
             ) {
                 Column(modifier = Modifier.fillMaxSize()) {
                     Row(
@@ -1288,8 +1337,9 @@ fun NowPlayingScreen(
                                 state = listState,
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .padding(vertical = 4.dp),
-                                verticalArrangement = Arrangement.spacedBy(10.dp)
+                                    .padding(vertical = 6.dp),
+                                verticalArrangement = Arrangement.spacedBy(16.dp),
+                                contentPadding = PaddingValues(top = 8.dp, bottom = 48.dp)
                             ) {
                                 itemsIndexed(
                                     items = lyricsData.lines,
@@ -1297,42 +1347,47 @@ fun NowPlayingScreen(
                                 ) { index, line ->
                                     val isCurrent = index == activeIndex
                                     val isPast = index < activeIndex
+                                    val targetAlpha by animateFloatAsState(
+                                        targetValue = when {
+                                            isCurrent -> 1f
+                                            isPast -> 0.34f
+                                            else -> 0.48f
+                                        },
+                                        animationSpec = tween(280),
+                                        label = "LyricAlpha_$index"
+                                    )
+                                    val targetScale by animateFloatAsState(
+                                        targetValue = if (isCurrent) 1.03f else 0.97f,
+                                        animationSpec = spring(dampingRatio = 0.8f, stiffness = Spring.StiffnessMediumLow),
+                                        label = "LyricScale_$index"
+                                    )
+                                    val resolvedAlign = if (lyricsAlign == LyricsAlignment.CENTER) TextAlign.Center else TextAlign.Start
 
-                                    Row(
+                                    Box(
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .clip(RoundedCornerShape(3.dp))
+                                            .clip(RoundedCornerShape(12.dp))
                                             .clickable {
                                                 if (line.timestampMs >= 0) {
                                                     onSeekTo(line.timestampMs)
                                                 }
                                             }
-                                            .background(if (isCurrent) ElevatedBackground.copy(alpha = 0.6f) else Color.Transparent)
-                                            .padding(horizontal = 8.dp, vertical = 6.dp),
-                                        verticalAlignment = Alignment.CenterVertically
+                                            .padding(horizontal = 6.dp, vertical = 4.dp)
+                                            .graphicsLayer {
+                                                alpha = targetAlpha
+                                                scaleX = targetScale
+                                                scaleY = targetScale
+                                            }
                                     ) {
-                                        if (isCurrent) {
-                                            Box(
-                                                modifier = Modifier
-                                                    .width(3.dp)
-                                                    .height(18.dp)
-                                                    .background(CrimsonRed)
-                                            )
-                                            Spacer(modifier = Modifier.width(8.dp))
-                                        }
-
                                         Text(
                                             text = line.text.ifEmpty { "♪" },
                                             fontFamily = if (isCurrent) CrankrDisplayFont else CrankrBodyFont,
-                                            color = when {
-                                                isCurrent -> Secondary
-                                                isPast -> TextSecondary.copy(alpha = 0.5f)
-                                                else -> TextMuted
-                                            },
-                                            fontSize = if (isCurrent) 17.sp else 14.5.sp,
-                                            fontWeight = if (isCurrent) FontWeight.Bold else FontWeight.Medium,
-                                            lineHeight = if (isCurrent) 24.sp else 20.sp,
-                                            textAlign = TextAlign.Start
+                                            color = TextWhite,
+                                            fontSize = if (isCurrent) lyricsScale.activeSp.sp else lyricsScale.inactiveSp.sp,
+                                            fontWeight = if (isCurrent) FontWeight.ExtraBold else FontWeight.SemiBold,
+                                            lineHeight = if (isCurrent) (lyricsScale.activeSp * 1.32f).sp else (lyricsScale.inactiveSp * 1.35f).sp,
+                                            textAlign = resolvedAlign,
+                                            modifier = Modifier.fillMaxWidth()
                                         )
                                     }
                                 }

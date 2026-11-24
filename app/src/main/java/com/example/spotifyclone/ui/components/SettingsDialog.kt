@@ -24,8 +24,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.example.spotifyclone.service.AppThemePreset
 import com.example.spotifyclone.service.AudioQuality
 import com.example.spotifyclone.service.AuralysSettingsManager
+import com.example.spotifyclone.service.CrankrAppearanceManager
+import com.example.spotifyclone.service.LyricsAlignment
+import com.example.spotifyclone.service.LyricsTextScale
+import com.example.spotifyclone.service.PlayerBackgroundStyle
 import com.example.spotifyclone.theme.*
 
 /**
@@ -49,9 +54,16 @@ fun SettingsDialog(
 ) {
     val context = LocalContext.current
     val settingsManager = remember { AuralysSettingsManager.getInstance(context) }
+    val appearanceManager = remember { CrankrAppearanceManager.getInstance(context) }
     val updateManager = remember { com.example.spotifyclone.service.update.CrankrUpdateManager.getInstance(context) }
     val currentVersionName = remember { updateManager.getCurrentVersionName() }
     val currentVersionCode = remember { updateManager.getCurrentVersionCode() }
+
+    val selectedThemePreset by appearanceManager.themePreset.collectAsState()
+    val selectedPlayerBg by appearanceManager.playerBackgroundStyle.collectAsState()
+    val miniPlayerTint by appearanceManager.miniPlayerCoverTint.collectAsState()
+    val selectedLyricsAlign by appearanceManager.lyricsAlignment.collectAsState()
+    val selectedLyricsScale by appearanceManager.lyricsTextScale.collectAsState()
 
     val isVolumeNormalization by settingsManager.isVolumeNormalizationEnabled.collectAsState()
     val currentAudioQuality by settingsManager.audioQuality.collectAsState()
@@ -140,6 +152,255 @@ fun SettingsDialog(
                         .verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(18.dp)
                 ) {
+                    // SEKSI 0: TAMPILAN & TEMA (AURALYS APPEARANCE)
+                    SettingsSection(title = "TAMPILAN & TEMA") {
+                        // Theme Preset Switcher (Live)
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(Neutral, RoundedCornerShape(12.dp))
+                                .border(1.dp, Border, RoundedCornerShape(12.dp))
+                                .padding(14.dp)
+                        ) {
+                            Text(
+                                text = "TEMA APLIKASI",
+                                fontFamily = CrankrDisplayFont,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = TextWhite
+                            )
+                            Spacer(modifier = Modifier.height(3.dp))
+                            Text(
+                                text = "Ganti karakter warna secara langsung tanpa restart",
+                                fontFamily = CrankrBodyFont,
+                                fontSize = 10.5.sp,
+                                color = TextSecondary
+                            )
+                            Spacer(modifier = Modifier.height(10.dp))
+
+                            val presetRows = AppThemePreset.entries.chunked(2)
+                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                presetRows.forEach { rowPresets ->
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        rowPresets.forEach { preset ->
+                                            val isSelected = selectedThemePreset == preset
+                                            val dotColor = when (preset) {
+                                                AppThemePreset.AURA_LIQUID -> Color(0xFF38BDF8)
+                                                AppThemePreset.KINETIC_MONO -> Color(0xFFFAFAFA)
+                                                AppThemePreset.PURE_OLED -> Color(0xFFFFFFFF)
+                                                AppThemePreset.VELVET_CRIMSON -> Color(0xFFE50914)
+                                            }
+                                            Surface(
+                                                shape = RoundedCornerShape(10.dp),
+                                                color = if (isSelected) accentColor else Surface,
+                                                border = BorderStroke(1.dp, if (isSelected) accentColor else Border),
+                                                modifier = Modifier
+                                                    .weight(1f)
+                                                    .springPressable(0.96f)
+                                                    .clickable { appearanceManager.setThemePreset(preset) }
+                                            ) {
+                                                Row(
+                                                    verticalAlignment = Alignment.CenterVertically,
+                                                    horizontalArrangement = Arrangement.Center,
+                                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 9.dp)
+                                                ) {
+                                                    Box(
+                                                        modifier = Modifier
+                                                            .size(8.dp)
+                                                            .background(
+                                                                if (isSelected) OnPrimary else dotColor,
+                                                                CircleShape
+                                                            )
+                                                    )
+                                                    Spacer(modifier = Modifier.width(6.dp))
+                                                    Text(
+                                                        text = preset.label,
+                                                        fontFamily = CrankrDisplayFont,
+                                                        fontSize = 11.sp,
+                                                        fontWeight = FontWeight.Bold,
+                                                        color = if (isSelected) OnPrimary else TextWhite,
+                                                        maxLines = 1
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        // Player Background Style
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(Neutral, RoundedCornerShape(12.dp))
+                                .border(1.dp, Border, RoundedCornerShape(12.dp))
+                                .padding(14.dp)
+                        ) {
+                            Text(
+                                text = "LATAR NOW PLAYING",
+                                fontFamily = CrankrDisplayFont,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = TextWhite
+                            )
+                            Spacer(modifier = Modifier.height(3.dp))
+                            Text(
+                                text = "Blur cover album, gradien warna dinamis, atau solid",
+                                fontFamily = CrankrBodyFont,
+                                fontSize = 10.5.sp,
+                                color = TextSecondary
+                            )
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                PlayerBackgroundStyle.entries.forEach { bgStyle ->
+                                    val isSelected = selectedPlayerBg == bgStyle
+                                    Surface(
+                                        shape = RoundedCornerShape(8.dp),
+                                        color = if (isSelected) accentColor else Surface,
+                                        border = BorderStroke(1.dp, if (isSelected) accentColor else Border),
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .springPressable(0.96f)
+                                            .clickable { appearanceManager.setPlayerBackgroundStyle(bgStyle) }
+                                    ) {
+                                        Text(
+                                            text = bgStyle.label,
+                                            fontFamily = CrankrDisplayFont,
+                                            fontSize = 10.5.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = if (isSelected) OnPrimary else TextSecondary,
+                                            modifier = Modifier.padding(vertical = 8.dp),
+                                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        // Dynamic Cover-Tinted MiniPlayer Switch
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(Neutral, RoundedCornerShape(12.dp))
+                                .border(1.dp, Border, RoundedCornerShape(12.dp))
+                                .padding(horizontal = 14.dp, vertical = 10.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "MINI-PLAYER WARNA COVER",
+                                    fontFamily = CrankrDisplayFont,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = TextWhite
+                                )
+                                Text(
+                                    text = "Serap warna dominan album ke kapsul mini-player",
+                                    fontFamily = CrankrBodyFont,
+                                    fontSize = 10.5.sp,
+                                    color = TextSecondary
+                                )
+                            }
+                            Switch(
+                                checked = miniPlayerTint,
+                                onCheckedChange = { appearanceManager.setMiniPlayerCoverTint(it) },
+                                colors = SwitchDefaults.colors(
+                                    checkedThumbColor = OnPrimary,
+                                    checkedTrackColor = accentColor,
+                                    uncheckedThumbColor = TextMuted,
+                                    uncheckedTrackColor = Surface
+                                )
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        // Lyrics Style (Alignment & Size)
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(Neutral, RoundedCornerShape(12.dp))
+                                .border(1.dp, Border, RoundedCornerShape(12.dp))
+                                .padding(14.dp)
+                        ) {
+                            Text(
+                                text = "GAYA LIRIK SINKRON",
+                                fontFamily = CrankrDisplayFont,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = TextWhite
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                LyricsAlignment.entries.forEach { align ->
+                                    val isSelected = selectedLyricsAlign == align
+                                    Surface(
+                                        shape = RoundedCornerShape(8.dp),
+                                        color = if (isSelected) accentColor else Surface,
+                                        border = BorderStroke(1.dp, if (isSelected) accentColor else Border),
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .springPressable(0.96f)
+                                            .clickable { appearanceManager.setLyricsAlignment(align) }
+                                    ) {
+                                        Text(
+                                            text = "Rata ${align.label}",
+                                            fontFamily = CrankrDisplayFont,
+                                            fontSize = 10.5.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = if (isSelected) OnPrimary else TextSecondary,
+                                            modifier = Modifier.padding(vertical = 7.dp),
+                                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                                        )
+                                    }
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                LyricsTextScale.entries.forEach { scale ->
+                                    val isSelected = selectedLyricsScale == scale
+                                    Surface(
+                                        shape = RoundedCornerShape(8.dp),
+                                        color = if (isSelected) accentColor else Surface,
+                                        border = BorderStroke(1.dp, if (isSelected) accentColor else Border),
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .springPressable(0.96f)
+                                            .clickable { appearanceManager.setLyricsTextScale(scale) }
+                                    ) {
+                                        Text(
+                                            text = scale.label,
+                                            fontFamily = CrankrDisplayFont,
+                                            fontSize = 10.5.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = if (isSelected) OnPrimary else TextSecondary,
+                                            modifier = Modifier.padding(vertical = 7.dp),
+                                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     // SEKSI 1: AUDIO ENGINE & PEMUTARAN
                     SettingsSection(title = "AUDIO ENGINE") {
                         // Crossfade Duration

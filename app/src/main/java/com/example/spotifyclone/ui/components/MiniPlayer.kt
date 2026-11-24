@@ -59,9 +59,9 @@ import com.example.spotifyclone.util.DynamicColorExtractor
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 
-private val MiniPlayerAccent = Primary
-private val MiniPlayerCardBg = ElevatedBackground
-private val MiniPlayerBorder = Border
+private val MiniPlayerAccent: Color get() = Primary
+private val MiniPlayerCardBg: Color get() = ElevatedBackground
+private val MiniPlayerBorder: Color get() = Border
 
 @Composable
 fun MiniPlayer(
@@ -87,6 +87,9 @@ fun MiniPlayer(
     }
 
     val context = LocalContext.current
+    val appearanceManager = remember(context) { com.example.spotifyclone.service.CrankrAppearanceManager.getInstance(context) }
+    val coverTintEnabled by appearanceManager.miniPlayerCoverTint.collectAsState()
+
     var palette by remember(track.id, track.coverUrl) {
         mutableStateOf(DynamicColorExtractor.defaultPalette)
     }
@@ -94,6 +97,25 @@ fun MiniPlayer(
     LaunchedEffect(track.id, track.coverUrl) {
         palette = DynamicColorExtractor.extractColors(context, track.coverUrl)
     }
+
+    val dynamicCapsuleBg by animateColorAsState(
+        targetValue = if (coverTintEnabled) {
+            androidx.compose.ui.graphics.lerp(ElevatedBackground, palette.dominantColor, 0.30f)
+        } else {
+            ElevatedBackground
+        },
+        animationSpec = tween(420),
+        label = "MiniPlayerDynamicBg"
+    )
+    val dynamicCapsuleBorder by animateColorAsState(
+        targetValue = if (coverTintEnabled) {
+            androidx.compose.ui.graphics.lerp(Border, palette.dominantColor, 0.42f)
+        } else {
+            Primary.copy(alpha = 0.22f)
+        },
+        animationSpec = tween(420),
+        label = "MiniPlayerDynamicBorder"
+    )
 
     Box(
         modifier = modifier
@@ -163,7 +185,7 @@ fun MiniPlayer(
             }
         }
 
-        // Layer 2: Aura Liquid Translucent Glass Capsule MiniPlayer
+        // Layer 2: Auralys-Grade Dynamic Cover-Tinted Glass Capsule MiniPlayer
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -171,8 +193,8 @@ fun MiniPlayer(
                     translationX = animatedDragX.value
                 }
                 .clip(RoundedCornerShape(22.dp))
-                .background(MiniPlayerCardBg.copy(alpha = 0.95f))
-                .border(1.dp, Primary.copy(alpha = 0.24f), RoundedCornerShape(22.dp))
+                .background(dynamicCapsuleBg.copy(alpha = 0.95f))
+                .border(1.dp, dynamicCapsuleBorder, RoundedCornerShape(22.dp))
                 .pointerInput(track.id) {
                     detectHorizontalDragGestures(
                         onDragStart = {

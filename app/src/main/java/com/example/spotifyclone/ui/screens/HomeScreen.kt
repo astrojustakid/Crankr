@@ -144,7 +144,7 @@ fun HomeScreen(
             .background(
                 androidx.compose.ui.graphics.Brush.verticalGradient(
                     colorStops = arrayOf(
-                        0.0f to Color(0xFF102246),
+                        0.0f to HomeTopGlow,
                         0.32f to Surface,
                         1.0f to PitchBlack
                     )
@@ -512,24 +512,56 @@ fun HomeScreen(
                     letterSpacing = 0.5.sp
                 )
 
-                // Create playlist button (+ PLAYLIST rapih tanpa tombol '+' kecil ganda)
-                Surface(
-                    shape = RoundedCornerShape(8.dp),
-                    color = Primary.copy(alpha = 0.15f),
-                    border = BorderStroke(1.dp, Primary.copy(alpha = 0.5f)),
-                    modifier = Modifier
-                        .springPressable(0.95f)
-                        .clickable { showCreateDialog = true }
+                // Quick Shuffle ("Putar Acak" ala Auralys) + Create Playlist Row
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text(
-                        text = "+ PLAYLIST",
-                        fontFamily = CrankrDisplayFont,
-                        fontSize = 11.5.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Primary,
-                        letterSpacing = 0.6.sp,
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-                    )
+                    val randomPool = remember(displayTrendingSongs, displayPopularTracks, displayRecentlyPlayed) {
+                        (displayTrendingSongs + displayPopularTracks + displayRecentlyPlayed).distinctBy { it.id }
+                    }
+                    if (randomPool.isNotEmpty()) {
+                        Surface(
+                            shape = RoundedCornerShape(20.dp),
+                            color = Primary,
+                            modifier = Modifier
+                                .springPressable(0.95f)
+                                .clickable {
+                                    randomPool.randomOrNull()?.let { picked ->
+                                        onTrackClick(picked)
+                                    }
+                                }
+                        ) {
+                            Text(
+                                text = "ACAK",
+                                fontFamily = CrankrDisplayFont,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = OnPrimary,
+                                letterSpacing = 0.6.sp,
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                            )
+                        }
+                    }
+
+                    Surface(
+                        shape = RoundedCornerShape(20.dp),
+                        color = Primary.copy(alpha = 0.14f),
+                        border = BorderStroke(1.dp, Primary.copy(alpha = 0.45f)),
+                        modifier = Modifier
+                            .springPressable(0.95f)
+                            .clickable { showCreateDialog = true }
+                    ) {
+                        Text(
+                            text = "+ PLAYLIST",
+                            fontFamily = CrankrDisplayFont,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Primary,
+                            letterSpacing = 0.6.sp,
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                        )
+                    }
                 }
             }
 

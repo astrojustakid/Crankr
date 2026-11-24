@@ -1,7 +1,7 @@
 ﻿{
-    "versionCode":  72,
-    "versionName":  "1.71",
+    "versionCode":  74,
+    "versionName":  "1.73",
     "downloadUrl":  "https://github.com/astrojustakid/Crankr/releases/latest/download/crankr.apk",
-    "changelog":  "[FITUR BARU]\n- Penerapan tema Aura Liquid (Spatial Glass \u0026 Midnight Navy + Electric Ice Blue #38BDF8)\r\n- Latar spasial Midnight Navy pada HomeScreen \u0026 Dynamic Album Wash pada NowPlayingScreen\r\n- Floating Spatial Glass Navigation Dock \u0026 MiniPlayer kapsul rim Ice Blue\n\n[CATATAN]\n- Kontras OnPrimary (#041624) terjaga tajam di seluruh tombol, tanpa mengubah modul Player Engine, Stream Resolver, dan Database",
+    "changelog":  "[FITUR BARU]\n- Menu Tampilan \u0026 Tema (Appearance) reaktif tanpa restart: Aura Liquid, Kinetic Mono, Pure OLED, Velvet Crimson\r\n- Latar Now Playing Blurred Cover asli (dengan pilihan Blur Cover, Dynamic Gradient, \u0026 Solid)\r\n- Synced Lyrics Apple-Music Style (animasi scale \u0026 fade, tap-to-seek, rata kiri/tengah, \u0026 ukuran teks)\r\n- Mini-Player kapsul kaca dengan warna cover dinamis + tombol cepat ACAK di HomeScreen\n\n[CATATAN]\n- Seluruh preferensi tampilan disimpan persisten via CrankrAppearanceManager tanpa menyentuh modul Audio Engine, Stream Resolver, \u0026 Database",
     "mandatory":  false
 }
