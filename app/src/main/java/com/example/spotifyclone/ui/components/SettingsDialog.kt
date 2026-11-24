@@ -77,72 +77,52 @@ fun SettingsDialog(
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         Card(
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = Surface),
-            border = BorderStroke(1.dp, Border),
+            shape = RoundedCornerShape(24.dp),
+            colors = CardDefaults.cardColors(containerColor = Surface.copy(alpha = 0.96f)),
+            border = BorderStroke(0.8.dp, glassHairlineBrush()),
             modifier = Modifier
                 .fillMaxWidth(0.94f)
-                .fillMaxHeight(0.82f)
+                .fillMaxHeight(0.84f)
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(20.dp)
             ) {
-                // Header Dialog
+                // Header Dialog Crankr 2.0 Glass
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Box(
-                                modifier = Modifier
-                                    .size(width = 3.dp, height = 16.dp)
-                                    .background(accentColor)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = "PENGATURAN",
-                                fontFamily = CrankrDisplayFont,
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = TextWhite,
-                                letterSpacing = 1.sp
-                            )
-                        }
                         Text(
-                            text = "AURALYS AUDIO & CRANKR DECK",
+                            text = "Pengaturan",
                             fontFamily = CrankrDisplayFont,
-                            fontSize = 11.sp,
-                            color = TextSecondary,
-                            letterSpacing = 0.8.sp
+                            fontSize = 21.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = TextWhite
+                        )
+                        Text(
+                            text = "Tampilan, audio & penyimpanan",
+                            fontFamily = CrankrBodyFont,
+                            fontSize = 11.5.sp,
+                            color = TextSecondary
                         )
                     }
 
-                    Surface(
-                        shape = CircleShape,
-                        color = Neutral,
-                        border = BorderStroke(1.dp, Border),
-                        modifier = Modifier
-                            .size(32.dp)
-                            .springPressable(0.95f)
-                            .clickable { onDismiss() }
-                    ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Icon(
-                                imageVector = Icons.Default.Close,
-                                contentDescription = "Tutup",
-                                tint = TextSecondary,
-                                modifier = Modifier.size(16.dp)
-                            )
-                        }
-                    }
+                    GlassIconButton(
+                        icon = Icons.Default.Close,
+                        contentDescription = "Tutup",
+                        onClick = onDismiss,
+                        size = 34.dp,
+                        iconSize = 16.dp,
+                        iconTint = TextSecondary
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(14.dp))
-                HorizontalDivider(color = Border, thickness = 1.dp)
+                HorizontalDivider(color = Color.White.copy(alpha = 0.08f), thickness = 0.8.dp)
                 Spacer(modifier = Modifier.height(14.dp))
 
                 // Scrollable Content
@@ -776,12 +756,11 @@ fun SettingsDialog(
                         }
                     }
 
-                    // SEKSI 3: LISTEN TOGETHER
-                    SettingsSection(title = "KOLABORASI") {
-                        Surface(
-                            shape = RoundedCornerShape(12.dp),
-                            color = Neutral,
-                            border = BorderStroke(1.dp, Border),
+                    // SEKSI 3: KOLABORASI
+                    SettingsSection(title = "Kolaborasi") {
+                        GlassSurface(
+                            shape = RoundedCornerShape(16.dp),
+                            containerColor = Color.White.copy(alpha = 0.05f),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .springPressable(0.97f)
@@ -791,42 +770,43 @@ fun SettingsDialog(
                                 }
                         ) {
                             Row(
-                                modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 14.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Column {
+                                Column(modifier = Modifier.weight(1f)) {
                                     Text(
-                                        text = "LISTEN TOGETHER (WEBSOCKET SYNC)",
+                                        text = "Listen Together",
                                         fontFamily = CrankrDisplayFont,
-                                        fontSize = 12.sp,
-                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 13.5.sp,
+                                        fontWeight = FontWeight.SemiBold,
                                         color = TextWhite
                                     )
                                     Text(
                                         text = "Dengarkan musik bersama teman secara real-time",
                                         fontFamily = CrankrBodyFont,
-                                        fontSize = 10.5.sp,
+                                        fontSize = 11.sp,
                                         color = TextSecondary
                                     )
                                 }
                                 Text(
-                                    text = "MASUK >",
+                                    text = "Masuk ›",
                                     fontFamily = CrankrDisplayFont,
-                                    fontSize = 11.sp,
+                                    fontSize = 12.sp,
                                     color = accentColor,
-                                    fontWeight = FontWeight.Bold
+                                    fontWeight = FontWeight.SemiBold
                                 )
                             }
                         }
                     }
 
-                    // SEKSI 4: TENTANG DEVELOPER
-                    SettingsSection(title = "TENTANG") {
-                        Surface(
-                            shape = RoundedCornerShape(12.dp),
-                            color = Neutral,
-                            border = BorderStroke(1.dp, Border),
+                    // SEKSI 4: TENTANG
+                    SettingsSection(title = "Tentang") {
+                        GlassSurface(
+                            shape = RoundedCornerShape(16.dp),
+                            containerColor = Color.White.copy(alpha = 0.05f),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .springPressable(0.97f)
@@ -836,121 +816,76 @@ fun SettingsDialog(
                                 }
                         ) {
                             Row(
-                                modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 14.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.weight(1f)
-                                ) {
-                                    Surface(
-                                        shape = RoundedCornerShape(6.dp),
-                                        color = Surface,
-                                        border = BorderStroke(1.dp, accentColor.copy(alpha = 0.6f)),
-                                        modifier = Modifier.size(28.dp)
-                                    ) {
-                                        Box(contentAlignment = Alignment.Center) {
-                                            Text(
-                                                text = "DEV",
-                                                fontFamily = CrankrDisplayFont,
-                                                fontSize = 9.sp,
-                                                fontWeight = FontWeight.Bold,
-                                                color = accentColor
-                                            )
-                                        }
-                                    }
-                                    Spacer(modifier = Modifier.width(10.dp))
-                                    Column {
-                                        Text(
-                                            text = "TENTANG DEVELOPER",
-                                            fontFamily = CrankrDisplayFont,
-                                            fontSize = 12.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            color = TextWhite
-                                        )
-                                        Text(
-                                            text = "Profil AstroKido, visual zine & media sosial",
-                                            fontFamily = CrankrBodyFont,
-                                            fontSize = 10.5.sp,
-                                            color = TextSecondary
-                                        )
-                                    }
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = "Tentang Developer",
+                                        fontFamily = CrankrDisplayFont,
+                                        fontSize = 13.5.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = TextWhite
+                                    )
+                                    Text(
+                                        text = "Profil AstroKido & media sosial",
+                                        fontFamily = CrankrBodyFont,
+                                        fontSize = 11.sp,
+                                        color = TextSecondary
+                                    )
                                 }
                                 Text(
-                                    text = "LIHAT >",
+                                    text = "Lihat ›",
                                     fontFamily = CrankrDisplayFont,
-                                    fontSize = 11.sp,
+                                    fontSize = 12.sp,
                                     color = accentColor,
-                                    fontWeight = FontWeight.Bold
+                                    fontWeight = FontWeight.SemiBold
                                 )
                             }
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(14.dp))
-
                     // SEKSI 5: PEMBARUAN APLIKASI (OTA)
-                    SettingsSection(title = "PEMBARUAN SISTEM") {
-                        Surface(
-                            shape = RoundedCornerShape(12.dp),
-                            color = Neutral,
-                            border = BorderStroke(1.dp, Border),
+                    SettingsSection(title = "Pembaruan Sistem") {
+                        GlassSurface(
+                            shape = RoundedCornerShape(16.dp),
+                            containerColor = Color.White.copy(alpha = 0.05f),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .springPressable(0.97f)
-                                .clickable {
-                                    onCheckUpdate()
-                                }
+                                .clickable { onCheckUpdate() }
                         ) {
                             Row(
-                                modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 14.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.weight(1f)
-                                ) {
-                                    Surface(
-                                        shape = RoundedCornerShape(6.dp),
-                                        color = Surface,
-                                        border = BorderStroke(1.dp, CrimsonRed.copy(alpha = 0.6f)),
-                                        modifier = Modifier.size(28.dp)
-                                    ) {
-                                        Box(contentAlignment = Alignment.Center) {
-                                            Text(
-                                                text = "OTA",
-                                                fontFamily = CrankrDisplayFont,
-                                                fontSize = 9.sp,
-                                                fontWeight = FontWeight.Bold,
-                                                color = CrimsonRed
-                                            )
-                                        }
-                                    }
-                                    Spacer(modifier = Modifier.width(10.dp))
-                                    Column {
-                                        Text(
-                                            text = "CEK PEMBARUAN APLIKASI",
-                                            fontFamily = CrankrDisplayFont,
-                                            fontSize = 12.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            color = TextWhite
-                                        )
-                                        Text(
-                                            text = "Versi $currentVersionName (Build $currentVersionCode)",
-                                            fontFamily = CrankrBodyFont,
-                                            fontSize = 10.5.sp,
-                                            color = TextSecondary
-                                        )
-                                    }
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = "Cek Pembaruan Aplikasi",
+                                        fontFamily = CrankrDisplayFont,
+                                        fontSize = 13.5.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = TextWhite
+                                    )
+                                    Text(
+                                        text = "Versi $currentVersionName (Build $currentVersionCode)",
+                                        fontFamily = CrankrBodyFont,
+                                        fontSize = 11.sp,
+                                        color = TextSecondary
+                                    )
                                 }
                                 Text(
-                                    text = "PERIKSA >",
+                                    text = "Periksa ›",
                                     fontFamily = CrankrDisplayFont,
-                                    fontSize = 11.sp,
-                                    color = CrimsonRed,
-                                    fontWeight = FontWeight.Bold
+                                    fontSize = 12.sp,
+                                    color = accentColor,
+                                    fontWeight = FontWeight.SemiBold
                                 )
                             }
                         }

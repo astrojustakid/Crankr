@@ -53,3 +53,9 @@ Modul-modul inti yang telah diverifikasi stabil dan dilarang diubah tanpa izin t
 - **Rollover Versi**: Jika `VERSION_MINOR > 99`, maka `VERSION_MINOR` kembali ke 0 dan `VERSION_MAJOR += 1`.
 - **Penerapan**: `versionCode` menggunakan `VERSION_CODE` dan `versionName` menggunakan format `"$VERSION_MAJOR.$VERSION_MINOR"` (misal 1.0, 1.1, ..., 1.99 -> 2.0).
 
+## 6. Aktivasi Skill Desain (Mode Hybrid)
+- **Otomatis untuk Tugas UI/Layout Baru**: Setiap kali menerima instruksi merombak UI, membuat layar baru, atau menyusun sistem komponen visual, agen **wajib** membaca `.agents/skills/ui-ux-pro-max/SKILL.md` dan `.agents/skills/design-system/SKILL.md` terlebih dahulu sebelum mengeksekusi kode.
+- **Jangan Muat untuk Tugas Non-UI**: Untuk perbaikan bug logika, audio engine, database, atau skrip build, lewati skill desain agar hemat konteks.
+- **Sesuai Penyebutan (On-Demand)**: Skill `.agents/skills/` lainnya (`banner-design`, `brand`, `design`, `slides`, `ui-styling`) hanya diaktifkan ketika pengguna memintanya secara eksplisit atau tugas memang berkaitan langsung (misal membuat banner, presentasi, atau web UI).
+
+

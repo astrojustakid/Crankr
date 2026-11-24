@@ -266,10 +266,10 @@ fun HomeScreen(
 
                 Spacer(modifier = Modifier.height(18.dp))
 
-                // 3. Peeking Hero Carousel (Ref 2)
+                // 3. Peeking Hero Carousel — Semua Playlist Saya (Ref 2)
                 val heroPlaylists = remember(spotifyPlaylists, likedSongsPlaylist) {
                     buildList {
-                        spotifyPlaylists.filter { it.id != "liked_songs" }.take(5).forEach { add(it) }
+                        spotifyPlaylists.filter { it.id != "liked_songs" }.forEach { add(it) }
                         if (likedSongsPlaylist != null) add(likedSongsPlaylist)
                     }
                 }
@@ -346,7 +346,7 @@ fun HomeScreen(
                                     .padding(14.dp)
                             ) {
                                 Text(
-                                    text = if (pl.id == "liked_songs") "Favorit Kamu" else "Featured Playlist",
+                                    text = if (pl.id == "liked_songs") "Lagu Disukai" else "Playlist Saya",
                                     fontFamily = CrankrBodyFont,
                                     fontSize = 10.5.sp,
                                     fontWeight = FontWeight.SemiBold,
@@ -467,6 +467,12 @@ fun HomeScreen(
                         selected = isImportExpanded,
                         leadingIcon = if (isImportExpanded) Icons.Default.Close else Icons.Default.Link,
                         onClick = { isImportExpanded = !isImportExpanded }
+                    )
+                    GlassFilterPill(
+                        label = "Buat Playlist",
+                        selected = false,
+                        leadingIcon = Icons.Default.Add,
+                        onClick = { showCreateDialog = true }
                     )
                     GlassFilterPill(
                         label = "Statistik",
@@ -633,157 +639,6 @@ fun HomeScreen(
                     }
                 }
             }
-
-        // Playlists Row Section
-        item {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 16.dp, end = 16.dp, top = 6.dp, bottom = 6.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "PLAYLIST SAYA",
-                    fontFamily = CrankrDisplayFont,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = TextWhite,
-                    letterSpacing = 0.5.sp
-                )
-
-                // Quick Shuffle ("Putar Acak" ala Auralys) + Create Playlist Row
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    val randomPool = remember(displayTrendingSongs, displayPopularTracks, displayRecentlyPlayed) {
-                        (displayTrendingSongs + displayPopularTracks + displayRecentlyPlayed).distinctBy { it.id }
-                    }
-                    if (randomPool.isNotEmpty()) {
-                        Surface(
-                            shape = RoundedCornerShape(20.dp),
-                            color = Primary,
-                            modifier = Modifier
-                                .springPressable(0.95f)
-                                .clickable {
-                                    randomPool.randomOrNull()?.let { picked ->
-                                        onTrackClick(picked)
-                                    }
-                                }
-                        ) {
-                            Text(
-                                text = "ACAK",
-                                fontFamily = CrankrDisplayFont,
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = OnPrimary,
-                                letterSpacing = 0.6.sp,
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-                            )
-                        }
-                    }
-
-                    Surface(
-                        shape = RoundedCornerShape(20.dp),
-                        color = Primary.copy(alpha = 0.14f),
-                        border = BorderStroke(1.dp, Primary.copy(alpha = 0.45f)),
-                        modifier = Modifier
-                            .springPressable(0.95f)
-                            .clickable { showCreateDialog = true }
-                    ) {
-                        Text(
-                            text = "+ PLAYLIST",
-                            fontFamily = CrankrDisplayFont,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Primary,
-                            letterSpacing = 0.6.sp,
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-                        )
-                    }
-                }
-            }
-
-            LazyRow(
-                contentPadding = PaddingValues(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                if (likedSongsPlaylist != null) {
-                    item {
-                        Card(
-                            shape = RoundedCornerShape(14.dp),
-                            colors = CardDefaults.cardColors(containerColor = CardBackground),
-                            modifier = Modifier
-                                .width(148.dp)
-                                .springPressable(0.982f)
-                                .clickable { onPlaylistClick(likedSongsPlaylist) }
-                        ) {
-                            Column(modifier = Modifier.padding(9.dp)) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(130.dp)
-                                        .clip(RoundedCornerShape(10.dp))
-                                        .background(ElevatedBackground),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Favorite,
-                                        contentDescription = "Lagu yang Disukai",
-                                        tint = Primary,
-                                        modifier = Modifier.size(48.dp)
-                                    )
-
-                                    // Badge Total Lagu
-                                    Box(
-                                        modifier = Modifier
-                                            .align(Alignment.TopEnd)
-                                            .padding(6.dp)
-                                            .clip(RoundedCornerShape(2.dp))
-                                            .background(PitchBlack.copy(alpha = 0.85f))
-                                            .border(0.5.dp, BorderSubtle, RoundedCornerShape(2.dp))
-                                            .padding(horizontal = 6.dp, vertical = 2.dp)
-                                    ) {
-                                        Text(
-                                            text = "${likedSongsPlaylist.trackCount} LAGU",
-                                            fontFamily = CrankrBodyFont,
-                                            color = Primary,
-                                            fontSize = 9.5.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            letterSpacing = 0.5.sp
-                                        )
-                                    }
-                                }
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text(
-                                    text = "LAGU DISUKAI",
-                                    fontFamily = CrankrBodyFont,
-                                    color = TextWhite,
-                                    fontWeight = FontWeight.SemiBold,
-                                    fontSize = 13.sp,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                                Text(
-                                    text = "${likedSongsPlaylist.trackCount} lagu",
-                                    fontFamily = CrankrBodyFont,
-                                    color = TextSecondary,
-                                    fontSize = 11.5.sp,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                            }
-                        }
-                    }
-                }
-
-                items(spotifyPlaylists.filter { it.id != "liked_songs" }, key = { it.id }) { playlist ->
-                    PlaylistCard(playlist = playlist, onClick = { onPlaylistClick(playlist) })
-                }
-            }
-
-            Spacer(modifier = Modifier.height(14.dp))
-        }
 
         if (displayRecentlyPlayed.isNotEmpty()) {
             item {

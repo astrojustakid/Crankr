@@ -241,22 +241,22 @@ fun PlaylistDetailScreen(
                         }
                         .background(
                             Brush.verticalGradient(
-                                colors = listOf(
-                                    CrimsonRed.copy(alpha = 0.22f),
-                                    DarkCharcoal.copy(alpha = 0.5f),
-                                    PitchBlack
+                                colorStops = arrayOf(
+                                    0.0f to HomeTopGlow,
+                                    0.52f to Surface,
+                                    1.0f to PitchBlack
                                 )
                             )
                         )
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                        .padding(horizontal = 16.dp, vertical = 10.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // Center Info: Artwork with 14dp rounded corners
+                    // Center Info: Artwork with 16dp glass hairline frame
                     Box(
                         modifier = Modifier
-                            .size(160.dp)
-                            .clip(RoundedCornerShape(14.dp))
-                            .border(1.dp, Border, RoundedCornerShape(14.dp))
+                            .size(164.dp)
+                            .clip(RoundedCornerShape(16.dp))
+                            .border(androidx.compose.foundation.BorderStroke(0.8.dp, com.example.spotifyclone.ui.components.glassHairlineBrush()), RoundedCornerShape(16.dp))
                             .background(ElevatedBackground)
                             .clickable { showChangeCoverDialog = true }
                     ) {
@@ -346,7 +346,7 @@ fun PlaylistDetailScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // 1. Play All Button (Solid Bold Orange Pill) with tactile spring
+                // 1. Play All Pill (Crankr 2.0 Crisp Primary/OnPrimary)
                 Button(
                     onClick = {
                         val toPlay = if (sortedTracks.isNotEmpty()) sortedTracks else tracks
@@ -354,34 +354,35 @@ fun PlaylistDetailScreen(
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Primary,
-                        contentColor = Neutral
+                        contentColor = OnPrimary
                     ),
-                    shape = RoundedCornerShape(20.dp),
+                    shape = RoundedCornerShape(999.dp),
                     modifier = Modifier
                         .height(42.dp)
                         .springPressable(scaleDown = 0.93f),
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp)
+                    contentPadding = PaddingValues(horizontal = 18.dp, vertical = 0.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Default.PlayArrow,
                         contentDescription = "Play All",
-                        tint = Neutral,
+                        tint = OnPrimary,
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "PLAY ALL",
-                        color = Neutral,
+                        text = "Putar",
+                        color = OnPrimary,
                         fontFamily = CrankrDisplayFont,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 12.5.sp,
-                        letterSpacing = 0.8.sp,
+                        fontSize = 13.sp,
                         maxLines = 1
                     )
                 }
 
-                // 2. Tombol Acak Lagu (Shuffle Play) - Persegi Tumpul Proporsional
-                IconButton(
+                // 2. Frosted Glass Shuffle Button
+                com.example.spotifyclone.ui.components.GlassIconButton(
+                    icon = Icons.Default.Shuffle,
+                    contentDescription = "Putar Acak",
                     onClick = {
                         val toShuffle = (if (sortedTracks.isNotEmpty()) sortedTracks else tracks).shuffled()
                         if (toShuffle.isNotEmpty()) {
@@ -392,89 +393,26 @@ fun PlaylistDetailScreen(
                             }
                         }
                     },
-                    modifier = Modifier
-                        .size(38.dp)
-                        .clip(RoundedCornerShape(2.dp))
-                        .background(CardBackground.copy(alpha = 0.85f))
-                        .border(1.dp, BorderSubtle, RoundedCornerShape(2.dp))
-                        .springPressable(scaleDown = 0.92f)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Shuffle,
-                        contentDescription = "Putar Acak",
-                        tint = CrimsonRed,
-                        modifier = Modifier.size(18.dp)
-                    )
-                }
+                    size = 40.dp,
+                    iconTint = Primary
+                )
 
-                // 3. Download All Button - Tombol Sekunder dengan Teks Ringkas "UNDUH"
-                OutlinedButton(
-                    onClick = { onDownloadAllClick(sortedTracks) },
-                    border = ButtonDefaults.outlinedButtonBorder(enabled = true).copy(
-                        brush = SolidColor(BorderSubtle)
-                    ),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        containerColor = Color.Transparent,
-                        contentColor = TextWhite
-                    ),
-                    shape = RoundedCornerShape(2.dp),
-                    modifier = Modifier
-                        .height(38.dp)
-                        .springPressable(scaleDown = 0.93f),
-                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 0.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Download,
-                        contentDescription = "Download All",
-                        tint = TextWhite,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = "UNDUH",
-                        color = TextWhite,
-                        fontFamily = CrankrBodyFont,
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 11.5.sp,
-                        letterSpacing = 0.3.sp,
-                        maxLines = 1
-                    )
-                }
+                // 3. Frosted Glass Download Pill
+                com.example.spotifyclone.ui.components.GlassFilterPill(
+                    label = "Unduh",
+                    selected = false,
+                    leadingIcon = Icons.Default.Download,
+                    onClick = { onDownloadAllClick(sortedTracks) }
+                )
 
-                // 3b. Tombol Bersihkan Lagu Tidak Tersedia (Muncul jika ada trek yang tidak ditemukan)
+                // 3b. Tombol Bersihkan Lagu Tidak Tersedia
                 if (unplayableTracks.isNotEmpty() && onPurgeUnplayableTracks != null) {
-                    OutlinedButton(
-                        onClick = { showPurgeConfirmDialog = true },
-                        border = ButtonDefaults.outlinedButtonBorder(enabled = true).copy(
-                            brush = SolidColor(CrimsonRed.copy(alpha = 0.8f))
-                        ),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            containerColor = CrimsonRedSoft,
-                            contentColor = CrimsonRed
-                        ),
-                        shape = RoundedCornerShape(2.dp),
-                        modifier = Modifier
-                            .height(38.dp)
-                            .springPressable(scaleDown = 0.93f),
-                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 0.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.DeleteSweep,
-                            contentDescription = "Bersihkan Lagu Tidak Tersedia",
-                            tint = CrimsonRed,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = "BERSIHKAN (${unplayableTracks.size})",
-                            color = CrimsonRed,
-                            fontFamily = CrankrBodyFont,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 11.5.sp,
-                            letterSpacing = 0.3.sp,
-                            maxLines = 1
-                        )
-                    }
+                    com.example.spotifyclone.ui.components.GlassFilterPill(
+                        label = "Bersihkan (${unplayableTracks.size})",
+                        selected = false,
+                        leadingIcon = Icons.Default.DeleteSweep,
+                        onClick = { showPurgeConfirmDialog = true }
+                    )
                 }
 
                 Spacer(modifier = Modifier.weight(1f, fill = false))

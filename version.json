@@ -1,7 +1,7 @@
 ﻿{
-    "versionCode":  77,
-    "versionName":  "1.76",
+    "versionCode":  79,
+    "versionName":  "1.78",
     "downloadUrl":  "https://github.com/astrojustakid/Crankr/releases/latest/download/crankr.apk",
-    "changelog":  "[FITUR BARU]\n- Crankr 2.0 UI Overhaul (Fusi 3 Referensi + Aura Liquid Glassmorphism)\r\n- Now Playing Circular Radial Ring Deck: cover bulat di tengah + cincin progress arc interaktif (tap-to-seek \u0026 swipe) + kartu Next Songs peek\r\n- Home Screen v2: Greeting Header, Inline Frosted Glass Search Pill, Peeking Hero Carousel dengan pagination dots, \u0026 Glass Quick Strip\r\n- Library \u0026 Floating 3-Tab Glass Pill Navigation Dock dengan luminous hairline rim 0.8dp\n\n[CATATAN]\n- Seluruh modul Audio Engine, Stream Resolver, Diskografi Artis, \u0026 Database 100% terjaga tanpa perubahan",
+    "changelog":  "[FITUR BARU]\n- Home Carousel kini memuat semua Playlist Saya (termasuk hasil impor \u0026 Lagu Disukai) dan menghapus duplikat section Playlist Saya di bawah\r\n- Penerapan Glassmorphism Crankr 2.0 pada Playlist Detail, Search Screen, \u0026 Pengaturan (bebas slop)\r\n- Pembersihan baris bawah Now Playing (hapus Lirik duplikat \u0026 Stream, pindahkan Kecepatan Putar ke menu titik tiga)\n\n[PERBAIKAN BUG]\n- Perbaikan kontras tombol Putar pada Playlist Detail agar mengikuti OnPrimary tema aktif",
     "mandatory":  false
 }

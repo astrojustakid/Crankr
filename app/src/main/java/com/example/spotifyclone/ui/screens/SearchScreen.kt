@@ -296,10 +296,18 @@ fun SearchScreen(
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
-            .background(PitchBlack),
+            .background(
+                Brush.verticalGradient(
+                    colorStops = arrayOf(
+                        0.0f to HomeTopGlow,
+                        0.30f to Surface,
+                        1.0f to PitchBlack
+                    )
+                )
+            ),
         contentPadding = PaddingValues(bottom = 28.dp)
     ) {
-        // 1. Top Header: Logo + CRANKR Brand + RECAP, STATS, SETTINGS
+        // 1. Crankr 2.0 Frosted Glass Header (Seragam dengan Home & Library)
         item {
             Row(
                 modifier = Modifier
@@ -308,115 +316,54 @@ fun SearchScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Brand Logo & Typemark
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.crankrlogo),
                         contentDescription = "CRANKR Logo",
-                        modifier = Modifier.height(32.dp)
+                        modifier = Modifier.height(28.dp)
                     )
                     Spacer(modifier = Modifier.width(10.dp))
                     Text(
-                        text = "CRANKR",
+                        text = "Cari",
                         fontFamily = CrankrDisplayFont,
                         fontSize = 22.sp,
-                        fontWeight = FontWeight.Black,
-                        color = TextWhite,
-                        letterSpacing = 1.2.sp
+                        fontWeight = FontWeight.Bold,
+                        color = TextWhite
                     )
                 }
 
-                // Action Buttons: RECAP, STATS, SETTINGS
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    // RECAP Pill Button
-                    Surface(
-                        shape = RoundedCornerShape(20.dp),
-                        color = CardSurface,
-                        border = null,
-                        modifier = Modifier
-                            .springPressable(0.982f)
-                            .clickable { onRecapClick?.invoke() }
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(horizontal = 11.dp, vertical = 6.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Bolt,
-                                contentDescription = null,
-                                tint = CrankrAmber,
-                                modifier = Modifier.size(13.dp)
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = "RECAP",
-                                fontFamily = CrankrDisplayFont,
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = CrankrAmber,
-                                letterSpacing = 0.8.sp
-                            )
-                        }
-                    }
-
-                    // STATS Pill Button
-                    Surface(
-                        shape = RoundedCornerShape(20.dp),
-                        color = CardSurface,
-                        border = null,
-                        modifier = Modifier
-                            .springPressable(0.982f)
-                            .clickable { onOpenStats?.invoke() }
-                    ) {
-                        Text(
-                            text = "STATS",
-                            fontFamily = CrankrDisplayFont,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = TextWhite,
-                            letterSpacing = 0.8.sp,
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-                        )
-                    }
-
-                    // SETTINGS Icon Button
-                    Surface(
-                        shape = CircleShape,
-                        color = CardSurface,
-                        border = null,
-                        modifier = Modifier
-                            .size(32.dp)
-                            .springPressable(0.982f)
-                            .clickable { onOpenSettings?.invoke() }
-                    ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Icon(
-                                imageVector = Icons.Default.Settings,
-                                contentDescription = "Settings",
-                                tint = TextSecondary,
-                                modifier = Modifier.size(16.dp)
-                            )
-                        }
-                    }
+                    com.example.spotifyclone.ui.components.GlassIconButton(
+                        icon = Icons.Default.Bolt,
+                        contentDescription = "Recap",
+                        onClick = { onRecapClick?.invoke() },
+                        iconTint = Primary
+                    )
+                    com.example.spotifyclone.ui.components.GlassIconButton(
+                        icon = Icons.Default.Settings,
+                        contentDescription = "Settings",
+                        onClick = { onOpenSettings?.invoke() },
+                        iconTint = TextSecondary
+                    )
                 }
             }
         }
 
-        // 2. Search Bar Capsule Input Field
+        // 2. Frosted Glass Search Capsule Input Field
         item {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 4.dp)
-                    .clip(RoundedCornerShape(26.dp))
-                    .background(CardSurface)
-                    .border(0.5.dp, BorderSubtle.copy(alpha = 0.5f), RoundedCornerShape(26.dp))
-                    .padding(horizontal = 16.dp, vertical = 11.dp)
+                    .padding(horizontal = 16.dp, vertical = 6.dp)
+                    .clip(RoundedCornerShape(999.dp))
+                    .background(Color.White.copy(alpha = 0.08f))
+                    .border(BorderStroke(0.8.dp, com.example.spotifyclone.ui.components.glassHairlineBrush()), RoundedCornerShape(999.dp))
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -1043,8 +990,8 @@ private fun CuratedHubCard(
 ) {
     Surface(
         shape = RoundedCornerShape(16.dp),
-        color = Color(0xFF141414),
-        border = BorderStroke(1.dp, hub.borderColor),
+        color = Color.White.copy(alpha = 0.06f),
+        border = BorderStroke(0.8.dp, com.example.spotifyclone.ui.components.glassHairlineBrush()),
         modifier = Modifier
             .fillMaxWidth()
             .height(115.dp)
@@ -1055,7 +1002,14 @@ private fun CuratedHubCard(
             modifier = Modifier
                 .fillMaxSize()
                 .clip(RoundedCornerShape(16.dp))
-                .background(Brush.linearGradient(hub.gradientColors))
+                .background(
+                    Brush.linearGradient(
+                        listOf(
+                            ElevatedBackground.copy(alpha = 0.65f),
+                            Surface.copy(alpha = 0.85f)
+                        )
+                    )
+                )
         ) {
             // Sisi Kanan: Artwork Cover Miring Bergaya Spotify Browse Cards
             Box(

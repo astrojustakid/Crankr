@@ -708,6 +708,28 @@ fun NowPlayingScreen(
                                     onOpenCrossfade()
                                 }
                             )
+
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        text = "Kecepatan Putar (${playbackSpeed}x)",
+                                        fontFamily = CrankrBodyFont,
+                                        color = TextWhite,
+                                        fontSize = 13.5.sp
+                                    )
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Default.Speed,
+                                        contentDescription = null,
+                                        tint = CrimsonRed,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                },
+                                onClick = {
+                                    onCyclePlaybackSpeed()
+                                }
+                            )
                         }
                     }
                 }
@@ -1212,125 +1234,7 @@ fun NowPlayingScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(6.dp))
-
-            // Spacious, Minimalist Control Strip: Playback Speed, Lyrics Pill, and Audio Status
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp, vertical = 4.dp)
-            ) {
-                // Playback Speed Button (0.75x, 1.0x, 1.25x, 1.5x)
-                Surface(
-                    shape = RoundedCornerShape(2.dp),
-                    color = if (playbackSpeed != 1.0f) CrimsonRed else CardBackground,
-                    border = CardDefaults.outlinedCardBorder().copy(
-                        brush = SolidColor(if (playbackSpeed != 1.0f) CrimsonRed else BorderSubtle)
-                    ),
-                    modifier = Modifier
-                        .springPressable(scaleDown = 0.94f)
-                        .clickable { onCyclePlaybackSpeed() }
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Speed,
-                            contentDescription = "Kecepatan Putar",
-                            tint = if (playbackSpeed != 1.0f) TextWhite else CrimsonRed,
-                            modifier = Modifier.size(13.dp)
-                        )
-                        Spacer(modifier = Modifier.width(5.dp))
-                        Text(
-                            text = "${playbackSpeed}x",
-                            fontFamily = CrankrBodyFont,
-                            color = TextWhite,
-                            fontSize = 11.5.sp,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    }
-                }
-
-                // Sleek Center Lyrics Button
-                Surface(
-                    shape = RoundedCornerShape(2.dp),
-                    color = if (showLyricsPanel) CrimsonRed else CardBackground,
-                    border = CardDefaults.outlinedCardBorder().copy(
-                        brush = SolidColor(if (showLyricsPanel) CrimsonRed else BorderSubtle)
-                    ),
-                    modifier = Modifier
-                        .springPressable(scaleDown = 0.94f)
-                        .clickable { showLyricsPanel = !showLyricsPanel }
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 7.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Lyrics,
-                            contentDescription = "Lirik",
-                            tint = if (showLyricsPanel) TextWhite else CrimsonRed,
-                            modifier = Modifier.size(14.dp)
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = "LIRIK",
-                            fontFamily = CrankrBodyFont,
-                            color = TextWhite,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = 0.5.sp
-                        )
-                    }
-                }
-
-                // Source Stream / Offline badge
-                Surface(
-                    shape = RoundedCornerShape(2.dp),
-                    color = CardBackground,
-                    border = CardDefaults.outlinedCardBorder().copy(brush = SolidColor(BorderSubtle))
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        if (track.isDownloaded) {
-                            Icon(
-                                imageVector = Icons.Default.OfflinePin,
-                                contentDescription = null,
-                                tint = CrimsonRed,
-                                modifier = Modifier.size(13.dp)
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = "OFFLINE",
-                                fontFamily = CrankrBodyFont,
-                                color = CrimsonRed,
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        } else {
-                            Icon(
-                                imageVector = Icons.Default.Wifi,
-                                contentDescription = null,
-                                tint = TextMuted,
-                                modifier = Modifier.size(13.dp)
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = "STREAM",
-                                fontFamily = CrankrBodyFont,
-                                color = TextMuted,
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Medium
-                            )
-                        }
-                    }
-                }
-            }
+            Spacer(modifier = Modifier.height(4.dp))
         }
 
         // Swipe-up / Slide-up Lyrics Panel from Bottom
