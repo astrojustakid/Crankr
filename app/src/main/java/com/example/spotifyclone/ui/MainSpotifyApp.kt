@@ -346,15 +346,15 @@ fun MainSpotifyApp(
                         )
                     }
 
-                    // Aura Liquid Floating Spatial Glass Navigation Dock
+                    // Ref 2 + Ref 3: Compact Centered Frosted Glass Floating Pill Navigation Dock
                     Surface(
-                        shape = RoundedCornerShape(32.dp),
-                        color = ElevatedBackground.copy(alpha = 0.94f),
-                        border = BorderStroke(1.dp, Primary.copy(alpha = 0.22f)),
-                        shadowElevation = 12.dp,
+                        shape = RoundedCornerShape(999.dp),
+                        color = ElevatedBackground.copy(alpha = 0.88f),
+                        border = BorderStroke(0.8.dp, com.example.spotifyclone.ui.components.glassHairlineBrush()),
+                        shadowElevation = 14.dp,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 24.dp, vertical = 8.dp)
+                            .padding(horizontal = 42.dp, vertical = 8.dp)
                     ) {
                         NavigationBar(
                             containerColor = Color.Transparent,
@@ -621,6 +621,17 @@ fun MainSpotifyApp(
                                         onTrendingTrackClick = { track, trendingList ->
                                             viewModel.playTrack(track, trendingList, "Lagu Tren Untuk Anda")
                                             homeViewModel.refreshRecentlyPlayed()
+                                        },
+                                        onSearchBarClick = {
+                                            coroutineScope.launch {
+                                                pagerState.animateScrollToPage(
+                                                    page = NavigationTab.SEARCH.ordinal,
+                                                    animationSpec = spring(
+                                                        dampingRatio = 0.92f,
+                                                        stiffness = 300f
+                                                    )
+                                                )
+                                            }
                                         }
                                     )
                                 }
@@ -837,8 +848,14 @@ fun MainSpotifyApp(
             modifier = Modifier.fillMaxSize()
         ) {
             if (currentTrack != null) {
+                val nextTrackInQueue = remember(playbackQueue, currentTrack?.id) {
+                    val idx = playbackQueue.indexOfFirst { it.id == currentTrack?.id }
+                    if (idx >= 0 && idx + 1 < playbackQueue.size) playbackQueue[idx + 1]
+                    else playbackQueue.firstOrNull { it.id != currentTrack?.id }
+                }
                 NowPlayingScreen(
                     track = currentTrack!!,
+                    nextTrack = nextTrackInQueue,
                     isPlaying = isPlaying,
                     currentPositionMs = currentPositionMs,
                     durationMs = durationMs,

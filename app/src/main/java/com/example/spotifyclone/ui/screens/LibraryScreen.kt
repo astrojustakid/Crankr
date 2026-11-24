@@ -35,6 +35,8 @@ import com.example.spotifyclone.data.model.SpotifyPlaylist
 import com.example.spotifyclone.data.model.Track
 import com.example.spotifyclone.theme.*
 import com.example.spotifyclone.ui.components.BackupRestoreDialog
+import com.example.spotifyclone.ui.components.GlassFilterPill
+import com.example.spotifyclone.ui.components.GlassIconButton
 import com.example.spotifyclone.ui.components.springPressable
 import kotlinx.coroutines.delay
 
@@ -71,14 +73,24 @@ fun LibraryScreen(
         }
     }
 
+    var selectedLibraryTab by remember { mutableStateOf("Semua") }
+
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
-            .background(Neutral)
+            .background(
+                androidx.compose.ui.graphics.Brush.verticalGradient(
+                    colorStops = arrayOf(
+                        0.0f to HomeTopGlow,
+                        0.28f to Surface,
+                        1.0f to PitchBlack
+                    )
+                )
+            )
             .padding(horizontal = 16.dp),
         contentPadding = PaddingValues(bottom = 28.dp)
     ) {
-        // 1. Screen TopAppBar: crankrlogo + CRANKR Title + Action Buttons
+        // 1. Ref 3 Glass Library Header & Frosted Filter Pills
         item {
             Spacer(modifier = Modifier.height(14.dp))
             Row(
@@ -90,16 +102,15 @@ fun LibraryScreen(
                     Image(
                         painter = painterResource(id = R.drawable.crankrlogo),
                         contentDescription = "CRANKR Logo",
-                        modifier = Modifier.height(32.dp)
+                        modifier = Modifier.height(28.dp)
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(10.dp))
                     Text(
-                        text = "CRANKR",
+                        text = "Koleksi",
                         fontFamily = CrankrDisplayFont,
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Bold,
-                        color = TextWhite,
-                        letterSpacing = 1.2.sp
+                        color = TextWhite
                     )
                 }
 
@@ -107,35 +118,36 @@ fun LibraryScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Create playlist button
-                    Surface(
-                        shape = RoundedCornerShape(20.dp),
-                        color = Primary,
-                        modifier = Modifier
-                            .springPressable(0.95f)
-                            .clickable { showCreateDialog = true }
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Add,
-                                contentDescription = "Buat Playlist",
-                                tint = Neutral,
-                                modifier = Modifier.size(15.dp)
-                            )
-                            Spacer(modifier = Modifier.width(5.dp))
-                            Text(
-                                text = "PLAYLIST",
-                                fontFamily = CrankrDisplayFont,
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Neutral,
-                                letterSpacing = 0.5.sp
-                            )
+                    GlassIconButton(
+                        icon = Icons.Default.Add,
+                        contentDescription = "Buat Playlist",
+                        onClick = { showCreateDialog = true },
+                        iconTint = OnPrimary,
+                        containerColor = Primary
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Frosted Glass Filter Pills (Ref 3)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                listOf("Semua", "Disukai", "Playlist").forEach { tabLabel ->
+                    GlassFilterPill(
+                        label = tabLabel,
+                        selected = selectedLibraryTab == tabLabel,
+                        onClick = {
+                            selectedLibraryTab = tabLabel
+                            if (tabLabel == "Disukai" && likedSongsPlaylist != null) {
+                                onPlaylistClick(likedSongsPlaylist)
+                            }
                         }
-                    }
+                    )
                 }
             }
             Spacer(modifier = Modifier.height(14.dp))

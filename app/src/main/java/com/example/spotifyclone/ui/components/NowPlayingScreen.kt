@@ -68,6 +68,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun NowPlayingScreen(
     track: Track,
+    nextTrack: Track? = null,
     isPlaying: Boolean,
     currentPositionMs: Long,
     durationMs: Long,
@@ -712,25 +713,37 @@ fun NowPlayingScreen(
                 }
             }
 
+            Spacer(modifier = Modifier.height(6.dp))
+
+            // Ref 1 Signature Stage: Circular Radial Progress Ring (default COVER) or Cassette/Vinyl Deck
+            if (deckVisualMode == DeckVisualMode.COVER) {
+                CircularRadialPlayerDeck(
+                    coverUrl = track.coverUrl,
+                    currentPositionMs = currentPositionMs,
+                    durationMs = durationMs,
+                    onSeekTo = onSeekTo,
+                    onSwipeLeft = { onNextClick() },
+                    onSwipeRight = { onPreviousClick() },
+                    modifier = Modifier.padding(vertical = 4.dp)
+                )
+            } else {
+                RetroPunkDeck(
+                    track = track,
+                    isPlaying = isPlaying,
+                    currentPositionMs = currentPositionMs,
+                    durationMs = durationMs,
+                    mode = deckVisualMode,
+                    onToggleMode = { cycleDeckMode() },
+                    onSwipeRight = { onPreviousClick() },
+                    onSwipeLeft = { onNextClick() },
+                    onSwipeDown = { onDismiss() },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 4.dp)
+                )
+            }
+
             Spacer(modifier = Modifier.height(10.dp))
-
-            // Interactive Retro Deck Centerpiece: Cassette Tape, Vinyl Turntable, or Album Cover
-            RetroPunkDeck(
-                track = track,
-                isPlaying = isPlaying,
-                currentPositionMs = currentPositionMs,
-                durationMs = durationMs,
-                mode = deckVisualMode,
-                onToggleMode = { cycleDeckMode() },
-                onSwipeRight = { onPreviousClick() },
-                onSwipeLeft = { onNextClick() },
-                onSwipeDown = { onDismiss() },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 4.dp)
-            )
-
-            Spacer(modifier = Modifier.height(14.dp))
 
             // Track Title & Artist right beneath album art (eliminating excessive vertical gaps)
             Row(
@@ -1058,66 +1071,144 @@ fun NowPlayingScreen(
                 }
             }
 
-            Surface(
-                shape = RoundedCornerShape(16.dp),
-                color = CardSurface,
-                border = BorderStroke(1.dp, Border),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp)
-                    .springPressable(0.97f)
-                    .clickable { showLyricsPanel = true }
-            ) {
+            // Ref 1 "Next Songs" + Frosted Glass Lyrics Peek
+            if (nextTrack != null) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 14.dp, vertical = 10.dp),
+                        .padding(horizontal = 2.dp, vertical = 2.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Box(
+                    Text(
+                        text = "Next Songs",
+                        fontFamily = CrankrDisplayFont,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = TextWhite.copy(alpha = 0.9f)
+                    )
+                    GlassFilterPill(
+                        label = "Lirik",
+                        selected = showLyricsPanel,
+                        leadingIcon = Icons.Default.Lyrics,
+                        onClick = { showLyricsPanel = !showLyricsPanel }
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                GlassSurface(
+                    shape = RoundedCornerShape(16.dp),
+                    containerColor = Color.White.copy(alpha = 0.08f),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .springPressable(0.97f)
+                        .clickable { onOpenQueue() }
+                ) {
+                    Row(
                         modifier = Modifier
-                            .size(32.dp)
-                            .clip(CircleShape)
-                            .background(Primary.copy(alpha = 0.18f)),
-                        contentAlignment = Alignment.Center
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 9.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
+                        AsyncImage(
+                            model = nextTrack.coverUrl,
+                            contentDescription = nextTrack.title,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .size(38.dp)
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(CardSurface)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = nextTrack.title,
+                                fontFamily = CrankrBodyFont,
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = TextWhite,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            Text(
+                                text = nextTrack.artist,
+                                fontFamily = CrankrBodyFont,
+                                fontSize = 11.sp,
+                                color = TextSecondary,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
                         Icon(
-                            imageVector = Icons.Default.Lyrics,
-                            contentDescription = "Lirik",
+                            imageVector = Icons.AutoMirrored.Filled.QueueMusic,
+                            contentDescription = "Antrean",
                             tint = Primary,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                }
+            } else {
+                GlassSurface(
+                    shape = RoundedCornerShape(16.dp),
+                    containerColor = Color.White.copy(alpha = 0.08f),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp)
+                        .springPressable(0.97f)
+                        .clickable { showLyricsPanel = true }
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 14.dp, vertical = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(32.dp)
+                                .clip(CircleShape)
+                                .background(Primary.copy(alpha = 0.18f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Lyrics,
+                                contentDescription = "Lirik",
+                                tint = Primary,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.width(12.dp))
+
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "LIRIK SINKRON",
+                                fontFamily = CrankrDisplayFont,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 10.sp,
+                                color = Primary,
+                                letterSpacing = 1.sp
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = activeLyricLine ?: (if (isLoadingLyrics) "Memuat lirik..." else "Ketuk untuk melihat lirik penuh"),
+                                fontFamily = CrankrBodyFont,
+                                color = Secondary,
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 13.sp,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+
+                        Icon(
+                            imageVector = Icons.Default.NorthEast,
+                            contentDescription = "Buka",
+                            tint = Tertiary,
                             modifier = Modifier.size(16.dp)
                         )
                     }
-
-                    Spacer(modifier = Modifier.width(12.dp))
-
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "LIRIK SINKRON",
-                            fontFamily = CrankrDisplayFont,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 10.sp,
-                            color = Primary,
-                            letterSpacing = 1.sp
-                        )
-                        Spacer(modifier = Modifier.height(2.dp))
-                        Text(
-                            text = activeLyricLine ?: (if (isLoadingLyrics) "Memuat lirik..." else "Ketuk untuk melihat lirik penuh"),
-                            fontFamily = CrankrBodyFont,
-                            color = Secondary,
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize = 13.sp,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-
-                    Icon(
-                        imageVector = Icons.Default.NorthEast,
-                        contentDescription = "Buka",
-                        tint = Tertiary,
-                        modifier = Modifier.size(16.dp)
-                    )
                 }
             }
 

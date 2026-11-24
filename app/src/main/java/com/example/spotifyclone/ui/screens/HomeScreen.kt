@@ -13,6 +13,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -26,8 +28,11 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentPaste
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Link
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Restore
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -50,8 +55,12 @@ import com.example.spotifyclone.data.model.SpotifyPlaylist
 import com.example.spotifyclone.data.model.Track
 import com.example.spotifyclone.theme.*
 import com.example.spotifyclone.ui.components.BackupRestoreDialog
+import com.example.spotifyclone.ui.components.GlassFilterPill
+import com.example.spotifyclone.ui.components.GlassIconButton
+import com.example.spotifyclone.ui.components.GlassSurface
 import com.example.spotifyclone.ui.components.PlaylistCard
 import com.example.spotifyclone.ui.components.TrackItem
+import com.example.spotifyclone.ui.components.glassHairlineBrush
 import com.example.spotifyclone.ui.components.springPressable
 import com.example.spotifyclone.ui.viewmodel.PopularTracksUiState
 import com.example.spotifyclone.ui.viewmodel.RecentlyPlayedUiState
@@ -101,6 +110,7 @@ fun HomeScreen(
     trendingSongs: List<Track> = emptyList(),
     trendingSongsState: TrendingSongsUiState? = null,
     onTrendingTrackClick: ((Track, List<Track>) -> Unit)? = null,
+    onSearchBarClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var showCreateDialog by remember { mutableStateOf(false) }
@@ -152,207 +162,338 @@ fun HomeScreen(
             ),
         contentPadding = PaddingValues(bottom = 24.dp)
     ) {
-        // Kinetic Mono Editorial Masthead
+        // Ref 2 + Ref 3: Greeting Header + Inline Glass Search Pill + Peeking Hero Carousel
         item {
+            val greetingText = remember {
+                val hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
+                when (hour) {
+                    in 5..10 -> "Selamat pagi,"
+                    in 11..14 -> "Selamat siang,"
+                    in 15..18 -> "Selamat sore,"
+                    else -> "Selamat malam,"
+                }
+            }
+
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                    .padding(top = 12.dp, bottom = 6.dp)
             ) {
+                // 1. Greeting Header (Ref 2)
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Editorial Brand & Subtitle
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         Image(
                             painter = painterResource(id = R.drawable.crankrlogo),
                             contentDescription = "CRANKR Logo",
-                            modifier = Modifier.height(30.dp)
+                            modifier = Modifier.height(28.dp)
                         )
                         Spacer(modifier = Modifier.width(10.dp))
                         Column {
                             Text(
-                                text = "CRANKR",
+                                text = greetingText,
                                 fontFamily = CrankrDisplayFont,
-                                fontSize = 20.sp,
+                                fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = TextWhite,
-                                letterSpacing = 1.6.sp
+                                color = TextWhite
                             )
                             Text(
-                                text = "Dengar Sekarang",
+                                text = "Crankr Music",
                                 fontFamily = CrankrBodyFont,
-                                fontSize = 11.sp,
+                                fontSize = 11.5.sp,
                                 color = TextSecondary
                             )
                         }
                     }
 
-                    // Minimalist Monochrome Action Pills
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Surface(
-                            shape = RoundedCornerShape(20.dp),
-                            color = Surface,
-                            border = BorderStroke(1.dp, Border),
-                            modifier = Modifier
-                                .springPressable(0.95f)
-                                .clickable { onRecapClick() }
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.padding(horizontal = 11.dp, vertical = 6.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Bolt,
-                                    contentDescription = null,
-                                    tint = Primary,
-                                    modifier = Modifier.size(13.dp)
-                                )
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(
-                                    text = "RECAP",
-                                    fontFamily = CrankrDisplayFont,
-                                    fontSize = 10.5.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = TextWhite,
-                                    letterSpacing = 0.8.sp
-                                )
-                            }
-                        }
-
-                        Surface(
-                            shape = RoundedCornerShape(20.dp),
-                            color = Surface,
-                            border = BorderStroke(1.dp, Border),
-                            modifier = Modifier
-                                .springPressable(0.95f)
-                                .clickable { onOpenStats() }
-                        ) {
-                            Text(
-                                text = "STATS",
-                                fontFamily = CrankrDisplayFont,
-                                fontSize = 10.5.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = TextSecondary,
-                                letterSpacing = 0.8.sp,
-                                modifier = Modifier.padding(horizontal = 11.dp, vertical = 6.dp)
-                            )
-                        }
-
-                        Surface(
-                            shape = CircleShape,
-                            color = Surface,
-                            border = BorderStroke(1.dp, Border),
-                            modifier = Modifier
-                                .size(32.dp)
-                                .springPressable(0.95f)
-                                .clickable { onOpenSettings() }
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Icon(
-                                    imageVector = Icons.Default.Settings,
-                                    contentDescription = "Settings",
-                                    tint = TextSecondary,
-                                    modifier = Modifier.size(16.dp)
-                                )
-                            }
-                        }
+                        GlassIconButton(
+                            icon = Icons.Default.Bolt,
+                            contentDescription = "Recap",
+                            onClick = onRecapClick,
+                            iconTint = Primary
+                        )
+                        GlassIconButton(
+                            icon = Icons.Default.Settings,
+                            contentDescription = "Settings",
+                            onClick = onOpenSettings,
+                            iconTint = TextSecondary
+                        )
                     }
                 }
 
                 Spacer(modifier = Modifier.height(14.dp))
 
-                // Kinetic Mono Import Playlist Card
-                Card(
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Surface),
-                    border = BorderStroke(1.dp, Border),
-                    modifier = Modifier.fillMaxWidth()
+                // 2. Inline Frosted Glass Search Pill (Ref 2 + Ref 3)
+                GlassSurface(
+                    shape = RoundedCornerShape(999.dp),
+                    containerColor = Color.White.copy(alpha = 0.08f),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .springPressable(0.98f)
+                        .clickable { onSearchBarClick() }
                 ) {
-                    Column(
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 14.dp, vertical = 11.dp)
+                            .padding(horizontal = 16.dp, vertical = 12.dp)
                     ) {
-                        Row(
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = "Cari",
+                            tint = TextSecondary,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Text(
+                            text = "Cari lagu, artis, atau album...",
+                            fontFamily = CrankrBodyFont,
+                            fontSize = 13.sp,
+                            color = TextMuted
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(18.dp))
+
+                // 3. Peeking Hero Carousel (Ref 2)
+                val heroPlaylists = remember(spotifyPlaylists, likedSongsPlaylist) {
+                    buildList {
+                        spotifyPlaylists.filter { it.id != "liked_songs" }.take(5).forEach { add(it) }
+                        if (likedSongsPlaylist != null) add(likedSongsPlaylist)
+                    }
+                }
+
+                if (heroPlaylists.isNotEmpty()) {
+                    val heroPagerState = rememberPagerState(pageCount = { heroPlaylists.size })
+
+                    HorizontalPager(
+                        state = heroPagerState,
+                        contentPadding = PaddingValues(horizontal = 24.dp),
+                        pageSpacing = 12.dp,
+                        modifier = Modifier.fillMaxWidth()
+                    ) { pageIndex ->
+                        val pl = heroPlaylists[pageIndex]
+                        Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable { isImportExpanded = !isImportExpanded },
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
+                                .height(216.dp)
+                                .clip(RoundedCornerShape(20.dp))
+                                .background(CardSurface)
+                                .border(BorderStroke(0.8.dp, glassHairlineBrush()), RoundedCornerShape(20.dp))
+                                .springPressable(0.985f)
+                                .clickable { onPlaylistClick(pl) }
                         ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Link,
-                                    contentDescription = null,
-                                    tint = TextSecondary,
-                                    modifier = Modifier.size(15.dp)
+                            if (!pl.imageUrl.isNullOrBlank()) {
+                                AsyncImage(
+                                    model = pl.imageUrl,
+                                    contentDescription = pl.name,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier.fillMaxSize()
                                 )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    text = "Impor Playlist Spotify / Link",
-                                    fontFamily = CrankrBodyFont,
-                                    fontSize = 12.5.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    color = TextWhite
-                                )
-                            }
-
-                            Surface(
-                                shape = RoundedCornerShape(20.dp),
-                                color = if (isImportExpanded) Primary else ElevatedBackground,
-                                border = BorderStroke(1.dp, if (isImportExpanded) Primary else Border),
-                                modifier = Modifier.springPressable(0.96f)
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
+                            } else {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .background(
+                                            androidx.compose.ui.graphics.Brush.linearGradient(
+                                                listOf(ElevatedBackground, Surface, PitchBlack)
+                                            )
+                                        ),
+                                    contentAlignment = Alignment.Center
                                 ) {
                                     Icon(
-                                        imageVector = if (isImportExpanded) Icons.Default.Close else Icons.Default.Add,
+                                        imageVector = Icons.Default.Favorite,
                                         contentDescription = null,
-                                        tint = if (isImportExpanded) OnPrimary else TextWhite,
-                                        modifier = Modifier.size(11.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                    Text(
-                                        text = if (isImportExpanded) "Tutup" else "Buka",
-                                        fontFamily = CrankrDisplayFont,
-                                        fontSize = 10.5.sp,
-                                        fontWeight = FontWeight.SemiBold,
-                                        color = if (isImportExpanded) OnPrimary else TextWhite
+                                        tint = Primary.copy(alpha = 0.35f),
+                                        modifier = Modifier.size(64.dp)
                                     )
                                 }
                             }
-                        }
 
-                        // Expandable Clean Import Field
-                        AnimatedVisibility(
-                            visible = isImportExpanded || isSyncingSpotify,
-                            enter = expandVertically() + fadeIn(),
-                            exit = shrinkVertically() + fadeOut()
-                        ) {
-                            Column(
+                            // Cinematic bottom scrim for crystal-clear readability
+                            Box(
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(top = 10.dp)
+                                    .fillMaxSize()
+                                    .background(
+                                        androidx.compose.ui.graphics.Brush.verticalGradient(
+                                            colorStops = arrayOf(
+                                                0.0f to Color.Black.copy(alpha = 0.12f),
+                                                0.45f to Color.Black.copy(alpha = 0.30f),
+                                                1.0f to Color.Black.copy(alpha = 0.88f)
+                                            )
+                                        )
+                                    )
+                            )
+
+                            // Top Glass Badge
+                            Surface(
+                                shape = RoundedCornerShape(999.dp),
+                                color = Color.Black.copy(alpha = 0.42f),
+                                border = BorderStroke(0.8.dp, glassHairlineBrush()),
+                                modifier = Modifier
+                                    .align(Alignment.TopStart)
+                                    .padding(14.dp)
                             ) {
+                                Text(
+                                    text = if (pl.id == "liked_songs") "Favorit Kamu" else "Featured Playlist",
+                                    fontFamily = CrankrBodyFont,
+                                    fontSize = 10.5.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = Color.White,
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                                )
+                            }
+
+                            // Bottom Info + Crisp Play Pill (Ref 2)
+                            Row(
+                                modifier = Modifier
+                                    .align(Alignment.BottomCenter)
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.Bottom
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = pl.name,
+                                        fontFamily = CrankrDisplayFont,
+                                        fontSize = 19.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.White,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    Spacer(modifier = Modifier.height(2.dp))
+                                    Text(
+                                        text = "${pl.trackCount} lagu",
+                                        fontFamily = CrankrBodyFont,
+                                        fontSize = 12.sp,
+                                        color = Color.White.copy(alpha = 0.78f)
+                                    )
+                                }
+
+                                Spacer(modifier = Modifier.width(10.dp))
+
+                                Surface(
+                                    shape = RoundedCornerShape(999.dp),
+                                    color = Primary,
+                                    modifier = Modifier
+                                        .springPressable(0.94f)
+                                        .clickable { onPlaylistClick(pl) }
+                                ) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.PlayArrow,
+                                            contentDescription = "Putar",
+                                            tint = OnPrimary,
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(3.dp))
+                                        Text(
+                                            text = "Play",
+                                            fontFamily = CrankrDisplayFont,
+                                            fontSize = 12.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = OnPrimary
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Carousel Pagination Indicator Dots (Ref 2)
+                    if (heroPlaylists.size > 1) {
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            repeat(heroPlaylists.size) { dotIndex ->
+                                val active = heroPagerState.currentPage == dotIndex
                                 Box(
                                     modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(1.dp)
-                                        .background(BorderSubtle)
+                                        .padding(horizontal = 3.dp)
+                                        .height(5.dp)
+                                        .width(if (active) 18.dp else 5.dp)
+                                        .clip(RoundedCornerShape(999.dp))
+                                        .background(if (active) Primary else TextMuted.copy(alpha = 0.45f))
                                 )
-                                Spacer(modifier = Modifier.height(10.dp))
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(14.dp))
+                }
+
+                // 4. Compact Frosted Glass Quick Strip (Acak • Stats • Impor Link)
+                val randomPoolTop = remember(displayTrendingSongs, displayPopularTracks, displayRecentlyPlayed) {
+                    (displayTrendingSongs + displayPopularTracks + displayRecentlyPlayed).distinctBy { it.id }
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState())
+                        .padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    if (randomPoolTop.isNotEmpty()) {
+                        GlassFilterPill(
+                            label = "Putar Acak",
+                            selected = true,
+                            leadingIcon = Icons.Default.Shuffle,
+                            onClick = {
+                                randomPoolTop.randomOrNull()?.let { onTrackClick(it) }
+                            }
+                        )
+                    }
+                    GlassFilterPill(
+                        label = if (isImportExpanded) "Tutup Impor" else "Impor Playlist",
+                        selected = isImportExpanded,
+                        leadingIcon = if (isImportExpanded) Icons.Default.Close else Icons.Default.Link,
+                        onClick = { isImportExpanded = !isImportExpanded }
+                    )
+                    GlassFilterPill(
+                        label = "Statistik",
+                        selected = false,
+                        leadingIcon = Icons.Default.Bolt,
+                        onClick = onOpenStats
+                    )
+                }
+
+                // Expandable Clean Glass Import Drawer (only visible when tapped)
+                AnimatedVisibility(
+                    visible = isImportExpanded || isSyncingSpotify,
+                    enter = expandVertically() + fadeIn(),
+                    exit = shrinkVertically() + fadeOut()
+                ) {
+                    GlassSurface(
+                        shape = RoundedCornerShape(14.dp),
+                        containerColor = Surface.copy(alpha = 0.85f),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 10.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(14.dp)
+                        ) {
 
                                 OutlinedTextField(
                                     value = importUrlInput,
@@ -492,9 +633,8 @@ fun HomeScreen(
                     }
                 }
             }
-        }
 
-        // Playlists Row Section with Sharp Corners
+        // Playlists Row Section
         item {
             Row(
                 modifier = Modifier

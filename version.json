@@ -1,7 +1,7 @@
 ﻿{
-    "versionCode":  75,
-    "versionName":  "1.74",
+    "versionCode":  77,
+    "versionName":  "1.76",
     "downloadUrl":  "https://github.com/astrojustakid/Crankr/releases/latest/download/crankr.apk",
-    "changelog":  "[PERBAIKAN BUG]\n- Perbaikan layar Search yang sebelumnya tertahan pada tema awal saat ganti tema di Pengaturan\r\n- Mengubah konstanta warna statis di SearchScreen.kt menjadi live getter \u0026 menambahkan key CrankrThemeState.activePalette pada remember curatedHubs",
+    "changelog":  "[FITUR BARU]\n- Crankr 2.0 UI Overhaul (Fusi 3 Referensi + Aura Liquid Glassmorphism)\r\n- Now Playing Circular Radial Ring Deck: cover bulat di tengah + cincin progress arc interaktif (tap-to-seek \u0026 swipe) + kartu Next Songs peek\r\n- Home Screen v2: Greeting Header, Inline Frosted Glass Search Pill, Peeking Hero Carousel dengan pagination dots, \u0026 Glass Quick Strip\r\n- Library \u0026 Floating 3-Tab Glass Pill Navigation Dock dengan luminous hairline rim 0.8dp\n\n[CATATAN]\n- Seluruh modul Audio Engine, Stream Resolver, Diskografi Artis, \u0026 Database 100% terjaga tanpa perubahan",
     "mandatory":  false
 }
