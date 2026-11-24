@@ -144,45 +144,51 @@ fun HomeScreen(
             .background(PitchBlack),
         contentPadding = PaddingValues(bottom = 24.dp)
     ) {
-        // Crankr Brand Header: Minimal Top Action Row & Clean Action Bar (Indie/Brutalist Zine)
+        // Kinetic Mono Editorial Masthead
         item {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 10.dp)
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
             ) {
-                // Top Action Row: Compact Brand + RECAP, STATS & SETTINGS Action Buttons
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Brand Logo & Typemark
+                    // Editorial Brand & Subtitle
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.crankrlogo),
                             contentDescription = "CRANKR Logo",
-                            modifier = Modifier.height(32.dp)
+                            modifier = Modifier.height(30.dp)
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = "CRANKR",
-                            fontFamily = CrankrDisplayFont,
-                            fontSize = 22.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = TextWhite,
-                            letterSpacing = 1.2.sp
-                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column {
+                            Text(
+                                text = "CRANKR",
+                                fontFamily = CrankrDisplayFont,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = TextWhite,
+                                letterSpacing = 1.6.sp
+                            )
+                            Text(
+                                text = "Dengar Sekarang",
+                                fontFamily = CrankrBodyFont,
+                                fontSize = 11.sp,
+                                color = TextSecondary
+                            )
+                        }
                     }
 
-                    // Top Action Buttons: RECAP, STATS, SETTINGS (Identik dengan SearchScreen)
+                    // Minimalist Monochrome Action Pills
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        // RECAP Pill Button
                         Surface(
                             shape = RoundedCornerShape(20.dp),
                             color = Surface,
@@ -205,15 +211,14 @@ fun HomeScreen(
                                 Text(
                                     text = "RECAP",
                                     fontFamily = CrankrDisplayFont,
-                                    fontSize = 11.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Primary,
+                                    fontSize = 10.5.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = TextWhite,
                                     letterSpacing = 0.8.sp
                                 )
                             }
                         }
 
-                        // STATS Pill Button
                         Surface(
                             shape = RoundedCornerShape(20.dp),
                             color = Surface,
@@ -225,15 +230,14 @@ fun HomeScreen(
                             Text(
                                 text = "STATS",
                                 fontFamily = CrankrDisplayFont,
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = TextWhite,
+                                fontSize = 10.5.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = TextSecondary,
                                 letterSpacing = 0.8.sp,
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                                modifier = Modifier.padding(horizontal = 11.dp, vertical = 6.dp)
                             )
                         }
 
-                        // SETTINGS Icon Button
                         Surface(
                             shape = CircleShape,
                             color = Surface,
@@ -255,21 +259,20 @@ fun HomeScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(14.dp))
 
-                // Import Playlist Card (16dp Rounded Card dengan latar Neutral gelap)
+                // Kinetic Mono Import Playlist Card
                 Card(
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Neutral),
+                    colors = CardDefaults.cardColors(containerColor = Surface),
                     border = BorderStroke(1.dp, Border),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 12.dp, vertical = 10.dp)
+                            .padding(horizontal = 14.dp, vertical = 11.dp)
                     ) {
-                        // Header Baris Impor Playlist: Judul IMPORT SPOTIFY // TARIK DATA LOKAL & Toggle Button
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -280,47 +283,45 @@ fun HomeScreen(
                             Row(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(width = 3.dp, height = 13.dp)
-                                        .background(punchyRed)
+                                Icon(
+                                    imageVector = Icons.Default.Link,
+                                    contentDescription = null,
+                                    tint = TextSecondary,
+                                    modifier = Modifier.size(15.dp)
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
-                                    text = "Import Your Playlist",
-                                    fontFamily = CrankrDisplayFont,
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = TextWhite,
-                                    letterSpacing = 0.6.sp
+                                    text = "Impor Playlist Spotify / Link",
+                                    fontFamily = CrankrBodyFont,
+                                    fontSize = 12.5.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = TextWhite
                                 )
                             }
 
-                            // Toggle Button
                             Surface(
-                                shape = RoundedCornerShape(2.dp),
-                                color = if (isImportExpanded) CardBackground else PitchBlack,
-                                border = BorderStroke(1.dp, if (isImportExpanded) punchyRed else BorderSubtle),
+                                shape = RoundedCornerShape(20.dp),
+                                color = if (isImportExpanded) Primary else ElevatedBackground,
+                                border = BorderStroke(1.dp, if (isImportExpanded) Primary else Border),
                                 modifier = Modifier.springPressable(0.96f)
                             ) {
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.padding(horizontal = 9.dp, vertical = 5.dp)
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
                                 ) {
                                     Icon(
                                         imageVector = if (isImportExpanded) Icons.Default.Close else Icons.Default.Add,
                                         contentDescription = null,
-                                        tint = if (isImportExpanded) punchyRed else TextWhite,
+                                        tint = if (isImportExpanded) OnPrimary else TextWhite,
                                         modifier = Modifier.size(11.dp)
                                     )
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Text(
-                                        text = if (isImportExpanded) "TUTUP" else "BUKA",
+                                        text = if (isImportExpanded) "Tutup" else "Buka",
                                         fontFamily = CrankrDisplayFont,
                                         fontSize = 10.5.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = if (isImportExpanded) punchyRed else TextWhite,
-                                        letterSpacing = 0.5.sp
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = if (isImportExpanded) OnPrimary else TextWhite
                                     )
                                 }
                             }
@@ -468,11 +469,11 @@ fun HomeScreen(
                                             )
                                         } else {
                                             Text(
-                                                text = "IMPOR & PUTAR DISTORSI",
+                                                text = "IMPOR PLAYLIST",
                                                 fontFamily = CrankrDisplayFont,
                                                 fontSize = 11.sp,
                                                 fontWeight = FontWeight.Bold,
-                                                color = Neutral,
+                                                color = OnPrimary,
                                                 letterSpacing = 0.8.sp
                                             )
                                         }
@@ -1053,10 +1054,10 @@ fun HomeScreen(
                             showCreateDialog = false
                         }
                     },
-                    shape = RoundedCornerShape(3.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = CrimsonRed)
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Primary, contentColor = OnPrimary)
                 ) {
-                    Text(text = "SIMPAN", fontFamily = CrankrDisplayFont, fontWeight = FontWeight.Bold, color = TextWhite)
+                    Text(text = "SIMPAN", fontFamily = CrankrDisplayFont, fontWeight = FontWeight.Bold, color = OnPrimary)
                 }
             },
             dismissButton = {

@@ -1182,9 +1182,9 @@ fun PlaylistDetailScreen(
                         }
                     },
                     shape = RoundedCornerShape(3.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = CrimsonRed)
+                    colors = ButtonDefaults.buttonColors(containerColor = Primary, contentColor = OnPrimary)
                 ) {
-                    Text(text = "SIMPAN", fontFamily = CrankrDisplayFont, fontWeight = FontWeight.Bold, color = TextWhite)
+                    Text(text = "SIMPAN", fontFamily = CrankrDisplayFont, fontWeight = FontWeight.Bold, color = OnPrimary)
                 }
             },
             dismissButton = {
@@ -1232,9 +1232,9 @@ fun PlaylistDetailScreen(
                         onDeletePlaylist()
                     },
                     shape = RoundedCornerShape(3.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = CrimsonRed)
+                    colors = ButtonDefaults.buttonColors(containerColor = Primary, contentColor = OnPrimary)
                 ) {
-                    Text(text = "HAPUS", fontFamily = CrankrDisplayFont, fontWeight = FontWeight.Bold, color = TextWhite)
+                    Text(text = "HAPUS", fontFamily = CrankrDisplayFont, fontWeight = FontWeight.Bold, color = OnPrimary)
                 }
             },
             dismissButton = {
@@ -1282,9 +1282,9 @@ fun PlaylistDetailScreen(
                         trackToRemove = null
                     },
                     shape = RoundedCornerShape(3.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = CrimsonRed)
+                    colors = ButtonDefaults.buttonColors(containerColor = Primary, contentColor = OnPrimary)
                 ) {
-                    Text(text = "HAPUS", fontFamily = CrankrDisplayFont, fontWeight = FontWeight.Bold, color = TextWhite)
+                    Text(text = "HAPUS", fontFamily = CrankrDisplayFont, fontWeight = FontWeight.Bold, color = OnPrimary)
                 }
             },
             dismissButton = {
@@ -1328,9 +1328,9 @@ fun PlaylistDetailScreen(
                         onPurgeUnplayableTracks?.invoke()
                     },
                     shape = RoundedCornerShape(3.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = CrimsonRed)
+                    colors = ButtonDefaults.buttonColors(containerColor = Primary, contentColor = OnPrimary)
                 ) {
-                    Text(text = "HAPUS SEMUA", fontFamily = CrankrDisplayFont, fontWeight = FontWeight.Bold, color = TextWhite)
+                    Text(text = "HAPUS SEMUA", fontFamily = CrankrDisplayFont, fontWeight = FontWeight.Bold, color = OnPrimary)
                 }
             },
             dismissButton = {
@@ -1572,8 +1572,8 @@ fun RecommendedTrackItem(
                 },
                 shape = RoundedCornerShape(2.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = CrimsonRed,
-                    contentColor = TextWhite
+                    containerColor = Primary,
+                    contentColor = OnPrimary
                 ),
                 contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
                 modifier = Modifier.height(28.dp)

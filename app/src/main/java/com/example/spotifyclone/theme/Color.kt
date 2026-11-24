@@ -2,38 +2,39 @@ package com.example.spotifyclone.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Crankr Design Tokens (Pure OLED Obsidian & Electric Crimson)
-val Primary = Color(0xFFFF2A4D) // Electric Neon Crimson Red
-val Secondary = Color(0xFFFFFFFF) // Crisp Pure White
-val Tertiary = Color(0xFFA1A1AA) // Cool Slate Gray
-val Neutral = Color(0xFF000000) // True OLED Pitch Black
-val Background = Neutral // #000000
-val Surface = Color(0xFF101014) // Deep Obsidian Surface
-val CardSurface = Color(0xFF16161C) // Elevated Card Surface without harsh borders
-val Border = Color(0xFF222228) // Ultra-subtle divider
-val BorderSubtle = Color(0xFF1A1A20)
-val BorderActive = Primary // #FF2A4D
+// Crankr Design Tokens — KINETIC MONO (Ultra-Minimalist Art Gallery)
+val Primary = Color(0xFFFAFAFA)           // Chalk White (Primary Accent & CTA)
+val OnPrimary = Color(0xFF09090B)         // Carbon Black (Crisp Ink on Chalk White)
+val Secondary = Color(0xFFF4F4F5)         // Soft Chalk White
+val Tertiary = Color(0xFF8B8B94)          // Ash Grey
+val Neutral = Color(0xFF0D0D0F)           // Graphite Matte Canvas
+val Background = Neutral                  // #0D0D0F
+val Surface = Color(0xFF141417)           // Matte Slate Surface
+val CardSurface = Color(0xFF18181C)       // Elevated Gallery Card Surface
+val Border = Color(0xFF27272A)            // Hairline Architectural Divider
+val BorderSubtle = Color(0xFF1F1F24)      // Ultra-subtle Divider
+val BorderActive = Primary                // #FAFAFA
 
 // Surface & Background Mapping
-val PitchBlack = Neutral // #000000
-val DarkCharcoal = Surface // #101014
-val CardBackground = CardSurface // #16161C
-val ElevatedBackground = Color(0xFF1E1E26)
+val PitchBlack = Neutral                  // #0D0D0F
+val DarkCharcoal = Surface                // #141417
+val CardBackground = CardSurface          // #18181C
+val ElevatedBackground = Color(0xFF202026)
 
-// Primary Accents (Electric Crimson Neon)
-val CrimsonRed = Primary // #FF2A4D
-val PrimaryBright = Color(0xFFFF5271)
-val PrimaryDark = Color(0xFFD61839)
-val CrimsonRedDark = PrimaryDark
-val CrimsonRedSoft = Color(0x33FF2A4D)
+// Primary Accents (Kinetic Mono Chalk & Zinc)
+val CrimsonRed = Primary                  // #FAFAFA (Kinetic Mono Chalk Accent)
+val PrimaryBright = Color(0xFFFFFFFF)     // Pure Highlight
+val PrimaryDark = Color(0xFFD4D4D8)       // Muted Zinc Accent
+val CrimsonRedDark = Color(0xFF27272A)    // Dark Container Accent
+val CrimsonRedSoft = Color(0x1FFAFAFA)    // Subtle 12% Chalk Tint
 val CrimsonRedBadge = Primary
-val CrankrAmber = Color(0xFFFFB300)
+val CrankrAmber = Color(0xFFA1A1AA)       // Silver Metallic Secondary
 
 // Typography Colors
-val TextWhite = Color(0xFFFFFFFF) // 100% Crisp White
+val TextWhite = Color(0xFFFAFAFA)         // Crisp Chalk White
 val TextPrimary = TextWhite
-val TextSecondary = Tertiary // Cool Slate Gray #A1A1AA
-val TextMuted = Color(0xFF71717A) // Subdued Gray
+val TextSecondary = Tertiary              // Ash Grey #8B8B94
+val TextMuted = Color(0xFF63636B)         // Subdued Graphite Grey
 
 // Palette mappings for clean compatibility
 val MidnightDark = PitchBlack
@@ -51,7 +52,7 @@ val AuroraPink = Primary
 val AuroraEmerald = Primary
 
 val SpotifyGreen = Primary
-val SpotifyGreenPressed = CrimsonRedDark
+val SpotifyGreenPressed = PrimaryDark
 val SpotifyBlack = PitchBlack
 val SpotifyDarkBackground = DarkCharcoal
 val SpotifyCardBackground = CardBackground

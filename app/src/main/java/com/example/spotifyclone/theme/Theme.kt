@@ -4,21 +4,21 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 
-private val StealthDarkColorScheme = darkColorScheme(
+private val KineticMonoColorScheme = darkColorScheme(
   primary = Primary,
-  onPrimary = Neutral,
-  primaryContainer = CrimsonRedDark,
-  onPrimaryContainer = Secondary,
+  onPrimary = OnPrimary,
+  primaryContainer = ElevatedBackground,
+  onPrimaryContainer = TextPrimary,
   secondary = Secondary,
-  onSecondary = Neutral,
+  onSecondary = OnPrimary,
   tertiary = Tertiary,
-  onTertiary = Neutral,
-  background = Neutral,
-  onBackground = Secondary,
+  onTertiary = OnPrimary,
+  background = Background,
+  onBackground = TextPrimary,
   surface = Surface,
-  onSurface = Secondary,
+  onSurface = TextPrimary,
   surfaceVariant = CardSurface,
-  onSurfaceVariant = Tertiary,
+  onSurfaceVariant = TextSecondary,
   outline = Border
 )
 
@@ -26,5 +26,5 @@ private val StealthDarkColorScheme = darkColorScheme(
 fun SpotifyCloneTheme(
   content: @Composable () -> Unit,
 ) {
-  MaterialTheme(colorScheme = StealthDarkColorScheme, typography = Typography, content = content)
+  MaterialTheme(colorScheme = KineticMonoColorScheme, typography = Typography, content = content)
 }

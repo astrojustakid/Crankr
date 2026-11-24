@@ -202,16 +202,16 @@ fun CrankrUpdateDialog(
                                         )
                                     }
                                     Surface(
-                                        color = CrimsonRed,
-                                        shape = RoundedCornerShape(3.dp)
+                                        color = Primary,
+                                        shape = RoundedCornerShape(6.dp)
                                     ) {
                                         Text(
                                             text = "v${info.versionName}",
                                             fontFamily = CrankrDisplayFont,
                                             fontSize = 11.sp,
                                             fontWeight = FontWeight.Bold,
-                                            color = TextWhite,
-                                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                            color = OnPrimary,
+                                            modifier = Modifier.padding(horizontal = 7.dp, vertical = 2.dp)
                                         )
                                     }
                                 }
@@ -298,10 +298,10 @@ fun CrankrUpdateDialog(
                         // Tombol Pasang Utama
                         Button(
                             onClick = { updateManager.installApk(context, apk) },
-                            shape = RoundedCornerShape(8.dp),
+                            shape = RoundedCornerShape(10.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = CrimsonRed,
-                                contentColor = TextWhite
+                                containerColor = Primary,
+                                contentColor = OnPrimary
                             ),
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -458,10 +458,10 @@ fun CrankrUpdateDialog(
 
                             Button(
                                 onClick = { updateManager.startDownload(info) },
-                                shape = RoundedCornerShape(8.dp),
+                                shape = RoundedCornerShape(10.dp),
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = CrimsonRed,
-                                    contentColor = TextWhite
+                                    containerColor = Primary,
+                                    contentColor = OnPrimary
                                 ),
                                 modifier = Modifier
                                     .weight(1f)
@@ -647,8 +647,11 @@ fun CrankrUpdateDialog(
 
                             Button(
                                 onClick = { updateManager.checkForUpdates(isManualCheck = true) },
-                                shape = RoundedCornerShape(8.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = CrimsonRed),
+                                shape = RoundedCornerShape(10.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Primary,
+                                    contentColor = OnPrimary
+                                ),
                                 modifier = Modifier
                                     .weight(1f)
                                     .height(44.dp)

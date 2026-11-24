@@ -320,9 +320,9 @@ fun ChangeCoverDialog(
                                     }
                                 },
                                 shape = RoundedCornerShape(2.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = CrimsonRed)
+                                colors = ButtonDefaults.buttonColors(containerColor = Primary, contentColor = OnPrimary)
                             ) {
-                                Text("TERAPKAN", color = TextWhite, fontFamily = CrankrDisplayFont, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                                Text("TERAPKAN", color = OnPrimary, fontFamily = CrankrDisplayFont, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                             }
                         }
                     }

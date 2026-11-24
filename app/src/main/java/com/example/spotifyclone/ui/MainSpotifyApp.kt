@@ -346,21 +346,22 @@ fun MainSpotifyApp(
                         )
                     }
 
-                    // Floating Pill Navigation Bar matching modern flagship aesthetic
+                    // Kinetic Mono Floating Pill Navigation Dock
                     Surface(
                         shape = RoundedCornerShape(32.dp),
-                        color = CardSurface,
-                        border = null,
+                        color = ElevatedBackground,
+                        border = BorderStroke(1.dp, Border),
+                        shadowElevation = 8.dp,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 20.dp, vertical = 6.dp)
+                            .padding(horizontal = 24.dp, vertical = 8.dp)
                     ) {
                         NavigationBar(
                             containerColor = Color.Transparent,
                             tonalElevation = 0.dp,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(56.dp)
+                                .height(54.dp)
                         ) {
                             val bottomTabs = remember {
                                 listOf(NavigationTab.HOME, NavigationTab.SEARCH, NavigationTab.LIBRARY)

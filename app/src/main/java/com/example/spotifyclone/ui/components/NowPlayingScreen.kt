@@ -200,11 +200,19 @@ fun NowPlayingScreen(
             }
             .background(PitchBlack)
     ) {
-        // Solid stealth dark backdrop consistent with minimalist industrial zine aesthetics
+        // Kinetic Mono Gallery Ambient Backdrop: subtle muted wash from album artwork fading into Graphite Matte
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(PitchBlack)
+                .background(
+                    Brush.verticalGradient(
+                        colorStops = arrayOf(
+                            0.0f to palette.dominantColor.copy(alpha = 0.24f),
+                            0.42f to Surface,
+                            1.0f to PitchBlack
+                        )
+                    )
+                )
         )
 
         Column(
@@ -928,7 +936,7 @@ fun NowPlayingScreen(
                                 Icon(
                                     imageVector = if (playing) Icons.Default.Pause else Icons.Default.PlayArrow,
                                     contentDescription = if (playing) "Pause" else "Play",
-                                    tint = TextWhite,
+                                    tint = OnPrimary,
                                     modifier = Modifier.size(34.dp)
                                 )
                             }

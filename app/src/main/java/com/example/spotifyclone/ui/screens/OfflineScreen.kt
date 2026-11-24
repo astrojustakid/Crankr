@@ -197,21 +197,21 @@ fun OfflineScreen(
 
                                 Button(
                                     onClick = onPlayAllOfflineClick,
-                                    colors = ButtonDefaults.buttonColors(containerColor = CrimsonRed),
-                                    shape = RoundedCornerShape(2.dp),
+                                    colors = ButtonDefaults.buttonColors(containerColor = Primary, contentColor = OnPrimary),
+                                    shape = RoundedCornerShape(10.dp),
                                     contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp),
                                     modifier = Modifier.springPressable(0.95f)
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.PlayArrow,
                                         contentDescription = "Play All",
-                                        tint = TextWhite,
+                                        tint = OnPrimary,
                                         modifier = Modifier.size(16.dp)
                                     )
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Text(
                                         text = "PUTAR SEMUA",
-                                        color = TextWhite,
+                                        color = OnPrimary,
                                         fontFamily = CrankrDisplayFont,
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 12.sp,
@@ -434,14 +434,14 @@ fun OfflineScreen(
                         showDeleteAllDialog = false
                         onDeleteAllDownloadsClick?.invoke()
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = CrimsonRed),
-                    shape = RoundedCornerShape(2.dp)
+                    colors = ButtonDefaults.buttonColors(containerColor = Primary, contentColor = OnPrimary),
+                    shape = RoundedCornerShape(10.dp)
                 ) {
                     Text(
                         text = "HAPUS SEMUA",
                         fontFamily = CrankrDisplayFont,
                         fontWeight = FontWeight.Bold,
-                        color = TextWhite,
+                        color = OnPrimary,
                         fontSize = 12.sp
                     )
                 }

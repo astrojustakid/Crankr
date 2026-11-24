@@ -59,9 +59,9 @@ import com.example.spotifyclone.util.DynamicColorExtractor
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 
-private val MiniPlayerAmber = Primary
-private val MiniPlayerCardBg = CardSurface
-private val MiniPlayerBorder = BorderSubtle.copy(alpha = 0.4f)
+private val MiniPlayerAccent = Primary
+private val MiniPlayerCardBg = ElevatedBackground
+private val MiniPlayerBorder = Border
 
 @Composable
 fun MiniPlayer(
@@ -120,7 +120,7 @@ fun MiniPlayer(
                     Icon(
                         imageVector = Icons.Default.SkipPrevious,
                         contentDescription = null,
-                        tint = if (animatedDragX.value >= 60f) MiniPlayerAmber else TextSecondary,
+                        tint = if (animatedDragX.value >= 60f) MiniPlayerAccent else TextSecondary,
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
@@ -130,7 +130,7 @@ fun MiniPlayer(
                         fontWeight = FontWeight.Bold,
                         fontSize = 11.sp,
                         letterSpacing = 1.sp,
-                        color = if (animatedDragX.value >= 60f) MiniPlayerAmber else TextSecondary
+                        color = if (animatedDragX.value >= 60f) MiniPlayerAccent else TextSecondary
                     )
                 }
             }
@@ -150,29 +150,29 @@ fun MiniPlayer(
                         fontWeight = FontWeight.Bold,
                         fontSize = 11.sp,
                         letterSpacing = 1.sp,
-                        color = if (-animatedDragX.value >= 60f) MiniPlayerAmber else TextSecondary
+                        color = if (-animatedDragX.value >= 60f) MiniPlayerAccent else TextSecondary
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Icon(
                         imageVector = Icons.Default.SkipNext,
                         contentDescription = null,
-                        tint = if (-animatedDragX.value >= 60f) MiniPlayerAmber else TextSecondary,
+                        tint = if (-animatedDragX.value >= 60f) MiniPlayerAccent else TextSecondary,
                         modifier = Modifier.size(18.dp)
                     )
                 }
             }
         }
 
-        // Layer 2: Mini Player Foreground Floating Capsule Card
+        // Layer 2: Kinetic Mono Floating Capsule MiniPlayer
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .graphicsLayer {
                     translationX = animatedDragX.value
                 }
-                .clip(RoundedCornerShape(24.dp))
+                .clip(RoundedCornerShape(18.dp))
                 .background(MiniPlayerCardBg)
-                .border(0.5.dp, MiniPlayerBorder, RoundedCornerShape(24.dp))
+                .border(1.dp, MiniPlayerBorder, RoundedCornerShape(18.dp))
                 .pointerInput(track.id) {
                     detectHorizontalDragGestures(
                         onDragStart = {
@@ -278,37 +278,37 @@ fun MiniPlayer(
                         Column {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
-                                    text = curTrack.title.uppercase(),
+                                    text = curTrack.title,
                                     fontFamily = CrankrDisplayFont,
                                     color = TextWhite,
                                     fontWeight = FontWeight.Bold,
-                                    fontSize = 13.sp,
+                                    fontSize = 13.5.sp,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )
                                 if (sleepTimerBadge != null) {
                                     Spacer(modifier = Modifier.width(6.dp))
                                     Surface(
-                                        shape = RoundedCornerShape(4.dp),
-                                        color = MiniPlayerAmber.copy(alpha = 0.2f)
+                                        shape = RoundedCornerShape(6.dp),
+                                        color = MiniPlayerAccent.copy(alpha = 0.14f)
                                     ) {
                                         Text(
                                             text = sleepTimerBadge,
                                             fontFamily = CrankrBodyFont,
                                             fontSize = 9.sp,
                                             fontWeight = FontWeight.Bold,
-                                            color = MiniPlayerAmber,
-                                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
+                                            color = MiniPlayerAccent,
+                                            modifier = Modifier.padding(horizontal = 5.dp, vertical = 1.dp)
                                         )
                                     }
                                 }
                             }
-                            Spacer(modifier = Modifier.height(2.dp))
+                            Spacer(modifier = Modifier.height(1.dp))
                             Text(
-                                text = curTrack.artist.uppercase(),
+                                text = curTrack.artist,
                                 fontFamily = CrankrBodyFont,
-                                color = Color(0xFF888888),
-                                fontSize = 10.5.sp,
+                                color = TextSecondary,
+                                fontSize = 11.5.sp,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
                             )
@@ -337,11 +337,11 @@ fun MiniPlayer(
                             )
                         }
 
-                        // Tombol Play / Pause Utama (Bulat Solid Oranye di posisi tengah)
+                        // Tombol Play / Pause Utama (Kinetic Mono Chalk White Circle)
                         Surface(
                             onClick = onPlayPauseClick,
                             shape = CircleShape,
-                            color = MiniPlayerAmber,
+                            color = MiniPlayerAccent,
                             shadowElevation = 2.dp,
                             modifier = Modifier
                                 .size(36.dp)
@@ -354,7 +354,7 @@ fun MiniPlayer(
                                 Icon(
                                     imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
                                     contentDescription = if (isPlaying) "Pause" else "Play",
-                                    tint = Color.Black,
+                                    tint = OnPrimary,
                                     modifier = Modifier.size(20.dp)
                                 )
                             }
@@ -447,7 +447,7 @@ fun SpinningVinylDisc(
                 .size(16.dp)
                 .clip(CircleShape)
                 .background(Color(0xFF2A1C12))
-                .border(0.8.dp, MiniPlayerAmber.copy(alpha = 0.6f), CircleShape),
+                .border(0.8.dp, MiniPlayerAccent.copy(alpha = 0.5f), CircleShape),
             contentAlignment = Alignment.Center
         ) {
             if (!coverUrl.isNullOrBlank()) {
@@ -461,7 +461,7 @@ fun SpinningVinylDisc(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(MiniPlayerAmber.copy(alpha = 0.4f))
+                        .background(MiniPlayerAccent.copy(alpha = 0.35f))
                 )
             }
 

@@ -180,8 +180,8 @@ fun BandcampPurchaseDialog(
                     onClick = onBuyClick,
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = CrimsonRed,
-                        contentColor = Color.White
+                        containerColor = Primary,
+                        contentColor = OnPrimary
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
