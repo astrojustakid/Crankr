@@ -200,15 +200,16 @@ fun NowPlayingScreen(
             }
             .background(PitchBlack)
     ) {
-        // Kinetic Mono Gallery Ambient Backdrop: subtle muted wash from album artwork fading into Graphite Matte
+        // Aura Liquid Spatial Backdrop: Luminous album color wash fading smoothly into Midnight Navy
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(
                     Brush.verticalGradient(
                         colorStops = arrayOf(
-                            0.0f to palette.dominantColor.copy(alpha = 0.24f),
-                            0.42f to Surface,
+                            0.0f to palette.dominantColor.copy(alpha = 0.38f),
+                            0.38f to Color(0xFF0E1D3B),
+                            0.72f to Surface,
                             1.0f to PitchBlack
                         )
                     )

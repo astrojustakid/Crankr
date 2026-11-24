@@ -141,7 +141,15 @@ fun HomeScreen(
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
-            .background(PitchBlack),
+            .background(
+                androidx.compose.ui.graphics.Brush.verticalGradient(
+                    colorStops = arrayOf(
+                        0.0f to Color(0xFF102246),
+                        0.32f to Surface,
+                        1.0f to PitchBlack
+                    )
+                )
+            ),
         contentPadding = PaddingValues(bottom = 24.dp)
     ) {
         // Kinetic Mono Editorial Masthead

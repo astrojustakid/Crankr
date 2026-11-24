@@ -346,12 +346,12 @@ fun MainSpotifyApp(
                         )
                     }
 
-                    // Kinetic Mono Floating Pill Navigation Dock
+                    // Aura Liquid Floating Spatial Glass Navigation Dock
                     Surface(
                         shape = RoundedCornerShape(32.dp),
-                        color = ElevatedBackground,
-                        border = BorderStroke(1.dp, Border),
-                        shadowElevation = 8.dp,
+                        color = ElevatedBackground.copy(alpha = 0.94f),
+                        border = BorderStroke(1.dp, Primary.copy(alpha = 0.22f)),
+                        shadowElevation = 12.dp,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 24.dp, vertical = 8.dp)

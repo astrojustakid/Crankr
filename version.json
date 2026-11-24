@@ -1,7 +1,7 @@
 ﻿{
-    "versionCode":  71,
-    "versionName":  "1.70",
+    "versionCode":  72,
+    "versionName":  "1.71",
     "downloadUrl":  "https://github.com/astrojustakid/Crankr/releases/latest/download/crankr.apk",
-    "changelog":  "[FITUR BARU]\n- Perombakan menyeluruh tema \u0026 UI Crankr ke konsep Kinetic Mono (Ultra-Minimalist Art Gallery)\r\n- Migrasi palet ke Graphite Matte (#0D0D0F), Slate (#141417), Chalk White (#FAFAFA), \u0026 hairline divider (#27272A)\r\n- Pembaruan Floating Pill Navigation Dock, MiniPlayer kapsul, Home Editorial Masthead, \u0026 Now Playing Gallery Backdrop\n\n[CATATAN]\n- Penyesuaian kontras OnPrimary (#09090B) pada seluruh tombol aksi agar tajam dan ergonomis, tanpa menyentuh modul Audio Engine, Stream Resolver, dan Database",
+    "changelog":  "[FITUR BARU]\n- Penerapan tema Aura Liquid (Spatial Glass \u0026 Midnight Navy + Electric Ice Blue #38BDF8)\r\n- Latar spasial Midnight Navy pada HomeScreen \u0026 Dynamic Album Wash pada NowPlayingScreen\r\n- Floating Spatial Glass Navigation Dock \u0026 MiniPlayer kapsul rim Ice Blue\n\n[CATATAN]\n- Kontras OnPrimary (#041624) terjaga tajam di seluruh tombol, tanpa mengubah modul Player Engine, Stream Resolver, dan Database",
     "mandatory":  false
 }

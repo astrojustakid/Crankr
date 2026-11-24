@@ -4,10 +4,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 
-private val KineticMonoColorScheme = darkColorScheme(
+private val AuraLiquidColorScheme = darkColorScheme(
   primary = Primary,
   onPrimary = OnPrimary,
-  primaryContainer = ElevatedBackground,
+  primaryContainer = CrimsonRedDark,
   onPrimaryContainer = TextPrimary,
   secondary = Secondary,
   onSecondary = OnPrimary,
@@ -26,5 +26,5 @@ private val KineticMonoColorScheme = darkColorScheme(
 fun SpotifyCloneTheme(
   content: @Composable () -> Unit,
 ) {
-  MaterialTheme(colorScheme = KineticMonoColorScheme, typography = Typography, content = content)
+  MaterialTheme(colorScheme = AuraLiquidColorScheme, typography = Typography, content = content)
 }

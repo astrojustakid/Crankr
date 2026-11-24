@@ -163,16 +163,16 @@ fun MiniPlayer(
             }
         }
 
-        // Layer 2: Kinetic Mono Floating Capsule MiniPlayer
+        // Layer 2: Aura Liquid Translucent Glass Capsule MiniPlayer
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .graphicsLayer {
                     translationX = animatedDragX.value
                 }
-                .clip(RoundedCornerShape(18.dp))
-                .background(MiniPlayerCardBg)
-                .border(1.dp, MiniPlayerBorder, RoundedCornerShape(18.dp))
+                .clip(RoundedCornerShape(22.dp))
+                .background(MiniPlayerCardBg.copy(alpha = 0.95f))
+                .border(1.dp, Primary.copy(alpha = 0.24f), RoundedCornerShape(22.dp))
                 .pointerInput(track.id) {
                     detectHorizontalDragGestures(
                         onDragStart = {
