@@ -80,12 +80,12 @@ import com.example.spotifyclone.ui.components.TrackItem
 import com.example.spotifyclone.ui.components.springPressable
 import kotlinx.coroutines.delay
 
-// Pure OLED Obsidian & Electric Crimson Palette constants
-private val CrankrAmber = Primary
-private val CrankrAmberBright = PrimaryBright
-private val CrankrAmberDark = PrimaryDark
-private val CrankrCardDark = CardSurface
-private val CrankrCardBorder = BorderSubtle.copy(alpha = 0.4f)
+// Live-reactive palette aliases for SearchScreen
+private val CrankrAmber: Color get() = Primary
+private val CrankrAmberBright: Color get() = PrimaryBright
+private val CrankrAmberDark: Color get() = PrimaryDark
+private val CrankrCardDark: Color get() = CardSurface
+private val CrankrCardBorder: Color get() = BorderSubtle.copy(alpha = 0.4f)
 
 private data class CuratedHubItem(
     val title: String,
@@ -155,7 +155,8 @@ fun SearchScreen(
         }
     }
 
-    val curatedHubs = remember {
+    val activeThemePalette = CrankrThemeState.activePalette
+    val curatedHubs = remember(activeThemePalette) {
         listOf(
             CuratedHubItem(
                 title = "Distortion & Fuzz",

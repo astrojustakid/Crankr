@@ -1,7 +1,7 @@
 ﻿{
-    "versionCode":  74,
-    "versionName":  "1.73",
+    "versionCode":  75,
+    "versionName":  "1.74",
     "downloadUrl":  "https://github.com/astrojustakid/Crankr/releases/latest/download/crankr.apk",
-    "changelog":  "[FITUR BARU]\n- Menu Tampilan \u0026 Tema (Appearance) reaktif tanpa restart: Aura Liquid, Kinetic Mono, Pure OLED, Velvet Crimson\r\n- Latar Now Playing Blurred Cover asli (dengan pilihan Blur Cover, Dynamic Gradient, \u0026 Solid)\r\n- Synced Lyrics Apple-Music Style (animasi scale \u0026 fade, tap-to-seek, rata kiri/tengah, \u0026 ukuran teks)\r\n- Mini-Player kapsul kaca dengan warna cover dinamis + tombol cepat ACAK di HomeScreen\n\n[CATATAN]\n- Seluruh preferensi tampilan disimpan persisten via CrankrAppearanceManager tanpa menyentuh modul Audio Engine, Stream Resolver, \u0026 Database",
+    "changelog":  "[PERBAIKAN BUG]\n- Perbaikan layar Search yang sebelumnya tertahan pada tema awal saat ganti tema di Pengaturan\r\n- Mengubah konstanta warna statis di SearchScreen.kt menjadi live getter \u0026 menambahkan key CrankrThemeState.activePalette pada remember curatedHubs",
     "mandatory":  false
 }
