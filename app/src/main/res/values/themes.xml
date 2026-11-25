@@ -2,10 +2,10 @@
 <resources>
 
     <style name="Theme.SpotifyClone" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:windowBackground">#1A1918</item>
-        <item name="android:statusBarColor">#1A1918</item>
-        <item name="android:navigationBarColor">#1A1918</item>
-        <item name="android:windowSplashScreenBackground">#1A1918</item>
-        <item name="android:windowSplashScreenAnimatedIcon">@drawable/crankrlogo</item>
+        <item name="android:windowBackground">#0B0B0E</item>
+        <item name="android:statusBarColor">#0B0B0E</item>
+        <item name="android:navigationBarColor">#0B0B0E</item>
+        <item name="android:windowSplashScreenBackground">#0B0B0E</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@android:color/transparent</item>
     </style>
 </resources>

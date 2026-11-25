@@ -7,8 +7,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleOut
 import com.example.spotifyclone.ui.components.CrankrMotion
@@ -82,7 +82,7 @@ class MainActivity : ComponentActivity() {
 
                         AnimatedVisibility(
                             visible = showSplash,
-                            enter = fadeIn(tween(120)),
+                            enter = EnterTransition.None,
                             exit = fadeOut(
                                 tween(durationMillis = 340, easing = CrankrMotion.EaseOutStrong)
                             ) + scaleOut(

@@ -109,12 +109,12 @@ fun CrankrSplashScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
+            .background(Color(0xFF0B0B0E))
             .background(
                 Brush.radialGradient(
                     colors = listOf(
-                        ambientGlowColor.copy(alpha = 0.13f * arcProgress.value),
-                        Color(0xFF0B0B0E),
-                        PitchBlack
+                        ambientGlowColor.copy(alpha = 0.14f * arcProgress.value),
+                        Color.Transparent
                     ),
                     radius = 640f
                 )
