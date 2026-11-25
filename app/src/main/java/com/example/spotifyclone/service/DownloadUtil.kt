@@ -243,17 +243,41 @@ object DownloadUtil {
         onProgress?.invoke(0.05f)
         dbHelper.recordDownloadStatus(track, "DOWNLOADING", 0.05f)
 
-        // 1. Ekstraksi / Refresh URL streaming audio murni dari YouTube Music InnerTube
+        // 1. Ekstraksi URL streaming audio aktif (prioritaskan URL cache yang sedang terbukti berjalan dulu!)
         var freshAudioUrl: String? = null
-        val vid = track.youtubeVideoId?.takeIf { it.isNotBlank() }
+        var vid = track.youtubeVideoId?.takeIf { it.isNotBlank() }
+            ?: track.id.takeIf { it.startsWith("yt_") && it.length == 14 }?.removePrefix("yt_")
             ?: AudioStreamResolver.resolveYouTubeVideoId(track)
 
         if (!vid.isNullOrBlank()) {
-            // Bersihkan cache memori terlebih dahulu agar URL streaming yang didapat memiliki token kedaluwarsa baru
-            AudioStreamResolver.clearStreamCache()
-            val candidates = AudioStreamResolver.resolveCandidateStreamUrls(vid)
-            if (candidates.isNotEmpty()) {
-                freshAudioUrl = candidates.first()
+            // A. Coba pakai URL aktif dari cache memori terlebih dahulu (0ms & anti gagal saat lagu sedang diputar)
+            val cachedCandidates = AudioStreamResolver.getCachedStreamUrls(vid)
+            if (cachedCandidates.isNotEmpty()) {
+                freshAudioUrl = cachedCandidates.first()
+            }
+            // B. Jika belum ada di cache, resolve kandidat stream resmi dari InnerTube
+            if (freshAudioUrl.isNullOrBlank()) {
+                val candidates = AudioStreamResolver.resolveCandidateStreamUrls(vid)
+                if (candidates.isNotEmpty()) {
+                    freshAudioUrl = candidates.first()
+                }
+            }
+            // C. Fallback direct audio URL resolver
+            if (freshAudioUrl.isNullOrBlank()) {
+                freshAudioUrl = AudioStreamResolver.resolveDirectAudioStreamUrl(vid)
+            }
+            // D. Fallback cari videoId alternatif resmi jika videoId awal dibatasi
+            if (freshAudioUrl.isNullOrBlank()) {
+                val altVid = AudioStreamResolver.resolveAlternativeVideoId(
+                    title = track.title,
+                    artist = track.artist,
+                    failedVideoId = vid
+                )
+                if (!altVid.isNullOrBlank()) {
+                    vid = altVid
+                    freshAudioUrl = AudioStreamResolver.resolveCandidateStreamUrls(altVid).firstOrNull()
+                        ?: AudioStreamResolver.resolveDirectAudioStreamUrl(altVid)
+                }
             }
         }
 

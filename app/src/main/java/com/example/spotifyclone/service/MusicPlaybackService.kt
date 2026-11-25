@@ -159,6 +159,14 @@ class MusicPlaybackService : Service() {
 
         override fun onPause() {
             releaseWakeAndWifiLocks()
+            isCurrentlyPlaying = false
+            isCurrentlyBuffering = false
+            updatePlaybackState(
+                isPlaying = false,
+                positionMs = currentPositionMs,
+                durationMs = currentDurationMs,
+                isBuffering = false
+            )
             MusicNotificationReceiver.onPause?.invoke() ?: MusicNotificationReceiver.onPlayPause?.invoke()
         }
 
@@ -417,12 +425,13 @@ class MusicPlaybackService : Service() {
                     }
                 }
 
+                val effectiveBuffering = isPlaying && isBuffering
                 currentTitle = title
                 currentArtist = artist
                 currentPositionMs = effectivePosMs
                 currentDurationMs = durMs
                 isCurrentlyPlaying = isPlaying
-                isCurrentlyBuffering = isBuffering
+                isCurrentlyBuffering = effectiveBuffering
 
                 if (isPlaying) {
                     acquireWakeAndWifiLocks()
@@ -430,7 +439,7 @@ class MusicPlaybackService : Service() {
                     releaseWakeAndWifiLocks()
                 }
 
-                updatePlaybackState(isPlaying, effectivePosMs, durMs, isBuffering)
+                updatePlaybackState(isPlaying, effectivePosMs, durMs, effectiveBuffering)
                 updateMetadata(title, artist, durMs, cachedBitmap)
                 buildAndNotify(title, artist, coverUrl, isPlaying)
             }
@@ -484,7 +493,7 @@ class MusicPlaybackService : Service() {
     ) {
         val state = when {
             isStopped -> PlaybackStateCompat.STATE_STOPPED
-            isBuffering -> PlaybackStateCompat.STATE_BUFFERING
+            isPlaying && isBuffering -> PlaybackStateCompat.STATE_BUFFERING
             isPlaying -> PlaybackStateCompat.STATE_PLAYING
             else -> PlaybackStateCompat.STATE_PAUSED
         }

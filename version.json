@@ -1,7 +1,7 @@
 ﻿{
-    "versionCode":  90,
-    "versionName":  "1.89",
+    "versionCode":  92,
+    "versionName":  "1.91",
     "downloadUrl":  "https://github.com/astrojustakid/Crankr/releases/latest/download/crankr.apk",
-    "changelog":  "[FITUR BARU]\n- Perombakan fitur TREN UNDERGROUND di Home untuk menampilkan lagu-lagu lain dari band yang ada di playlist pengguna namun lagunya belum masuk ke playlist mana pun (round-robin antar band + tombol Segarkan)\n\n[CATATAN]\n- Seluruh modul terkunci tetap aman.",
+    "changelog":  "[PERBAIKAN BUG]\n- Perbaikan gagal download lagu (memprioritaskan URL stream aktif di cache + fallback direct URL \u0026 videoId alternatif di DownloadUtil) dan perbaikan tombol Play/Pause notifikasi yang berputar buffering saat lagu di-pause (mengunci STATE_PAUSED di MusicPlaybackService)\n\n[CATATAN]\n- Seluruh modul terkunci tetap aman.",
     "mandatory":  false
 }
