@@ -1,7 +1,7 @@
 ﻿{
-    "versionCode":  82,
-    "versionName":  "1.81",
+    "versionCode":  83,
+    "versionName":  "1.82",
     "downloadUrl":  "https://github.com/astrojustakid/Crankr/releases/latest/download/crankr.apk",
-    "changelog":  "[FITUR BARU]\n- Animasi \u0026 Micro-Interactions Crankr 2.0 (CrankrMotion tokens, snappy press physics, direct-manipulation drag \u0026 haptic di CircularRadialPlayerDeck, GPU parallax Hero Carousel, kurva iOS drawer NowPlaying)\n\n[CATATAN]\n- Diterapkan menggunakan standar emil-design-eng \u0026 micro-interactions tanpa menyentuh modul terkunci.",
+    "changelog":  "[PERBAIKAN BUG]\n- Perbaikan badge genre rekomendasi lagu di Playlist Detail agar menyesuaikan genre asli masing-masing band (menghapus hardcode Pop Punk di hasil pencarian YouTube Music dan menambahkan ArtistGenreResolver berbasis iTunes API dengan cache)\n\n[CATATAN]\n- Tidak menyentuh modul terkunci.",
     "mandatory":  false
 }

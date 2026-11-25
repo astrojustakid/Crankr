@@ -17,6 +17,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -49,6 +52,7 @@ import coil.compose.AsyncImage
 import com.example.spotifyclone.data.model.SpotifyPlaylist
 import android.net.Uri
 import com.example.spotifyclone.data.model.Track
+import com.example.spotifyclone.data.repository.ArtistGenreResolver
 import com.example.spotifyclone.theme.*
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.ui.graphics.graphicsLayer
@@ -134,6 +138,39 @@ fun PlaylistDetailScreen(
     LaunchedEffect(isSearchExpanded) {
         if (isSearchExpanded) {
             focusRequester.requestFocus()
+        }
+    }
+
+    // Resolusi genre asli tiap band pada rekomendasi lagu secara paralel & ter-cache
+    val resolvedRecommendationGenres = remember { mutableStateMapOf<String, String>() }
+    LaunchedEffect(recommendedTracks) {
+        if (recommendedTracks.isEmpty()) return@LaunchedEffect
+        // Isi instan dari cache jika sudah pernah di-resolve
+        recommendedTracks.forEach { rec ->
+            val key = ArtistGenreResolver.normalizePrimaryArtist(rec.artist).lowercase()
+            ArtistGenreResolver.getCachedGenre(rec.artist)?.let { cached ->
+                if (cached.isNotBlank()) resolvedRecommendationGenres[key] = cached
+            }
+        }
+        // Resolve artis unik yang belum ada di cache secara paralel
+        val unresolvedByArtist = recommendedTracks
+            .distinctBy { ArtistGenreResolver.normalizePrimaryArtist(it.artist).lowercase() }
+            .filter { rec ->
+                val key = ArtistGenreResolver.normalizePrimaryArtist(rec.artist).lowercase()
+                key.isNotBlank() && ArtistGenreResolver.getCachedGenre(rec.artist) == null
+            }
+        if (unresolvedByArtist.isNotEmpty()) {
+            coroutineScope {
+                unresolvedByArtist.map { rec ->
+                    async {
+                        val key = ArtistGenreResolver.normalizePrimaryArtist(rec.artist).lowercase()
+                        val genre = ArtistGenreResolver.resolveGenre(rec.artist, rec.title)
+                        if (genre.isNotBlank()) {
+                            resolvedRecommendationGenres[key] = genre
+                        }
+                    }
+                }.awaitAll()
+            }
         }
     }
 
@@ -679,11 +716,16 @@ fun PlaylistDetailScreen(
             }
         } else if (recommendedTracks.isNotEmpty()) {
             itemsIndexed(recommendedTracks, key = { index, recTrack -> "rec_${recTrack.id}_$index" }) { _, recTrack ->
+                val artistKey = ArtistGenreResolver.normalizePrimaryArtist(recTrack.artist).lowercase()
+                val resolvedGenre = resolvedRecommendationGenres[artistKey]
+                    ?: ArtistGenreResolver.getCachedGenre(recTrack.artist).orEmpty()
+                val effectiveGenre = resolvedGenre.ifBlank { recTrack.genre }
                 RecommendedTrackItem(
                     track = recTrack,
+                    resolvedGenre = effectiveGenre,
                     isCurrent = currentTrack?.id == recTrack.id,
-                    onClick = { onTrackClick(recTrack) },
-                    onAddClick = { onAddRecommendedTrack(recTrack) },
+                    onClick = { onTrackClick(recTrack.copy(genre = effectiveGenre)) },
+                    onAddClick = { onAddRecommendedTrack(recTrack.copy(genre = effectiveGenre)) },
                     modifier = Modifier.animateItem()
                 )
             }
@@ -1385,6 +1427,7 @@ fun PlaylistDetailScreen(
 @Composable
 fun RecommendedTrackItem(
     track: Track,
+    resolvedGenre: String = "",
     isCurrent: Boolean,
     onClick: () -> Unit,
     onAddClick: () -> Unit,
@@ -1454,20 +1497,27 @@ fun RecommendedTrackItem(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f, fill = false)
                 )
-                if (track.genre.isNotBlank() && !track.genre.equals("Chill", ignoreCase = true)) {
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Surface(
-                        shape = RoundedCornerShape(2.dp),
-                        color = CrimsonRedSoft
-                    ) {
-                        Text(
-                            text = track.genre,
-                            fontFamily = CrankrDisplayFont,
-                            color = CrimsonRed,
-                            fontSize = 9.5.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
-                        )
+                val displayGenre = resolvedGenre.ifBlank { track.genre }
+                AnimatedVisibility(
+                    visible = displayGenre.isNotBlank() && !displayGenre.equals("Chill", ignoreCase = true),
+                    enter = fadeIn(animationSpec = tween(180))
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Surface(
+                            shape = RoundedCornerShape(4.dp),
+                            color = CrimsonRedSoft
+                        ) {
+                            Text(
+                                text = displayGenre,
+                                fontFamily = CrankrDisplayFont,
+                                color = CrimsonRed,
+                                fontSize = 9.5.sp,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1,
+                                modifier = Modifier.padding(horizontal = 5.dp, vertical = 1.dp)
+                            )
+                        }
                     }
                 }
             }

@@ -190,7 +190,7 @@ class YouTubeMusicRepository(private val context: Context? = null) {
                             durationSeconds = durationSec,
                             streamUrl = "https://music.youtube.com/watch?v=$vid",
                             coverUrl = formatHighResImageUrl(thumb),
-                            genre = "Pop Punk",
+                            genre = "",
                             youtubeVideoId = vid,
                             spotifyArtistId = artistChannelId
                         )
