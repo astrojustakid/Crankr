@@ -1,5 +1,10 @@
 package com.example.spotifyclone.ui.components
 
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -25,15 +30,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.spotifyclone.theme.*
+import kotlinx.coroutines.launch
+import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.PI
 
@@ -112,9 +122,20 @@ fun GlassFilterPill(
     modifier: Modifier = Modifier,
     leadingIcon: ImageVector? = null
 ) {
+    val bgColor by animateColorAsState(
+        targetValue = if (selected) Primary else Color.White.copy(alpha = 0.08f),
+        animationSpec = tween(durationMillis = 180, easing = CrankrMotion.EaseOutStrong),
+        label = "GlassPillBg"
+    )
+    val contentColor by animateColorAsState(
+        targetValue = if (selected) OnPrimary else TextWhite,
+        animationSpec = tween(durationMillis = 160, easing = CrankrMotion.EaseOutStrong),
+        label = "GlassPillContent"
+    )
+
     Surface(
         shape = RoundedCornerShape(999.dp),
-        color = if (selected) Primary else Color.White.copy(alpha = 0.08f),
+        color = bgColor,
         border = if (selected) null else BorderStroke(0.8.dp, glassHairlineBrush()),
         modifier = modifier
             .springPressable(0.95f)
@@ -138,7 +159,7 @@ fun GlassFilterPill(
                 fontFamily = CrankrBodyFont,
                 fontSize = 12.sp,
                 fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
-                color = if (selected) OnPrimary else TextWhite
+                color = contentColor
             )
         }
     }
@@ -160,7 +181,12 @@ fun CircularRadialPlayerDeck(
     modifier: Modifier = Modifier
 ) {
     val safeDuration = durationMs.coerceAtLeast(1L)
-    val progress = (currentPositionMs.toFloat() / safeDuration.toFloat()).coerceIn(0f, 1f)
+    val rawProgress = (currentPositionMs.toFloat() / safeDuration.toFloat()).coerceIn(0f, 1f)
+    val progress by animateFloatAsState(
+        targetValue = rawProgress,
+        animationSpec = tween(durationMillis = 180, easing = CrankrMotion.EaseOutStrong),
+        label = "RadialArcProgress"
+    )
     val accentColor = Primary
     val trackBgColor = Color.White.copy(alpha = 0.12f)
     val bezelFill = Color.Black.copy(alpha = 0.36f)
@@ -170,7 +196,10 @@ fun CircularRadialPlayerDeck(
     val startAngle = 125f
     val totalSweep = 290f
 
-    var dragAccumulatedX by remember { mutableFloatStateOf(0f) }
+    val scope = rememberCoroutineScope()
+    val dragOffsetX = remember { Animatable(0f) }
+    val haptic = LocalHapticFeedback.current
+    var thresholdTriggered by remember { mutableStateOf(false) }
 
     Box(
         contentAlignment = Alignment.Center,
@@ -178,14 +207,31 @@ fun CircularRadialPlayerDeck(
             .size(286.dp)
             .pointerInput(Unit) {
                 detectHorizontalDragGestures(
-                    onDragStart = { dragAccumulatedX = 0f },
+                    onDragStart = { thresholdTriggered = false },
                     onDragEnd = {
-                        if (dragAccumulatedX < -70f) onSwipeLeft()
-                        else if (dragAccumulatedX > 70f) onSwipeRight()
-                        dragAccumulatedX = 0f
+                        val finalX = dragOffsetX.value
+                        scope.launch {
+                            if (finalX < -72f) onSwipeLeft()
+                            else if (finalX > 72f) onSwipeRight()
+                            dragOffsetX.animateTo(0f, CrankrMotion.snappySpring())
+                        }
+                        thresholdTriggered = false
+                    },
+                    onDragCancel = {
+                        scope.launch { dragOffsetX.animateTo(0f, CrankrMotion.snappySpring()) }
+                        thresholdTriggered = false
                     },
                     onHorizontalDrag = { _, dragAmount ->
-                        dragAccumulatedX += dragAmount
+                        scope.launch {
+                            val next = (dragOffsetX.value + dragAmount * 0.55f).coerceIn(-110f, 110f)
+                            dragOffsetX.snapTo(next)
+                            if (abs(next) >= 72f && !thresholdTriggered) {
+                                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                thresholdTriggered = true
+                            } else if (abs(next) < 72f && thresholdTriggered) {
+                                thresholdTriggered = false
+                            }
+                        }
                     }
                 )
             }
@@ -204,6 +250,7 @@ fun CircularRadialPlayerDeck(
                         var rel = deg - startAngle
                         if (rel < 0f) rel += 360f
                         if (rel <= totalSweep) {
+                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                             val newFraction = (rel / totalSweep).coerceIn(0f, 1f)
                             onSeekTo((newFraction * safeDuration).toLong())
                         }
@@ -260,21 +307,35 @@ fun CircularRadialPlayerDeck(
             }
         }
 
-        // Centered Circular Album Artwork
+        // Centered Circular Album Artwork with direct-manipulation drag follow + smooth Crossfade
         Box(
             modifier = Modifier
                 .size(214.dp)
+                .graphicsLayer {
+                    translationX = dragOffsetX.value
+                    rotationZ = dragOffsetX.value * 0.045f
+                    val dragFraction = (abs(dragOffsetX.value) / 110f).coerceIn(0f, 1f)
+                    val s = 1f - (dragFraction * 0.04f)
+                    scaleX = s
+                    scaleY = s
+                }
                 .shadow(18.dp, CircleShape, ambientColor = Color.Black, spotColor = Color.Black)
                 .clip(CircleShape)
                 .background(CardBackground)
                 .border(1.dp, Color.White.copy(alpha = 0.14f), CircleShape)
         ) {
-            AsyncImage(
-                model = coverUrl,
-                contentDescription = "Album Artwork",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
+            Crossfade(
+                targetState = coverUrl,
+                animationSpec = tween(durationMillis = 240, easing = CrankrMotion.EaseOutStrong),
+                label = "RadialCoverCrossfade"
+            ) { targetCover ->
+                AsyncImage(
+                    model = targetCover,
+                    contentDescription = "Album Artwork",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
         }
 
         // Integrated Bottom Timestamp inside the ring gap (just like Ref 1)

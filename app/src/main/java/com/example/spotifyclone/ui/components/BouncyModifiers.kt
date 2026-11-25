@@ -1,6 +1,6 @@
 package com.example.spotifyclone.ui.components
 
-import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.clickable
@@ -20,32 +20,37 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalHapticFeedback
 
 /**
- * Flagship Micro-Touch Physics modifier:
- * Subtle, crisp compression (0.982x -> 1.0x) with critical damping (no rubbery wobble)
- * and rich Material 3 ripple for a high-end, responsive feel.
+ * Shared Motion Tokens (Emil Kowalski Design Engineering + Micro-Interactions):
+ * - Strong Ease-Out: immediate response, decisive settle
+ * - Drawer Curve: iOS / Apple Music sheet feel
+ * - Snappy Spring: ~140-180ms settle, interruptible, subtle critical damping
+ */
+object CrankrMotion {
+    val EaseOutStrong = CubicBezierEasing(0.23f, 1f, 0.32f, 1f)
+    val EaseDrawer = CubicBezierEasing(0.32f, 0.72f, 0f, 1f)
+    val EaseInOutStrong = CubicBezierEasing(0.77f, 0f, 0.175f, 1f)
+
+    fun <T> snappySpring() = spring<T>(dampingRatio = 0.82f, stiffness = 620f)
+    fun <T> gentleSpring() = spring<T>(dampingRatio = 0.86f, stiffness = 320f)
+}
+
+/**
+ * Flagship Micro-Touch Physics modifier (scale 0.965x -> 1.0x in ~140ms)
+ * using GPU graphicsLayer to avoid recomposition overhead.
  */
 fun Modifier.bouncyClick(
-    scaleDown: Float = 0.982f,
+    scaleDown: Float = 0.965f,
     onClick: () -> Unit
 ): Modifier = composed {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     val haptic = LocalHapticFeedback.current
 
-    LaunchedEffect(isPressed) {
-        if (isPressed) {
-            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-        }
-    }
-
-    val effectiveScaleDown = scaleDown.coerceAtLeast(0.98f)
+    val effectiveScaleDown = scaleDown.coerceIn(0.93f, 0.985f)
 
     val scale by animateFloatAsState(
         targetValue = if (isPressed) effectiveScaleDown else 1.0f,
-        animationSpec = spring(
-            dampingRatio = 0.85f,
-            stiffness = Spring.StiffnessMedium
-        ),
+        animationSpec = CrankrMotion.snappySpring(),
         label = "micro_scale"
     )
 
@@ -65,23 +70,20 @@ fun Modifier.bouncyClick(
 }
 
 /**
- * Spring pressable modifier for buttons and custom surfaces:
- * Applies snappy, low-profile scale compression without overriding surface clicks.
+ * Snappy spring pressable modifier for buttons, pills, and glass cards:
+ * Responds instantly on finger down (0.95-0.97x) and recovers with zero wobble.
  */
 fun Modifier.springPressable(
-    scaleDown: Float = 0.982f
+    scaleDown: Float = 0.965f
 ): Modifier = composed {
     var isPressed by remember { mutableStateOf(false) }
     val haptic = LocalHapticFeedback.current
 
-    val effectiveScaleDown = scaleDown.coerceAtLeast(0.98f)
+    val effectiveScaleDown = scaleDown.coerceIn(0.92f, 0.985f)
 
     val scale by animateFloatAsState(
         targetValue = if (isPressed) effectiveScaleDown else 1.0f,
-        animationSpec = spring(
-            dampingRatio = 0.85f,
-            stiffness = Spring.StiffnessMedium
-        ),
+        animationSpec = CrankrMotion.snappySpring(),
         label = "spring_press_scale"
     )
 

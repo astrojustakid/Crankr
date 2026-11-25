@@ -46,6 +46,7 @@ import com.example.spotifyclone.data.model.Track
 import com.example.spotifyclone.theme.*
 import com.example.spotifyclone.ui.components.AddToPlaylistDialog
 import com.example.spotifyclone.ui.components.BandcampPurchaseDialog
+import com.example.spotifyclone.ui.components.CrankrMotion
 import com.example.spotifyclone.ui.components.CrankrStatsDialog
 import com.example.spotifyclone.ui.components.CrossfadeDialog
 import com.example.spotifyclone.ui.components.EqualizerDialog
@@ -828,23 +829,33 @@ fun MainSpotifyApp(
             }
         }
 
-        // Fullscreen Now Playing with Smooth Vertical Expand/Collapse from Mini Player
+        // Fullscreen Now Playing with iOS/Apple Music Drawer Curve (emil-design-eng + micro-interactions)
         AnimatedVisibility(
             visible = isNowPlayingExpanded && currentTrack != null,
             enter = slideInVertically(
                 initialOffsetY = { fullHeight -> fullHeight },
-                animationSpec = spring(
-                    dampingRatio = 0.85f,
-                    stiffness = Spring.StiffnessMediumLow
+                animationSpec = tween(
+                    durationMillis = 320,
+                    easing = CrankrMotion.EaseDrawer
                 )
-            ) + fadeIn(animationSpec = tween(250)),
+            ) + fadeIn(
+                animationSpec = tween(
+                    durationMillis = 220,
+                    easing = CrankrMotion.EaseOutStrong
+                )
+            ),
             exit = slideOutVertically(
                 targetOffsetY = { fullHeight -> fullHeight },
-                animationSpec = spring(
-                    dampingRatio = 0.85f,
-                    stiffness = Spring.StiffnessMediumLow
+                animationSpec = tween(
+                    durationMillis = 210,
+                    easing = CrankrMotion.EaseDrawer
                 )
-            ) + fadeOut(animationSpec = tween(200)),
+            ) + fadeOut(
+                animationSpec = tween(
+                    durationMillis = 150,
+                    easing = CrankrMotion.EaseOutStrong
+                )
+            ),
             modifier = Modifier.fillMaxSize()
         ) {
             if (currentTrack != null) {

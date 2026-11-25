@@ -40,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
@@ -55,6 +56,7 @@ import com.example.spotifyclone.data.model.SpotifyPlaylist
 import com.example.spotifyclone.data.model.Track
 import com.example.spotifyclone.theme.*
 import com.example.spotifyclone.ui.components.BackupRestoreDialog
+import com.example.spotifyclone.ui.components.CrankrMotion
 import com.example.spotifyclone.ui.components.GlassFilterPill
 import com.example.spotifyclone.ui.components.GlassIconButton
 import com.example.spotifyclone.ui.components.GlassSurface
@@ -284,10 +286,20 @@ fun HomeScreen(
                         modifier = Modifier.fillMaxWidth()
                     ) { pageIndex ->
                         val pl = heroPlaylists[pageIndex]
+                        val pageOffset = ((heroPagerState.currentPage - pageIndex) + heroPagerState.currentPageOffsetFraction)
+                        val absOffset = kotlin.math.abs(pageOffset).coerceIn(0f, 1f)
+                        val cardScale = 1f - (absOffset * 0.06f)
+                        val cardAlpha = 1f - (absOffset * 0.30f)
+
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(216.dp)
+                                .graphicsLayer {
+                                    scaleX = cardScale
+                                    scaleY = cardScale
+                                    alpha = cardAlpha
+                                }
                                 .clip(RoundedCornerShape(20.dp))
                                 .background(CardSurface)
                                 .border(BorderStroke(0.8.dp, glassHairlineBrush()), RoundedCornerShape(20.dp))
@@ -426,13 +438,23 @@ fun HomeScreen(
                         ) {
                             repeat(heroPlaylists.size) { dotIndex ->
                                 val active = heroPagerState.currentPage == dotIndex
+                                val dotWidth by animateDpAsState(
+                                    targetValue = if (active) 20.dp else 6.dp,
+                                    animationSpec = com.example.spotifyclone.ui.components.CrankrMotion.snappySpring(),
+                                    label = "HeroDotWidth_$dotIndex"
+                                )
+                                val dotColor by animateColorAsState(
+                                    targetValue = if (active) Primary else TextMuted.copy(alpha = 0.45f),
+                                    animationSpec = tween(durationMillis = 180),
+                                    label = "HeroDotColor_$dotIndex"
+                                )
                                 Box(
                                     modifier = Modifier
                                         .padding(horizontal = 3.dp)
                                         .height(5.dp)
-                                        .width(if (active) 18.dp else 5.dp)
+                                        .width(dotWidth)
                                         .clip(RoundedCornerShape(999.dp))
-                                        .background(if (active) Primary else TextMuted.copy(alpha = 0.45f))
+                                        .background(dotColor)
                                 )
                             }
                         }

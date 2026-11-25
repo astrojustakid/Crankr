@@ -1,7 +1,7 @@
 ﻿{
-    "versionCode":  81,
-    "versionName":  "1.80",
+    "versionCode":  82,
+    "versionName":  "1.81",
     "downloadUrl":  "https://github.com/astrojustakid/Crankr/releases/latest/download/crankr.apk",
-    "changelog":  "[FITUR BARU]\n- Penambahan 3 tema baru yang kontras \u0026 ikonik: Midnight Jade (Emerald), Sunset Amber (Warm Espresso), \u0026 Solaris Gold (Champagne Gold), serta penggabungan Pure OLED ke Kinetic Mono True OLED\r\n- Penyeragaman Crankr 2.0 Frosted Glassmorphism ke seluruh menu \u0026 dialog tersisa (Equalizer, Sleep Timer, Crossfade, Antrean, Add to Playlist, Statistik, Listen Together, OTA Update, Album Detail, Unduhan Offline, \u0026 Tentang Crankr)\n\n[CATATAN]\n- Audit menyeluruh memastikan tidak ada lagi dialog kaku 2dp/3dp atau warna hardcoded yang tertinggal saat ganti tema live",
+    "changelog":  "[FITUR BARU]\n- Animasi \u0026 Micro-Interactions Crankr 2.0 (CrankrMotion tokens, snappy press physics, direct-manipulation drag \u0026 haptic di CircularRadialPlayerDeck, GPU parallax Hero Carousel, kurva iOS drawer NowPlaying)\n\n[CATATAN]\n- Diterapkan menggunakan standar emil-design-eng \u0026 micro-interactions tanpa menyentuh modul terkunci.",
     "mandatory":  false
 }
