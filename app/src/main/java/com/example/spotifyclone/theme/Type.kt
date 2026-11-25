@@ -8,123 +8,118 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.example.spotifyclone.R
 
-// Space Grotesk for Headings, Titles, Labels, and Brand Typemarks
-val SpaceGrotesk = FontFamily(
-    Font(R.font.space_grotesk, FontWeight.Normal),
-    Font(R.font.space_grotesk, FontWeight.Medium),
-    Font(R.font.space_grotesk, FontWeight.SemiBold),
-    Font(R.font.space_grotesk, FontWeight.Bold)
-)
-
-// Plus Jakarta Sans for Body, Descriptions, Menus, and Synced Lyrics
+// Plus Jakarta Sans Full Family (static weights 400–800 untuk kontras bobot nyata di semua versi Android)
 val PlusJakartaSans = FontFamily(
-    Font(R.font.plus_jakarta_sans, FontWeight.Normal),
-    Font(R.font.plus_jakarta_sans, FontWeight.Medium),
-    Font(R.font.plus_jakarta_sans, FontWeight.SemiBold),
-    Font(R.font.plus_jakarta_sans, FontWeight.Bold)
+    Font(R.font.plus_jakarta_sans_regular, FontWeight.Normal),
+    Font(R.font.plus_jakarta_sans_medium, FontWeight.Medium),
+    Font(R.font.plus_jakarta_sans_semibold, FontWeight.SemiBold),
+    Font(R.font.plus_jakarta_sans_bold, FontWeight.Bold),
+    Font(R.font.plus_jakarta_sans_extrabold, FontWeight.ExtraBold),
+    Font(R.font.plus_jakarta_sans_extrabold, FontWeight.Black)
 )
 
-// Backwards-compatible aliases for all screens
-val OswaldFontFamily = SpaceGrotesk
-val AntonFontFamily = SpaceGrotesk
+// Backwards-compatible aliases (unified single-family system per Impeccable Operate mode)
+val SpaceGrotesk = PlusJakartaSans
+val OswaldFontFamily = PlusJakartaSans
+val AntonFontFamily = PlusJakartaSans
 val InterFontFamily = PlusJakartaSans
 
-val CrankrDisplayFont = SpaceGrotesk
+val CrankrDisplayFont = PlusJakartaSans
 val CrankrBodyFont = PlusJakartaSans
 
-// Material 3 Typography using Space Grotesk for Headline/Title/Label & Plus Jakarta Sans for Body
+// Material 3 Typography using Plus Jakarta Sans Full Family with crisp weight & tracking hierarchy
 val Typography = Typography(
     displayLarge = TextStyle(
-        fontFamily = SpaceGrotesk,
-        fontWeight = FontWeight.Bold,
+        fontFamily = PlusJakartaSans,
+        fontWeight = FontWeight.ExtraBold,
         fontSize = 32.sp,
-        letterSpacing = 0.5.sp
+        letterSpacing = (-0.5).sp
     ),
     displayMedium = TextStyle(
-        fontFamily = SpaceGrotesk,
+        fontFamily = PlusJakartaSans,
         fontWeight = FontWeight.Bold,
         fontSize = 26.sp,
-        letterSpacing = 0.5.sp
+        letterSpacing = (-0.3).sp
     ),
     displaySmall = TextStyle(
-        fontFamily = SpaceGrotesk,
+        fontFamily = PlusJakartaSans,
         fontWeight = FontWeight.Bold,
         fontSize = 22.sp,
-        letterSpacing = 0.5.sp
+        letterSpacing = (-0.2).sp
     ),
     headlineLarge = TextStyle(
-        fontFamily = SpaceGrotesk,
+        fontFamily = PlusJakartaSans,
         fontWeight = FontWeight.Bold,
         fontSize = 22.sp,
-        letterSpacing = 0.5.sp
+        letterSpacing = (-0.2).sp
     ),
     headlineMedium = TextStyle(
-        fontFamily = SpaceGrotesk,
+        fontFamily = PlusJakartaSans,
         fontWeight = FontWeight.Bold,
         fontSize = 20.sp,
-        letterSpacing = 0.5.sp
+        letterSpacing = (-0.15).sp
     ),
     headlineSmall = TextStyle(
-        fontFamily = SpaceGrotesk,
+        fontFamily = PlusJakartaSans,
         fontWeight = FontWeight.SemiBold,
         fontSize = 18.sp,
-        letterSpacing = 0.5.sp
+        letterSpacing = (-0.1).sp
     ),
     titleLarge = TextStyle(
-        fontFamily = SpaceGrotesk,
+        fontFamily = PlusJakartaSans,
         fontWeight = FontWeight.Bold,
         fontSize = 18.sp,
-        letterSpacing = 0.25.sp
+        letterSpacing = (-0.1).sp
     ),
     titleMedium = TextStyle(
-        fontFamily = SpaceGrotesk,
+        fontFamily = PlusJakartaSans,
         fontWeight = FontWeight.SemiBold,
         fontSize = 15.sp,
-        letterSpacing = 0.25.sp
+        letterSpacing = 0.sp
     ),
     titleSmall = TextStyle(
-        fontFamily = SpaceGrotesk,
+        fontFamily = PlusJakartaSans,
         fontWeight = FontWeight.SemiBold,
         fontSize = 13.5.sp,
-        letterSpacing = 0.25.sp
+        letterSpacing = 0.sp
     ),
     bodyLarge = TextStyle(
         fontFamily = PlusJakartaSans,
         fontWeight = FontWeight.Normal,
         fontSize = 14.sp,
         lineHeight = 20.sp,
-        letterSpacing = 0.25.sp
+        letterSpacing = 0.sp
     ),
     bodyMedium = TextStyle(
         fontFamily = PlusJakartaSans,
         fontWeight = FontWeight.Normal,
         fontSize = 12.5.sp,
         lineHeight = 17.sp,
-        letterSpacing = 0.25.sp
+        letterSpacing = 0.sp
     ),
     bodySmall = TextStyle(
         fontFamily = PlusJakartaSans,
         fontWeight = FontWeight.Normal,
         fontSize = 11.5.sp,
         lineHeight = 15.sp,
-        letterSpacing = 0.25.sp
+        letterSpacing = 0.sp
     ),
     labelLarge = TextStyle(
-        fontFamily = SpaceGrotesk,
+        fontFamily = PlusJakartaSans,
         fontWeight = FontWeight.SemiBold,
         fontSize = 12.sp,
-        letterSpacing = 0.5.sp
+        letterSpacing = 0.1.sp
     ),
     labelMedium = TextStyle(
-        fontFamily = SpaceGrotesk,
+        fontFamily = PlusJakartaSans,
         fontWeight = FontWeight.Medium,
         fontSize = 11.sp,
-        letterSpacing = 0.5.sp
+        letterSpacing = 0.1.sp
     ),
     labelSmall = TextStyle(
-        fontFamily = SpaceGrotesk,
+        fontFamily = PlusJakartaSans,
         fontWeight = FontWeight.Medium,
         fontSize = 10.sp,
-        letterSpacing = 0.5.sp
+        letterSpacing = 0.15.sp
     )
 )

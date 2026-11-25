@@ -1,7 +1,7 @@
 ﻿{
-    "versionCode":  87,
-    "versionName":  "1.86",
+    "versionCode":  88,
+    "versionName":  "1.87",
     "downloadUrl":  "https://github.com/astrojustakid/Crankr/releases/latest/download/crankr.apk",
-    "changelog":  "[PERBAIKAN BUG]\n- Menghilangkan flash logo statik Android 12+ sebelum animasi splash (windowSplashScreenAnimatedIcon transparan + background #0B0B0E) dan menutup kebocoran background Home di tengah animasi CrankrSplashScreen dengan lapisan dasar solid\n\n[CATATAN]\n- Transisi pembukaan aplikasi sekarang mulus tanpa celah.",
+    "changelog":  "[FITUR BARU]\n- Tipografi baru Plus Jakarta Sans Full Family (5 bobot statis asli 400-800: Regular, Medium, SemiBold, Bold, ExtraBold) dengan tracking judul tajam di seluruh layar Crankr\n\n[PERBAIKAN BUG]\n- Memperbaiki bug bobot font di Type.kt yang sebelumnya merender semua teks Bold/SemiBold menjadi tipis 400 Regular\n\n[CATATAN]\n- Diterapkan atas izin tertulis pengguna.",
     "mandatory":  false
 }
