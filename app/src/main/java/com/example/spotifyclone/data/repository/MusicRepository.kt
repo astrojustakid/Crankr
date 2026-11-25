@@ -32,8 +32,8 @@ class MusicRepository(
 ) {
     companion object {
         private const val TAG = "MusicRepository"
-        private const val TRENDING_CACHE_TTL_MS = 30 * 60 * 1000L // 30 menit
-        private const val POPULAR_CACHE_TTL_MS = 60 * 60 * 1000L  // 1 jam
+        private const val TRENDING_CACHE_TTL_MS = 15 * 60 * 1000L // 15 menit
+        private const val POPULAR_CACHE_TTL_MS = 15 * 60 * 1000L  // 15 menit agar tangga lagu selalu segar
 
         @Volatile
         private var memoryTrendingForYouCache: List<Track>? = null

@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.ContentPaste
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
@@ -54,6 +55,9 @@ import com.example.spotifyclone.R
 import com.example.spotifyclone.data.MusicCatalog
 import com.example.spotifyclone.data.model.SpotifyPlaylist
 import com.example.spotifyclone.data.model.Track
+import com.example.spotifyclone.data.repository.YouTubeMusicRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import com.example.spotifyclone.theme.*
 import com.example.spotifyclone.ui.components.BackupRestoreDialog
 import com.example.spotifyclone.ui.components.CrankrMotion
@@ -144,10 +148,54 @@ fun HomeScreen(
         else -> trendingSongs
     }
 
+    // 4. Live YouTube Music Genre Feed untuk setiap bubble genre (Pop Punk, Pop, Indie, Pop Rock, Rock, Acoustic)
+    val localContext = LocalContext.current
+    val ytMusicRepo = remember(localContext) { YouTubeMusicRepository(localContext) }
+    val genreTracksCache = remember { mutableStateMapOf<String, List<Track>>() }
+    var isLoadingGenreTracks by remember { mutableStateOf(false) }
+    var genreRefreshTrigger by remember { mutableIntStateOf(0) }
+
+    LaunchedEffect(selectedGenre, genreRefreshTrigger) {
+        if (selectedGenre == "All") {
+            isLoadingGenreTracks = false
+            return@LaunchedEffect
+        }
+        val shouldFetch = genreRefreshTrigger > 0 || genreTracksCache[selectedGenre].isNullOrEmpty()
+        if (!shouldFetch) {
+            isLoadingGenreTracks = false
+            return@LaunchedEffect
+        }
+        isLoadingGenreTracks = true
+        val fetched = withContext(Dispatchers.IO) {
+            val query = when (selectedGenre.lowercase()) {
+                "pop punk" -> "Pop Punk Indonesia hits"
+                "pop" -> "Pop Indonesia terbaru hits"
+                "indie" -> "Indie Indonesia hits"
+                "pop rock" -> "Pop Rock Indonesia hits"
+                "rock" -> "Rock Indonesia anthem"
+                "acoustic" -> "Acoustic Indonesia chill"
+                else -> "$selectedGenre music hits"
+            }
+            try {
+                ytMusicRepo.searchSongs(query, limit = 18).map { tr ->
+                    tr.copy(genre = selectedGenre)
+                }
+            } catch (_: Exception) {
+                emptyList()
+            }
+        }
+        if (fetched.isNotEmpty()) {
+            genreTracksCache[selectedGenre] = fetched
+        }
+        isLoadingGenreTracks = false
+    }
+
     val filteredTracks = if (selectedGenre == "All") {
         displayPopularTracks
     } else {
-        displayPopularTracks.filter { it.genre.equals(selectedGenre, ignoreCase = true) }
+        genreTracksCache[selectedGenre].orEmpty().ifEmpty {
+            displayPopularTracks.filter { it.genre.equals(selectedGenre, ignoreCase = true) }
+        }
     }
 
     LazyColumn(
@@ -874,12 +922,12 @@ fun HomeScreen(
                     .padding(top = 4.dp, bottom = 4.dp)
             ) {
                 Text(
-                    text = "SIGNAL TYPE",
-                    fontFamily = CrankrDisplayFont,
+                    text = "Jelajahi Genre",
+                    fontFamily = CrankrBodyFont,
                     fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.SemiBold,
                     color = TextSecondary,
-                    letterSpacing = 1.sp,
+                    letterSpacing = 0.3.sp,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
                 )
 
@@ -935,27 +983,57 @@ fun HomeScreen(
 
                 if (selectedGenre == "All") {
                     Surface(
-                        color = CrimsonRedSoft,
-                        shape = RoundedCornerShape(4.dp),
-                        border = BorderStroke(1.dp, CrimsonRed.copy(alpha = 0.5f))
+                        onClick = { onRefreshPopularTracks?.invoke() },
+                        color = Primary.copy(alpha = 0.14f),
+                        shape = CircleShape,
+                        border = BorderStroke(0.8.dp, Primary.copy(alpha = 0.45f)),
+                        modifier = Modifier.springPressable(0.95f)
                     ) {
                         Row(
-                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                            modifier = Modifier.padding(horizontal = 9.dp, vertical = 4.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(5.dp)
-                                    .background(CrimsonRed, shape = CircleShape)
+                            Icon(
+                                imageVector = Icons.Default.Refresh,
+                                contentDescription = "Segarkan Tangga Lagu",
+                                tint = Primary,
+                                modifier = Modifier.size(12.dp)
                             )
-                            Spacer(modifier = Modifier.width(4.dp))
+                            Spacer(modifier = Modifier.width(5.dp))
                             Text(
-                                text = "CHARTS • YOUTUBE MUSIC",
-                                fontFamily = FontFamily.Monospace,
-                                fontSize = 9.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = TextWhite,
-                                letterSpacing = 0.5.sp
+                                text = "Charts • YT Music",
+                                fontFamily = CrankrBodyFont,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = TextWhite
+                            )
+                        }
+                    }
+                } else {
+                    Surface(
+                        onClick = { genreRefreshTrigger += 1 },
+                        color = Surface.copy(alpha = 0.72f),
+                        shape = CircleShape,
+                        border = BorderStroke(0.8.dp, Border),
+                        modifier = Modifier.springPressable(0.95f)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 9.dp, vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Refresh,
+                                contentDescription = "Segarkan $selectedGenre",
+                                tint = Primary,
+                                modifier = Modifier.size(12.dp)
+                            )
+                            Spacer(modifier = Modifier.width(5.dp))
+                            Text(
+                                text = "Segarkan",
+                                fontFamily = CrankrBodyFont,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = TextWhite
                             )
                         }
                     }
@@ -963,8 +1041,10 @@ fun HomeScreen(
             }
         }
 
-        // State Feedback: Loading state for official YouTube Music Charts Tracks
-        if (selectedGenre == "All" && popularTracksState is PopularTracksUiState.Loading && filteredTracks.isEmpty()) {
+        // State Feedback: Loading state for official YouTube Music Charts or Genre Tracks
+        if ((selectedGenre == "All" && popularTracksState is PopularTracksUiState.Loading && filteredTracks.isEmpty()) ||
+            (selectedGenre != "All" && isLoadingGenreTracks && filteredTracks.isEmpty())
+        ) {
             item {
                 Box(
                     modifier = Modifier
@@ -972,11 +1052,20 @@ fun HomeScreen(
                         .padding(vertical = 32.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator(
-                        color = CrimsonRed,
-                        strokeWidth = 2.dp,
-                        modifier = Modifier.size(24.dp)
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        CircularProgressIndicator(
+                            color = Primary,
+                            strokeWidth = 2.dp,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Text(
+                            text = if (selectedGenre == "All") "Memuat tangga lagu terbaru..." else "Memuat lagu $selectedGenre...",
+                            fontFamily = CrankrBodyFont,
+                            fontSize = 12.sp,
+                            color = TextSecondary
+                        )
+                    }
                 }
             }
         }

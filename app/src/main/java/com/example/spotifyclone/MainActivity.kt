@@ -10,6 +10,8 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleOut
+import com.example.spotifyclone.ui.components.CrankrMotion
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
@@ -64,7 +66,7 @@ class MainActivity : ComponentActivity() {
                 var showSplash by remember { mutableStateOf(true) }
 
                 LaunchedEffect(Unit) {
-                    delay(1200)
+                    delay(1350)
                     showSplash = false
                 }
 
@@ -80,8 +82,13 @@ class MainActivity : ComponentActivity() {
 
                         AnimatedVisibility(
                             visible = showSplash,
-                            enter = fadeIn(),
-                            exit = fadeOut(tween(400))
+                            enter = fadeIn(tween(120)),
+                            exit = fadeOut(
+                                tween(durationMillis = 340, easing = CrankrMotion.EaseOutStrong)
+                            ) + scaleOut(
+                                targetScale = 1.04f,
+                                animationSpec = tween(durationMillis = 340, easing = CrankrMotion.EaseOutStrong)
+                            )
                         ) {
                             CrankrSplashScreen()
                         }

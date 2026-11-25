@@ -1,7 +1,7 @@
 ﻿{
-    "versionCode":  84,
-    "versionName":  "1.83",
+    "versionCode":  86,
+    "versionName":  "1.85",
     "downloadUrl":  "https://github.com/astrojustakid/Crankr/releases/latest/download/crankr.apk",
-    "changelog":  "[FITUR BARU]\n- UI Polish Crankr 2.0 berbasis Impeccable (Top Bar overflow menu ⋮ \u0026 shimmer skeleton di Playlist Detail, tombol frosted tonal + pill genre, pembersihan jargon teknis \u0026 penyelarasan tipografi Display/Body serta kontras OnPrimary di Pengaturan)\n\n[CATATAN]\n- Diterapkan mengikuti standar impeccable craft-floor \u0026 operate mode tanpa menyentuh modul terkunci.",
+    "changelog":  "[FITUR BARU]\n- App Icon baru Crankr 2.0 (Opsi B: Clean Pulse C) \u0026 Animated Splash Screen vektor Compose Canvas (monogram C terbelah + gelombang suara hidup berdenyut + wordmark bersih)\n\n[PERBAIKAN BUG]\n- Perbaikan Rekomendasi Teratas \u0026 seluruh bubble genre di Home (Pop Punk, Pop, Indie, Pop Rock, Rock, Acoustic) agar langsung menarik lagu terbaru dari YouTube Music dengan cache \u0026 tombol Segarkan\n\n[CATATAN]\n- Seluruh modul terkunci tetap aman sesuai Zero-Collateral-Damage Policy.",
     "mandatory":  false
 }
