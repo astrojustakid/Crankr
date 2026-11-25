@@ -234,7 +234,7 @@ object DownloadUtil {
         context: Context,
         track: Track,
         onProgress: ((Float) -> Unit)? = null
-    ): Result<String> {
+    ): Result<String> = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
         val appContext = context.applicationContext
         val trackId = track.id
         val dbHelper = ListeningHistoryDatabaseHelper.getInstance(appContext)
@@ -243,52 +243,61 @@ object DownloadUtil {
         onProgress?.invoke(0.05f)
         dbHelper.recordDownloadStatus(track, "DOWNLOADING", 0.05f)
 
-        // 1. Ekstraksi URL streaming audio aktif (prioritaskan URL cache yang sedang terbukti berjalan dulu!)
+        // 1. Ekstraksi YouTube Video ID 11-karakter yang valid secara ketat
         var freshAudioUrl: String? = null
-        var vid = track.youtubeVideoId?.takeIf { it.isNotBlank() }
-            ?: track.id.takeIf { it.startsWith("yt_") && it.length == 14 }?.removePrefix("yt_")
-            ?: AudioStreamResolver.resolveYouTubeVideoId(track)
+        val ytUrlMatch = Regex("""(?:v=|youtu\.be/)([a-zA-Z0-9_-]{11})""").find(track.streamUrl)?.groupValues?.get(1)
+        var vid: String? = track.youtubeVideoId?.trim()?.takeIf { it.length == 11 }
+            ?: track.id.takeIf { it.startsWith("yt_") }?.removePrefix("yt_")?.trim()?.takeIf { it.length == 11 }
+            ?: track.id.trim().takeIf { it.length == 11 && !it.startsWith("sp_") && !it.startsWith("local_") && it.matches(Regex("^[a-zA-Z0-9_-]{11}$")) }
+            ?: ytUrlMatch
+            ?: AudioStreamResolver.resolveYouTubeVideoId(track)?.takeIf { it.length == 11 }
+            ?: MusicStreamResolver.resolveYouTubeVideoId(track.title, track.artist)?.takeIf { it.length == 11 }
 
         if (!vid.isNullOrBlank()) {
-            // A. Coba pakai URL aktif dari cache memori terlebih dahulu (0ms & anti gagal saat lagu sedang diputar)
-            val cachedCandidates = AudioStreamResolver.getCachedStreamUrls(vid)
-            if (cachedCandidates.isNotEmpty()) {
-                freshAudioUrl = cachedCandidates.first()
-            }
-            // B. Jika belum ada di cache, resolve kandidat stream resmi dari InnerTube
+            // A. Prioritaskan URL aktif dari cache memori (0ms & pasti valid jika lagu baru/sedang diputar)
+            freshAudioUrl = AudioStreamResolver.getCachedStreamUrls(vid).firstOrNull()
+
+            // B. Jika belum ada di cache, resolve kandidat stream resmi dari AudioStreamResolver
             if (freshAudioUrl.isNullOrBlank()) {
-                val candidates = AudioStreamResolver.resolveCandidateStreamUrls(vid)
-                if (candidates.isNotEmpty()) {
-                    freshAudioUrl = candidates.first()
-                }
+                freshAudioUrl = AudioStreamResolver.resolveCandidateStreamUrls(vid).firstOrNull()
             }
-            // C. Fallback direct audio URL resolver
+            // C. Fallback ke MusicStreamResolver (Android + iOS InnerTube client dengan timeout lebih panjang)
+            if (freshAudioUrl.isNullOrBlank()) {
+                freshAudioUrl = MusicStreamResolver.resolveDirectAudioStreamUrl(vid)
+            }
+            // D. Fallback direct audio URL resolver
             if (freshAudioUrl.isNullOrBlank()) {
                 freshAudioUrl = AudioStreamResolver.resolveDirectAudioStreamUrl(vid)
             }
-            // D. Fallback cari videoId alternatif resmi jika videoId awal dibatasi
+            // E. Fallback cari videoId alternatif resmi jika videoId awal dibatasi
             if (freshAudioUrl.isNullOrBlank()) {
                 val altVid = AudioStreamResolver.resolveAlternativeVideoId(
                     title = track.title,
                     artist = track.artist,
                     failedVideoId = vid
-                )
+                )?.takeIf { it.length == 11 }
+                    ?: MusicStreamResolver.resolveAlternativeVideoId(
+                        title = track.title,
+                        artist = track.artist,
+                        failedVideoId = vid
+                    )?.takeIf { it.length == 11 }
                 if (!altVid.isNullOrBlank()) {
                     vid = altVid
                     freshAudioUrl = AudioStreamResolver.resolveCandidateStreamUrls(altVid).firstOrNull()
+                        ?: MusicStreamResolver.resolveDirectAudioStreamUrl(altVid)
                         ?: AudioStreamResolver.resolveDirectAudioStreamUrl(altVid)
                 }
             }
         }
 
-        if (freshAudioUrl.isNullOrBlank() && track.streamUrl.startsWith("http") && !track.streamUrl.contains("youtube.com")) {
+        if (freshAudioUrl.isNullOrBlank() && track.streamUrl.startsWith("http") && !track.streamUrl.contains("youtube.com") && !track.streamUrl.contains("youtu.be")) {
             freshAudioUrl = track.streamUrl
         }
 
         if (freshAudioUrl.isNullOrBlank()) {
             dbHelper.markDownloadFailed(trackId)
             _downloadProgressMap.update { it - trackId }
-            return Result.failure(Exception("Aliran audio streaming resmi tidak tersedia untuk diunduh"))
+            return@withContext Result.failure(Exception("Aliran audio streaming resmi tidak tersedia untuk diunduh"))
         }
 
         // 2. Kirim DownloadRequest ke ExoPlayer DownloadManager & CrankrDownloadService (Foreground Service)
@@ -393,7 +402,7 @@ object DownloadUtil {
 
                     _downloadProgressMap.update { it - trackId }
                     onProgress?.invoke(1.0f)
-                    return Result.success(targetFile.absolutePath)
+                    return@withContext Result.success(targetFile.absolutePath)
                 } else {
                     tempFile.delete()
                     throw Exception("Gagal memindahkan file audio sementara ke nama permanen")
@@ -411,7 +420,7 @@ object DownloadUtil {
         // Seluruh percobaan gagal
         dbHelper.markDownloadFailed(trackId)
         _downloadProgressMap.update { it - trackId }
-        return Result.failure(lastException ?: Exception("Gagal mengunduh lagu setelah $maxAttempts percobaan"))
+        return@withContext Result.failure(lastException ?: Exception("Gagal mengunduh lagu setelah $maxAttempts percobaan"))
     }
 
     fun removeDownload(context: Context, trackId: String) {

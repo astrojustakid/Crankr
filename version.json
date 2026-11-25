@@ -1,7 +1,7 @@
 ﻿{
-    "versionCode":  92,
-    "versionName":  "1.91",
+    "versionCode":  93,
+    "versionName":  "1.92",
     "downloadUrl":  "https://github.com/astrojustakid/Crankr/releases/latest/download/crankr.apk",
-    "changelog":  "[PERBAIKAN BUG]\n- Perbaikan gagal download lagu (memprioritaskan URL stream aktif di cache + fallback direct URL \u0026 videoId alternatif di DownloadUtil) dan perbaikan tombol Play/Pause notifikasi yang berputar buffering saat lagu di-pause (mengunci STATE_PAUSED di MusicPlaybackService)\n\n[CATATAN]\n- Seluruh modul terkunci tetap aman.",
+    "changelog":  "[PERBAIKAN BUG]\n- Perbaikan tuntas fitur download lagu di DownloadUtil (menjalankan di Dispatchers.IO, validasi ketat YouTube videoId 11 karakter termasuk parsing dari streamUrl, serta fallback multi-lapis MusicStreamResolver + videoId alternatif)\n\n[CATATAN]\n- Seluruh modul terkunci tetap aman.",
     "mandatory":  false
 }
