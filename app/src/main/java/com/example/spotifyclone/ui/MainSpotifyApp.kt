@@ -643,9 +643,15 @@ fun MainSpotifyApp(
                                         trendingSongs = trendingSongs,
                                         trendingSongsState = trendingSongsState,
                                         onTrendingTrackClick = { track, trendingList ->
-                                            viewModel.playTrack(track, trendingList, "Lagu Tren Untuk Anda")
+                                            val safeTrending = if (trendingList.any { it.id == track.id }) {
+                                                trendingList
+                                            } else {
+                                                listOf(track) + trendingList
+                                            }
+                                            viewModel.playTrack(track, safeTrending, "Tren Underground")
                                             homeViewModel.refreshRecentlyPlayed()
                                         },
+                                        onRefreshTrendingSongs = { homeViewModel.refreshTrendingSongs() },
                                         onSearchBarClick = {
                                             coroutineScope.launch {
                                                 pagerState.animateScrollToPage(

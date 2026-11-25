@@ -114,10 +114,11 @@ fun HomeScreen(
     popularTracksState: PopularTracksUiState? = null,
     recentlyPlayedState: RecentlyPlayedUiState? = null,
     onRefreshPopularTracks: (() -> Unit)? = null,
-    // Trending Songs For You (Lagu Tren Untuk Anda)
+    // Trending Songs For You (Lagu dari Band Playlist yang Belum Masuk Playlist)
     trendingSongs: List<Track> = emptyList(),
     trendingSongsState: TrendingSongsUiState? = null,
     onTrendingTrackClick: ((Track, List<Track>) -> Unit)? = null,
+    onRefreshTrendingSongs: (() -> Unit)? = null,
     onSearchBarClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
@@ -808,7 +809,7 @@ fun HomeScreen(
             }
         }
 
-        // Seksi TREN UNDERGROUND (14dp Rounded Card)
+        // Seksi TREN UNDERGROUND (Lagu lain dari band di playlist yang belum masuk playlist)
         if (displayTrendingSongs.isNotEmpty() || trendingSongsState is TrendingSongsUiState.Loading) {
             item {
                 Row(
@@ -818,31 +819,60 @@ fun HomeScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = "TREN UNDERGROUND",
+                                fontFamily = CrankrDisplayFont,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = TextWhite,
+                                letterSpacing = 0.2.sp
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Box(
+                                modifier = Modifier
+                                    .size(5.dp)
+                                    .clip(CircleShape)
+                                    .background(Primary)
+                            )
+                        }
                         Text(
-                            text = "TREN UNDERGROUND",
-                            fontFamily = CrankrDisplayFont,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = TextWhite,
-                            letterSpacing = 0.5.sp
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Box(
-                            modifier = Modifier
-                                .size(5.dp)
-                                .clip(CircleShape)
-                                .background(CrimsonRed)
+                            text = "Lagu lain dari band di playlist-mu",
+                            fontFamily = CrankrBodyFont,
+                            fontSize = 11.sp,
+                            color = TextSecondary
                         )
                     }
 
-                    if (displayTrendingSongs.isNotEmpty()) {
-                        Text(
-                            text = "${displayTrendingSongs.size} lagu",
-                            fontFamily = CrankrBodyFont,
-                            fontSize = 11.5.sp,
-                            color = TextSecondary
-                        )
+                    if (onRefreshTrendingSongs != null) {
+                        Surface(
+                            onClick = onRefreshTrendingSongs,
+                            color = Surface.copy(alpha = 0.72f),
+                            shape = CircleShape,
+                            border = BorderStroke(0.8.dp, Border),
+                            modifier = Modifier.springPressable(0.95f)
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 9.dp, vertical = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Refresh,
+                                    contentDescription = "Segarkan Tren Underground",
+                                    tint = Primary,
+                                    modifier = Modifier.size(12.dp)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = "Segarkan",
+                                    fontFamily = CrankrBodyFont,
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = TextWhite
+                                )
+                            }
+                        }
                     }
                 }
 

@@ -113,15 +113,18 @@ class MusicRepository(
         return parts.map { it.trim() }.filter { it.length >= 2 && !it.equals("Unknown", ignoreCase = true) }
     }
 
+    private fun normalizeKey(text: String): String {
+        return text
+            .replace(Regex("""\s*\([^)]*\)"""), "")
+            .replace(Regex("""\s*\[[^]]*]"""), "")
+            .lowercase()
+            .replace(Regex("""[^a-z0-9]"""), "")
+            .trim()
+    }
+
     /**
-     * Mengambil rekomendasi lagu tren personal (Trending Songs For You).
-     *
-     * Alur:
-     * 1. Ambil daftar musisi unik dari playlist lokal pengguna di Room.
-     * 2. Jika kosong, gunakan data rilis musik alternatif/indie populer sebagai cadangan.
-     * 3. Kueri rilisan terbaru (single, EP, atau album baru) dari musisi tersebut via YouTube Music channel / browse endpoint.
-     * 4. Urutkan daftar rilis berdasarkan tanggal/tahun rilis terbaru agar karya anyar langsung muncul di layar Home.
-     * 5. Lengkapi dengan lagu tren viral teratas untuk memastikan feed kaya dan bervariasi.
+     * Mengambil lagu-lagu dari band/musisi yang ADA di playlist pengguna,
+     * namun lagunya BELUM masuk ke dalam playlist mana pun (Tren Underground / Deep Cuts).
      */
     suspend fun getTrendingForYou(limit: Int = 20, forceRefresh: Boolean = false): List<Track> = withContext(Dispatchers.IO) {
         val now = System.currentTimeMillis()
@@ -134,82 +137,107 @@ class MusicRepository(
         }
 
         try {
-            // 1. Dapatkan daftar musisi unik dari playlist lokal pengguna
-            val userMusicians = getUserPlaylistMusicians()
-            val targetMusicians = if (userMusicians.isNotEmpty()) {
-                userMusicians.take(6)
-            } else {
-                FALLBACK_INDIE_MUSICIANS.shuffled().take(6)
+            // 1. Kumpulkan seluruh lagu & band yang sudah ada di semua playlist pengguna
+            val playlists = playlistStorageManager?.loadPlaylists().orEmpty()
+            val existingIds = mutableSetOf<String>()
+            val existingVids = mutableSetOf<String>()
+            val existingTitleArtistKeys = mutableSetOf<String>()
+            val playlistBands = linkedSetOf<String>()
+
+            for ((_, tracks) in playlists) {
+                for (t in tracks) {
+                    existingIds.add(t.id)
+                    val vid = t.youtubeVideoId ?: t.id.removePrefix("yt_")
+                    if (vid.isNotBlank()) existingVids.add(vid)
+                    val titleKey = normalizeKey(t.title)
+                    val artistKey = normalizeKey(t.artist)
+                    if (titleKey.isNotBlank() && artistKey.isNotBlank()) {
+                        existingTitleArtistKeys.add("$titleKey|$artistKey")
+                    }
+                    val rawArtist = t.artist.trim()
+                    if (rawArtist.isNotBlank() &&
+                        !rawArtist.equals("Unknown Artist", ignoreCase = true) &&
+                        !rawArtist.equals("Artis", ignoreCase = true)
+                    ) {
+                        splitArtistNames(rawArtist).forEach { playlistBands.add(it) }
+                    }
+                }
             }
 
-            // 2. Kueri rilisan terbaru musisi tersebut secara paralel
-            val releaseTracksBatches = coroutineScope {
-                targetMusicians.map { musician ->
+            // Jika playlist masih kosong, pakai musisi riwayat dengar atau fallback indie
+            val candidateBands = when {
+                playlistBands.isNotEmpty() -> playlistBands.toList().shuffled()
+                else -> {
+                    val historyBands = getUserPlaylistMusicians()
+                    if (historyBands.isNotEmpty()) historyBands.shuffled() else FALLBACK_INDIE_MUSICIANS.shuffled()
+                }
+            }
+
+            val targetBands = candidateBands.take(8)
+
+            // 2. Cari lagu lain dari masing-masing band playlist secara paralel via YouTube Music
+            val perBandTracks = coroutineScope {
+                targetBands.map { band ->
                     async {
+                        val bandKey = normalizeKey(band)
                         try {
-                            youTubeMusicRepository.getArtistNewestReleaseTracks(musician, limit = 2)
+                            val searched = youTubeMusicRepository.searchSongs(band, limit = 10)
+                            searched.filter { track ->
+                                // Pastikan benar-benar lagu milik band tersebut
+                                val trArtistKey = normalizeKey(track.artist)
+                                val artistMatches = bandKey.isNotBlank() &&
+                                    (trArtistKey.contains(bandKey) || bandKey.contains(trArtistKey))
+                                if (!artistMatches) return@filter false
+                                if (!MetadataSanitizer.isOfficialStudioTrack(track)) return@filter false
+
+                                // Saring: WAJIB belum ada di playlist pengguna mana pun
+                                val vid = track.youtubeVideoId ?: track.id.removePrefix("yt_")
+                                val titleArtistKey = "${normalizeKey(track.title)}|$trArtistKey"
+                                val alreadyInPlaylist = existingIds.contains(track.id) ||
+                                    (vid.isNotBlank() && existingVids.contains(vid)) ||
+                                    existingTitleArtistKeys.contains(titleArtistKey)
+
+                                !alreadyInPlaylist
+                            }.take(4)
                         } catch (e: Exception) {
-                            Log.w(TAG, "Gagal mengambil rilis baru $musician: ${e.message}")
+                            Log.w(TAG, "Gagal mencari lagu belum masuk playlist untuk $band: ${e.message}")
                             emptyList()
                         }
                     }
                 }.awaitAll()
             }
 
-            val newestReleaseTracks = releaseTracksBatches.flatten()
-                .filter { MetadataSanitizer.isOfficialStudioTrack(it) }
+            // 3. Gabungkan secara merata (round-robin antar band) agar tidak didominasi 1 band saja
             val resultList = mutableListOf<Track>()
             val seenVids = mutableSetOf<String>()
+            val seenTitleKeys = mutableSetOf<String>()
 
-            // 3. Masukkan karya anyar musisi playlist terlebih dahulu (karya rilis terbaru teratas)
-            for (t in newestReleaseTracks) {
-                val vid = t.youtubeVideoId ?: t.id.removePrefix("yt_")
-                if (vid.length == 11 && seenVids.add(vid)) {
-                    resultList.add(t)
-                }
-            }
-
-            // 4. Ambil feed lagu tren global/regional resmi untuk melengkapi daftar hingga limit
-            if (resultList.size < limit) {
-                val generalTrending = try {
-                    youTubeMusicRepository.getTrendingTracks(gl = "ID", limit = limit * 2)
-                        .filter { MetadataSanitizer.isOfficialStudioTrack(it) }
-                } catch (_: Exception) {
-                    emptyList()
-                }
-
-                for (tr in generalTrending) {
-                    val vid = tr.youtubeVideoId ?: tr.id.removePrefix("yt_")
-                    if (vid.length == 11 && seenVids.add(vid)) {
-                        resultList.add(tr)
+            val maxPerBand = perBandTracks.maxOfOrNull { it.size } ?: 0
+            for (round in 0 until maxPerBand) {
+                for (batch in perBandTracks) {
+                    if (round < batch.size) {
+                        val t = batch[round]
+                        val vid = t.youtubeVideoId ?: t.id.removePrefix("yt_")
+                        val tKey = "${normalizeKey(t.title)}|${normalizeKey(t.artist)}"
+                        if (vid.length == 11 && seenVids.add(vid) && seenTitleKeys.add(tKey)) {
+                            resultList.add(t)
+                        }
+                        if (resultList.size >= limit) break
                     }
-                    if (resultList.size >= limit) break
                 }
-            }
-
-            // 5. Jika kuota lagu berkurang setelah filter studio, ambil trek cadangan resmi studio agar tetap genap dan penuh
-            if (resultList.size < limit) {
-                val studioBackups = MusicCatalog.initialTracks.filter { MetadataSanitizer.isOfficialStudioTrack(it) }
-                for (bk in studioBackups) {
-                    val vid = bk.youtubeVideoId ?: bk.id.removePrefix("yt_")
-                    if (seenVids.add(vid)) {
-                        resultList.add(bk)
-                    }
-                    if (resultList.size >= limit) break
-                }
+                if (resultList.size >= limit) break
             }
 
             val finalResult = resultList.take(limit)
-            memoryTrendingForYouCache = finalResult
-            memoryTrendingForYouTimestamp = now
+            if (finalResult.isNotEmpty()) {
+                memoryTrendingForYouCache = finalResult
+                memoryTrendingForYouTimestamp = now
+            }
 
             finalResult
         } catch (e: Exception) {
             Log.e(TAG, "Error getTrendingForYou: ${e.message}")
-            val fallback = (memoryTrendingForYouCache ?: MusicCatalog.initialTracks)
-                .filter { MetadataSanitizer.isOfficialStudioTrack(it) }
-                .take(limit)
-            fallback
+            memoryTrendingForYouCache.orEmpty().take(limit)
         }
     }
 
