@@ -4,7 +4,11 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -678,10 +682,10 @@ fun PlaylistDetailScreen(
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = "Segarkan",
-                            fontFamily = CrankrDisplayFont,
-                            color = if (isLoadingRecommendations) TextMuted else CrimsonRed,
-                            fontSize = 11.5.sp,
-                            fontWeight = FontWeight.Bold
+                            fontFamily = CrankrBodyFont,
+                            color = if (isLoadingRecommendations) TextMuted else Primary,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold
                         )
                     }
                 }
@@ -691,28 +695,10 @@ fun PlaylistDetailScreen(
         }
 
         if (isLoadingRecommendations) {
-            item {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 24.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        CircularProgressIndicator(
-                            color = CrimsonRed,
-                            strokeWidth = 2.dp,
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Text(
-                            text = "Mencari rekomendasi serupa...",
-                            fontFamily = CrankrBodyFont,
-                            color = TextSecondary,
-                            fontSize = 12.5.sp
-                        )
-                    }
-                }
+            items(4) { index ->
+                RecommendationSkeletonRow(
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+                )
             }
         } else if (recommendedTracks.isNotEmpty()) {
             itemsIndexed(recommendedTracks, key = { index, recTrack -> "rec_${recTrack.id}_$index" }) { _, recTrack ->
@@ -774,11 +760,11 @@ fun PlaylistDetailScreen(
                         searchQuery = ""
                     },
                     modifier = Modifier
-                        .size(38.dp)
-                        .clip(RoundedCornerShape(4.dp))
-                        .background(CardBackground.copy(alpha = 0.85f))
-                        .border(1.dp, BorderSubtle, RoundedCornerShape(4.dp))
-                        .springPressable(scaleDown = 0.88f)
+                        .size(36.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(Surface)
+                        .border(1.dp, Border, RoundedCornerShape(10.dp))
+                        .springPressable(scaleDown = 0.92f)
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -910,7 +896,8 @@ fun PlaylistDetailScreen(
                     }
                 }
 
-                // Right Actions Row: Search, Sync, Edit, Delete (Rapi & Proporsional tanpa logo yang mendempet)
+                // Right Actions Row: Search + Consolidated Overflow Menu (≤4 decision controls per Impeccable Operate mode)
+                var showTopBarMoreMenu by remember { mutableStateOf(false) }
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -954,10 +941,9 @@ fun PlaylistDetailScreen(
                             )
                         }
                     } else {
-                        if (onSyncPlaylist != null) {
+                        Box {
                             IconButton(
-                                onClick = { onSyncPlaylist() },
-                                enabled = !isSyncing,
+                                onClick = { showTopBarMoreMenu = true },
                                 modifier = Modifier
                                     .size(36.dp)
                                     .clip(RoundedCornerShape(10.dp))
@@ -973,47 +959,95 @@ fun PlaylistDetailScreen(
                                     )
                                 } else {
                                     Icon(
-                                        imageVector = Icons.Default.Sync,
-                                        contentDescription = "Sync Playlist",
-                                        tint = if (!playlist.sourceUrl.isNullOrEmpty() || (playlist.id.length in 15..35 && !playlist.id.startsWith("custom_"))) Primary else TextWhite,
-                                        modifier = Modifier.size(17.dp)
+                                        imageVector = Icons.Default.MoreVert,
+                                        contentDescription = "Opsi Playlist",
+                                        tint = TextWhite,
+                                        modifier = Modifier.size(18.dp)
                                     )
                                 }
                             }
-                        }
 
-                        IconButton(
-                            onClick = { showEditDialog = true },
-                            modifier = Modifier
-                                .size(36.dp)
-                                .clip(RoundedCornerShape(10.dp))
-                                .background(Surface)
-                                .border(1.dp, Border, RoundedCornerShape(10.dp))
-                                .springPressable(scaleDown = 0.92f)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Edit,
-                                contentDescription = "Edit Playlist",
-                                tint = TextWhite,
-                                modifier = Modifier.size(17.dp)
-                            )
-                        }
-
-                        IconButton(
-                            onClick = { showDeleteDialog = true },
-                            modifier = Modifier
-                                .size(36.dp)
-                                .clip(RoundedCornerShape(10.dp))
-                                .background(Surface)
-                                .border(1.dp, Border, RoundedCornerShape(10.dp))
-                                .springPressable(scaleDown = 0.92f)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.DeleteOutline,
-                                contentDescription = "Delete Playlist",
-                                tint = Primary,
-                                modifier = Modifier.size(17.dp)
-                            )
+                            DropdownMenu(
+                                expanded = showTopBarMoreMenu,
+                                onDismissRequest = { showTopBarMoreMenu = false },
+                                containerColor = Surface,
+                                shape = RoundedCornerShape(14.dp),
+                                border = androidx.compose.foundation.BorderStroke(1.dp, Border)
+                            ) {
+                                if (onSyncPlaylist != null) {
+                                    DropdownMenuItem(
+                                        text = {
+                                            Text(
+                                                text = if (isSyncing) "Menyinkronkan..." else "Sinkronkan Playlist",
+                                                fontFamily = CrankrBodyFont,
+                                                fontSize = 13.sp,
+                                                fontWeight = FontWeight.Medium,
+                                                color = TextWhite
+                                            )
+                                        },
+                                        leadingIcon = {
+                                            Icon(
+                                                imageVector = Icons.Default.Sync,
+                                                contentDescription = null,
+                                                tint = Primary,
+                                                modifier = Modifier.size(18.dp)
+                                            )
+                                        },
+                                        enabled = !isSyncing,
+                                        onClick = {
+                                            showTopBarMoreMenu = false
+                                            onSyncPlaylist()
+                                        }
+                                    )
+                                }
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(
+                                            text = "Edit Playlist",
+                                            fontFamily = CrankrBodyFont,
+                                            fontSize = 13.sp,
+                                            fontWeight = FontWeight.Medium,
+                                            color = TextWhite
+                                        )
+                                    },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Default.Edit,
+                                            contentDescription = null,
+                                            tint = TextSecondary,
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                    },
+                                    onClick = {
+                                        showTopBarMoreMenu = false
+                                        showEditDialog = true
+                                    }
+                                )
+                                HorizontalDivider(color = Border.copy(alpha = 0.6f), thickness = 0.5.dp)
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(
+                                            text = "Hapus Playlist",
+                                            fontFamily = CrankrBodyFont,
+                                            fontSize = 13.sp,
+                                            fontWeight = FontWeight.Medium,
+                                            color = Color(0xFFFF5A5F)
+                                        )
+                                    },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Default.DeleteOutline,
+                                            contentDescription = null,
+                                            tint = Color(0xFFFF5A5F),
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                    },
+                                    onClick = {
+                                        showTopBarMoreMenu = false
+                                        showDeleteDialog = true
+                                    }
+                                )
+                            }
                         }
                     }
                 }
@@ -1425,6 +1459,74 @@ fun PlaylistDetailScreen(
 }
 
 @Composable
+private fun RecommendationSkeletonRow(modifier: Modifier = Modifier) {
+    val infiniteTransition = rememberInfiniteTransition(label = "RecSkeletonPulse")
+    val pulseAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.25f,
+        targetValue = 0.55f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 850, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "RecSkeletonAlpha"
+    )
+    val shimmerColor = Color.White.copy(alpha = pulseAlpha * 0.18f)
+
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(Surface.copy(alpha = 0.35f))
+            .border(0.6.dp, Border.copy(alpha = 0.4f), RoundedCornerShape(12.dp))
+            .padding(horizontal = 8.dp, vertical = 7.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(46.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .background(shimmerColor)
+        )
+        Spacer(modifier = Modifier.width(12.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(0.68f)
+                    .height(13.dp)
+                    .clip(CircleShape)
+                    .background(shimmerColor)
+            )
+            Spacer(modifier = Modifier.height(7.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(0.36f)
+                        .height(10.dp)
+                        .clip(CircleShape)
+                        .background(shimmerColor)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Box(
+                    modifier = Modifier
+                        .width(44.dp)
+                        .height(14.dp)
+                        .clip(CircleShape)
+                        .background(shimmerColor)
+                )
+            }
+        }
+        Spacer(modifier = Modifier.width(10.dp))
+        Box(
+            modifier = Modifier
+                .width(74.dp)
+                .height(30.dp)
+                .clip(CircleShape)
+                .background(shimmerColor)
+        )
+    }
+}
+
+@Composable
 fun RecommendedTrackItem(
     track: Track,
     resolvedGenre: String = "",
@@ -1438,14 +1540,14 @@ fun RecommendedTrackItem(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .springPressable(0.96f)
+            .springPressable(0.965f)
             .padding(horizontal = 12.dp, vertical = 3.dp)
-            .clip(RoundedCornerShape(3.dp))
-            .background(if (isCurrent) CardBackground else Color.Transparent)
+            .clip(RoundedCornerShape(12.dp))
+            .background(if (isCurrent) Surface.copy(alpha = 0.85f) else Color.Transparent)
             .border(
-                1.dp,
-                if (isCurrent) CrimsonRed.copy(alpha = 0.5f) else Color.Transparent,
-                RoundedCornerShape(3.dp)
+                0.8.dp,
+                if (isCurrent) Primary.copy(alpha = 0.45f) else Color.Transparent,
+                RoundedCornerShape(12.dp)
             )
             .clickable(onClick = onClick)
             .padding(horizontal = 8.dp, vertical = 6.dp),
@@ -1456,12 +1558,12 @@ fun RecommendedTrackItem(
             modifier = Modifier
                 .size(46.dp)
                 .aspectRatio(1f)
-                .clip(RoundedCornerShape(6.dp))
-                .border(0.5.dp, BorderSubtle, RoundedCornerShape(6.dp))
+                .clip(RoundedCornerShape(10.dp))
+                .border(0.6.dp, BorderSubtle, RoundedCornerShape(10.dp))
         ) {
             Crossfade(
                 targetState = track.coverUrl,
-                animationSpec = tween(300),
+                animationSpec = tween(240),
                 label = "RecTrackCoverCrossfade"
             ) { targetCover ->
                 AsyncImage(
@@ -1475,18 +1577,18 @@ fun RecommendedTrackItem(
 
         Spacer(modifier = Modifier.width(12.dp))
 
-        // Title, Artist, & Genre Chip
+        // Title, Artist, & Genre Pill (Body font for clean scannability)
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = track.title,
-                fontFamily = CrankrDisplayFont,
-                color = if (isCurrent) CrimsonRed else TextWhite,
-                fontWeight = FontWeight.Bold,
-                fontSize = 13.5.sp,
-                letterSpacing = 0.2.sp,
+                fontFamily = CrankrBodyFont,
+                color = if (isCurrent) Primary else TextWhite,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 14.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
+            Spacer(modifier = Modifier.height(2.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = track.artist,
@@ -1505,17 +1607,17 @@ fun RecommendedTrackItem(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Spacer(modifier = Modifier.width(6.dp))
                         Surface(
-                            shape = RoundedCornerShape(4.dp),
-                            color = CrimsonRedSoft
+                            shape = CircleShape,
+                            color = Primary.copy(alpha = 0.14f)
                         ) {
                             Text(
                                 text = displayGenre,
-                                fontFamily = CrankrDisplayFont,
-                                color = CrimsonRed,
-                                fontSize = 9.5.sp,
-                                fontWeight = FontWeight.Bold,
+                                fontFamily = CrankrBodyFont,
+                                color = Primary,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.SemiBold,
                                 maxLines = 1,
-                                modifier = Modifier.padding(horizontal = 5.dp, vertical = 1.dp)
+                                modifier = Modifier.padding(horizontal = 7.dp, vertical = 1.5.dp)
                             )
                         }
                     }
@@ -1523,61 +1625,66 @@ fun RecommendedTrackItem(
             }
         }
 
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(10.dp))
 
-        // Add to Playlist Button
+        // Restrained Frosted Glass Tonal Pill Button (accent reserved for primary Play & active state)
         if (isAdded) {
             Surface(
-                shape = RoundedCornerShape(2.dp),
-                color = DarkCharcoal,
-                border = androidx.compose.foundation.BorderStroke(1.dp, CrimsonRed.copy(alpha = 0.5f))
+                shape = CircleShape,
+                color = Primary.copy(alpha = 0.16f),
+                border = androidx.compose.foundation.BorderStroke(0.8.dp, Primary.copy(alpha = 0.45f))
             ) {
                 Row(
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 5.dp),
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
                         imageVector = Icons.Default.Check,
                         contentDescription = "Ditambahkan",
-                        tint = CrimsonRed,
+                        tint = Primary,
                         modifier = Modifier.size(13.dp)
                     )
-                    Spacer(modifier = Modifier.width(3.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = "Ditambahkan",
-                        fontFamily = CrankrDisplayFont,
+                        fontFamily = CrankrBodyFont,
                         color = TextWhite,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold
+                        fontSize = 11.5.sp,
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
             }
         } else {
-            Button(
-                onClick = {
-                    isAdded = true
-                    onAddClick()
-                },
-                shape = RoundedCornerShape(2.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Primary,
-                    contentColor = OnPrimary
-                ),
-                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
-                modifier = Modifier.height(28.dp)
+            Surface(
+                shape = CircleShape,
+                color = Surface.copy(alpha = 0.72f),
+                border = androidx.compose.foundation.BorderStroke(0.8.dp, Border),
+                modifier = Modifier
+                    .springPressable(0.95f)
+                    .clickable {
+                        isAdded = true
+                        onAddClick()
+                    }
             ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Tambah ke playlist",
-                    modifier = Modifier.size(14.dp)
-                )
-                Spacer(modifier = Modifier.width(3.dp))
-                Text(
-                    text = "Tambah",
-                    fontFamily = CrankrDisplayFont,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                Row(
+                    modifier = Modifier.padding(horizontal = 11.dp, vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Tambah ke playlist",
+                        tint = Primary,
+                        modifier = Modifier.size(14.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "Tambah",
+                        fontFamily = CrankrBodyFont,
+                        color = TextWhite,
+                        fontSize = 11.5.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
             }
         }
     }

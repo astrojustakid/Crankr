@@ -1,7 +1,7 @@
 ﻿{
-    "versionCode":  83,
-    "versionName":  "1.82",
+    "versionCode":  84,
+    "versionName":  "1.83",
     "downloadUrl":  "https://github.com/astrojustakid/Crankr/releases/latest/download/crankr.apk",
-    "changelog":  "[PERBAIKAN BUG]\n- Perbaikan badge genre rekomendasi lagu di Playlist Detail agar menyesuaikan genre asli masing-masing band (menghapus hardcode Pop Punk di hasil pencarian YouTube Music dan menambahkan ArtistGenreResolver berbasis iTunes API dengan cache)\n\n[CATATAN]\n- Tidak menyentuh modul terkunci.",
+    "changelog":  "[FITUR BARU]\n- UI Polish Crankr 2.0 berbasis Impeccable (Top Bar overflow menu ⋮ \u0026 shimmer skeleton di Playlist Detail, tombol frosted tonal + pill genre, pembersihan jargon teknis \u0026 penyelarasan tipografi Display/Body serta kontras OnPrimary di Pengaturan)\n\n[CATATAN]\n- Diterapkan mengikuti standar impeccable craft-floor \u0026 operate mode tanpa menyentuh modul terkunci.",
     "mandatory":  false
 }

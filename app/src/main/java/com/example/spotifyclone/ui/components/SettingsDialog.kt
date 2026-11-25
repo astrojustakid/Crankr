@@ -132,28 +132,28 @@ fun SettingsDialog(
                         .verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(18.dp)
                 ) {
-                    // SEKSI 0: TAMPILAN & TEMA (AURALYS APPEARANCE)
-                    SettingsSection(title = "TAMPILAN & TEMA") {
+                    // SEKSI 0: Tampilan & Tema
+                    SettingsSection(title = "Tampilan & Tema") {
                         // Theme Preset Switcher (Live)
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(Neutral, RoundedCornerShape(12.dp))
-                                .border(1.dp, Border, RoundedCornerShape(12.dp))
+                                .background(Neutral, RoundedCornerShape(16.dp))
+                                .border(0.8.dp, Border, RoundedCornerShape(16.dp))
                                 .padding(14.dp)
                         ) {
                             Text(
-                                text = "TEMA APLIKASI",
-                                fontFamily = CrankrDisplayFont,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold,
+                                text = "Tema Aplikasi",
+                                fontFamily = CrankrBodyFont,
+                                fontSize = 13.5.sp,
+                                fontWeight = FontWeight.SemiBold,
                                 color = TextWhite
                             )
-                            Spacer(modifier = Modifier.height(3.dp))
+                            Spacer(modifier = Modifier.height(2.dp))
                             Text(
                                 text = "Ganti karakter warna secara langsung tanpa restart",
                                 fontFamily = CrankrBodyFont,
-                                fontSize = 10.5.sp,
+                                fontSize = 11.sp,
                                 color = TextSecondary
                             )
                             Spacer(modifier = Modifier.height(10.dp))
@@ -200,9 +200,9 @@ fun SettingsDialog(
                                                     Spacer(modifier = Modifier.width(6.dp))
                                                     Text(
                                                         text = preset.label,
-                                                        fontFamily = CrankrDisplayFont,
-                                                        fontSize = 11.sp,
-                                                        fontWeight = FontWeight.Bold,
+                                                        fontFamily = CrankrBodyFont,
+                                                        fontSize = 11.5.sp,
+                                                        fontWeight = FontWeight.SemiBold,
                                                         color = if (isSelected) OnPrimary else TextWhite,
                                                         maxLines = 1
                                                     )
@@ -220,22 +220,22 @@ fun SettingsDialog(
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(Neutral, RoundedCornerShape(12.dp))
-                                .border(1.dp, Border, RoundedCornerShape(12.dp))
+                                .background(Neutral, RoundedCornerShape(16.dp))
+                                .border(0.8.dp, Border, RoundedCornerShape(16.dp))
                                 .padding(14.dp)
                         ) {
                             Text(
-                                text = "LATAR NOW PLAYING",
-                                fontFamily = CrankrDisplayFont,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold,
+                                text = "Latar Pemutar",
+                                fontFamily = CrankrBodyFont,
+                                fontSize = 13.5.sp,
+                                fontWeight = FontWeight.SemiBold,
                                 color = TextWhite
                             )
-                            Spacer(modifier = Modifier.height(3.dp))
+                            Spacer(modifier = Modifier.height(2.dp))
                             Text(
                                 text = "Blur cover album, gradien warna dinamis, atau solid",
                                 fontFamily = CrankrBodyFont,
-                                fontSize = 10.5.sp,
+                                fontSize = 11.sp,
                                 color = TextSecondary
                             )
                             Spacer(modifier = Modifier.height(10.dp))
@@ -246,7 +246,7 @@ fun SettingsDialog(
                                 PlayerBackgroundStyle.entries.forEach { bgStyle ->
                                     val isSelected = selectedPlayerBg == bgStyle
                                     Surface(
-                                        shape = RoundedCornerShape(8.dp),
+                                        shape = RoundedCornerShape(10.dp),
                                         color = if (isSelected) accentColor else Surface,
                                         border = BorderStroke(1.dp, if (isSelected) accentColor else Border),
                                         modifier = Modifier
@@ -256,9 +256,9 @@ fun SettingsDialog(
                                     ) {
                                         Text(
                                             text = bgStyle.label,
-                                            fontFamily = CrankrDisplayFont,
-                                            fontSize = 10.5.sp,
-                                            fontWeight = FontWeight.Bold,
+                                            fontFamily = CrankrBodyFont,
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.SemiBold,
                                             color = if (isSelected) OnPrimary else TextSecondary,
                                             modifier = Modifier.padding(vertical = 8.dp),
                                             textAlign = androidx.compose.ui.text.style.TextAlign.Center
@@ -274,24 +274,24 @@ fun SettingsDialog(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(Neutral, RoundedCornerShape(12.dp))
-                                .border(1.dp, Border, RoundedCornerShape(12.dp))
+                                .background(Neutral, RoundedCornerShape(16.dp))
+                                .border(0.8.dp, Border, RoundedCornerShape(16.dp))
                                 .padding(horizontal = 14.dp, vertical = 10.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = "MINI-PLAYER WARNA COVER",
-                                    fontFamily = CrankrDisplayFont,
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    text = "Mini-Player Warna Cover",
+                                    fontFamily = CrankrBodyFont,
+                                    fontSize = 13.5.sp,
+                                    fontWeight = FontWeight.SemiBold,
                                     color = TextWhite
                                 )
                                 Text(
                                     text = "Serap warna dominan album ke kapsul mini-player",
                                     fontFamily = CrankrBodyFont,
-                                    fontSize = 10.5.sp,
+                                    fontSize = 11.sp,
                                     color = TextSecondary
                                 )
                             }
@@ -313,15 +313,15 @@ fun SettingsDialog(
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(Neutral, RoundedCornerShape(12.dp))
-                                .border(1.dp, Border, RoundedCornerShape(12.dp))
+                                .background(Neutral, RoundedCornerShape(16.dp))
+                                .border(0.8.dp, Border, RoundedCornerShape(16.dp))
                                 .padding(14.dp)
                         ) {
                             Text(
-                                text = "GAYA LIRIK SINKRON",
-                                fontFamily = CrankrDisplayFont,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold,
+                                text = "Gaya Lirik Sinkron",
+                                fontFamily = CrankrBodyFont,
+                                fontSize = 13.5.sp,
+                                fontWeight = FontWeight.SemiBold,
                                 color = TextWhite
                             )
                             Spacer(modifier = Modifier.height(8.dp))
@@ -332,7 +332,7 @@ fun SettingsDialog(
                                 LyricsAlignment.entries.forEach { align ->
                                     val isSelected = selectedLyricsAlign == align
                                     Surface(
-                                        shape = RoundedCornerShape(8.dp),
+                                        shape = RoundedCornerShape(10.dp),
                                         color = if (isSelected) accentColor else Surface,
                                         border = BorderStroke(1.dp, if (isSelected) accentColor else Border),
                                         modifier = Modifier
@@ -342,9 +342,9 @@ fun SettingsDialog(
                                     ) {
                                         Text(
                                             text = "Rata ${align.label}",
-                                            fontFamily = CrankrDisplayFont,
-                                            fontSize = 10.5.sp,
-                                            fontWeight = FontWeight.Bold,
+                                            fontFamily = CrankrBodyFont,
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.SemiBold,
                                             color = if (isSelected) OnPrimary else TextSecondary,
                                             modifier = Modifier.padding(vertical = 7.dp),
                                             textAlign = androidx.compose.ui.text.style.TextAlign.Center
@@ -360,7 +360,7 @@ fun SettingsDialog(
                                 LyricsTextScale.entries.forEach { scale ->
                                     val isSelected = selectedLyricsScale == scale
                                     Surface(
-                                        shape = RoundedCornerShape(8.dp),
+                                        shape = RoundedCornerShape(10.dp),
                                         color = if (isSelected) accentColor else Surface,
                                         border = BorderStroke(1.dp, if (isSelected) accentColor else Border),
                                         modifier = Modifier
@@ -370,9 +370,9 @@ fun SettingsDialog(
                                     ) {
                                         Text(
                                             text = scale.label,
-                                            fontFamily = CrankrDisplayFont,
-                                            fontSize = 10.5.sp,
-                                            fontWeight = FontWeight.Bold,
+                                            fontFamily = CrankrBodyFont,
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.SemiBold,
                                             color = if (isSelected) OnPrimary else TextSecondary,
                                             modifier = Modifier.padding(vertical = 7.dp),
                                             textAlign = androidx.compose.ui.text.style.TextAlign.Center
@@ -383,28 +383,28 @@ fun SettingsDialog(
                         }
                     }
 
-                    // SEKSI 1: AUDIO ENGINE & PEMUTARAN
-                    SettingsSection(title = "AUDIO ENGINE") {
+                    // SEKSI 1: Audio & Pemutaran
+                    SettingsSection(title = "Audio & Pemutaran") {
                         // Crossfade Duration
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(Neutral, RoundedCornerShape(12.dp))
-                                .border(1.dp, Border, RoundedCornerShape(12.dp))
+                                .background(Neutral, RoundedCornerShape(16.dp))
+                                .border(0.8.dp, Border, RoundedCornerShape(16.dp))
                                 .padding(14.dp)
                         ) {
                             Text(
-                                text = "CROSSFADE & TRANSISI",
-                                fontFamily = CrankrDisplayFont,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold,
+                                text = "Crossfade & Transisi",
+                                fontFamily = CrankrBodyFont,
+                                fontSize = 13.5.sp,
+                                fontWeight = FontWeight.SemiBold,
                                 color = TextWhite
                             )
-                            Spacer(modifier = Modifier.height(3.dp))
+                            Spacer(modifier = Modifier.height(2.dp))
                             Text(
                                 text = "Transisi mulus antar lagu tanpa jeda sunyi",
                                 fontFamily = CrankrBodyFont,
-                                fontSize = 10.5.sp,
+                                fontSize = 11.sp,
                                 color = TextSecondary
                             )
                             Spacer(modifier = Modifier.height(10.dp))
@@ -415,7 +415,7 @@ fun SettingsDialog(
                                 listOf(0, 3, 5, 8, 12).forEach { sec ->
                                     val isSelected = crossfadeDurationSeconds == sec
                                     Surface(
-                                        shape = RoundedCornerShape(8.dp),
+                                        shape = RoundedCornerShape(10.dp),
                                         color = if (isSelected) accentColor else Surface,
                                         border = BorderStroke(1.dp, if (isSelected) accentColor else Border),
                                         modifier = Modifier
@@ -424,11 +424,11 @@ fun SettingsDialog(
                                             .clickable { onSelectCrossfade(sec) }
                                     ) {
                                         Text(
-                                            text = if (sec == 0) "OFF" else "${sec}s",
-                                            fontFamily = CrankrDisplayFont,
-                                            fontSize = 11.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            color = if (isSelected) Color.Black else TextSecondary,
+                                            text = if (sec == 0) "Mati" else "${sec}d",
+                                            fontFamily = CrankrBodyFont,
+                                            fontSize = 11.5.sp,
+                                            fontWeight = FontWeight.SemiBold,
+                                            color = if (isSelected) OnPrimary else TextSecondary,
                                             modifier = Modifier.padding(vertical = 8.dp),
                                             textAlign = androidx.compose.ui.text.style.TextAlign.Center
                                         )
@@ -443,24 +443,24 @@ fun SettingsDialog(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(Neutral, RoundedCornerShape(12.dp))
-                                .border(1.dp, Border, RoundedCornerShape(12.dp))
+                                .background(Neutral, RoundedCornerShape(16.dp))
+                                .border(0.8.dp, Border, RoundedCornerShape(16.dp))
                                 .padding(horizontal = 14.dp, vertical = 10.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = "NORMALISASI VOLUME",
-                                    fontFamily = CrankrDisplayFont,
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    text = "Normalisasi Volume",
+                                    fontFamily = CrankrBodyFont,
+                                    fontSize = 13.5.sp,
+                                    fontWeight = FontWeight.SemiBold,
                                     color = TextWhite
                                 )
                                 Text(
-                                    text = "Seimbangkan level audio antar track streaming",
+                                    text = "Seimbangkan tingkat suara agar konsisten antar lagu",
                                     fontFamily = CrankrBodyFont,
-                                    fontSize = 10.5.sp,
+                                    fontSize = 11.sp,
                                     color = TextSecondary
                                 )
                             }
@@ -468,7 +468,7 @@ fun SettingsDialog(
                                 checked = isVolumeNormalization,
                                 onCheckedChange = { settingsManager.setVolumeNormalization(it) },
                                 colors = SwitchDefaults.colors(
-                                    checkedThumbColor = Color.Black,
+                                    checkedThumbColor = OnPrimary,
                                     checkedTrackColor = accentColor,
                                     uncheckedThumbColor = TextMuted,
                                     uncheckedTrackColor = Surface
@@ -482,22 +482,22 @@ fun SettingsDialog(
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(Neutral, RoundedCornerShape(12.dp))
-                                .border(1.dp, Border, RoundedCornerShape(12.dp))
+                                .background(Neutral, RoundedCornerShape(16.dp))
+                                .border(0.8.dp, Border, RoundedCornerShape(16.dp))
                                 .padding(14.dp)
                         ) {
                             Text(
-                                text = "KUALITAS AUDIO STREAMING",
-                                fontFamily = CrankrDisplayFont,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold,
+                                text = "Kualitas Audio Streaming",
+                                fontFamily = CrankrBodyFont,
+                                fontSize = 13.5.sp,
+                                fontWeight = FontWeight.SemiBold,
                                 color = TextWhite
                             )
-                            Spacer(modifier = Modifier.height(3.dp))
+                            Spacer(modifier = Modifier.height(2.dp))
                             Text(
-                                text = "Bitrate aliran audio server InnerTube",
+                                text = "Pilih kejernihan suara saat memutar musik online",
                                 fontFamily = CrankrBodyFont,
-                                fontSize = 10.5.sp,
+                                fontSize = 11.sp,
                                 color = TextSecondary
                             )
                             Spacer(modifier = Modifier.height(10.dp))
@@ -508,7 +508,7 @@ fun SettingsDialog(
                                 AudioQuality.values().forEach { quality ->
                                     val isSelected = currentAudioQuality == quality
                                     Surface(
-                                        shape = RoundedCornerShape(8.dp),
+                                        shape = RoundedCornerShape(10.dp),
                                         color = if (isSelected) accentColor else Surface,
                                         border = BorderStroke(1.dp, if (isSelected) accentColor else Border),
                                         modifier = Modifier
@@ -521,18 +521,18 @@ fun SettingsDialog(
                                             horizontalAlignment = Alignment.CenterHorizontally
                                         ) {
                                             Text(
-                                                text = quality.displayName.uppercase(),
-                                                fontFamily = CrankrDisplayFont,
-                                                fontSize = 11.sp,
-                                                fontWeight = FontWeight.Bold,
-                                                color = if (isSelected) Color.Black else TextWhite,
+                                                text = quality.displayName,
+                                                fontFamily = CrankrBodyFont,
+                                                fontSize = 11.5.sp,
+                                                fontWeight = FontWeight.SemiBold,
+                                                color = if (isSelected) OnPrimary else TextWhite,
                                                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
                                             )
                                             Text(
                                                 text = quality.bitrateLabel,
                                                 fontFamily = CrankrBodyFont,
-                                                fontSize = 9.sp,
-                                                color = if (isSelected) Color.Black.copy(alpha = 0.85f) else TextSecondary,
+                                                fontSize = 9.5.sp,
+                                                color = if (isSelected) OnPrimary.copy(alpha = 0.85f) else TextSecondary,
                                                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
                                             )
                                         }
@@ -543,12 +543,12 @@ fun SettingsDialog(
 
                         Spacer(modifier = Modifier.height(8.dp))
 
-                        // Penguat Volume Preamp Audio (0 dB s/d +12 dB)
+                        // Penguat Volume (0 dB s/d +12 dB)
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(Neutral, RoundedCornerShape(12.dp))
-                                .border(1.dp, Border, RoundedCornerShape(12.dp))
+                                .background(Neutral, RoundedCornerShape(16.dp))
+                                .border(0.8.dp, Border, RoundedCornerShape(16.dp))
                                 .padding(14.dp)
                         ) {
                             Row(
@@ -558,24 +558,24 @@ fun SettingsDialog(
                             ) {
                                 Column {
                                     Text(
-                                        text = "PENGUAT VOLUME PREAMP",
-                                        fontFamily = CrankrDisplayFont,
-                                        fontSize = 12.sp,
-                                        fontWeight = FontWeight.Bold,
+                                        text = "Penguat Volume",
+                                        fontFamily = CrankrBodyFont,
+                                        fontSize = 13.5.sp,
+                                        fontWeight = FontWeight.SemiBold,
                                         color = TextWhite
                                     )
                                     Spacer(modifier = Modifier.height(2.dp))
                                     Text(
-                                        text = "Penguat gain hardware & software tanpa distorsi",
+                                        text = "Tambah dorongan suara ekstra tanpa pecah",
                                         fontFamily = CrankrBodyFont,
-                                        fontSize = 10.5.sp,
+                                        fontSize = 11.sp,
                                         color = TextSecondary
                                     )
                                 }
                                 Text(
                                     text = if (preampGainDb <= 0.05f) "0 dB" else "+%.1f dB".format(preampGainDb),
-                                    fontFamily = CrankrDisplayFont,
-                                    fontSize = 13.sp,
+                                    fontFamily = CrankrBodyFont,
+                                    fontSize = 12.5.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = if (preampGainDb > 0.05f) accentColor else TextSecondary
                                 )
@@ -604,21 +604,21 @@ fun SettingsDialog(
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Text(
-                                    text = "0 dB (FLAT)",
-                                    fontFamily = CrankrDisplayFont,
-                                    fontSize = 9.5.sp,
+                                    text = "0 dB (Normal)",
+                                    fontFamily = CrankrBodyFont,
+                                    fontSize = 10.sp,
                                     color = TextSecondary
                                 )
                                 Text(
                                     text = "+6 dB",
-                                    fontFamily = CrankrDisplayFont,
-                                    fontSize = 9.5.sp,
+                                    fontFamily = CrankrBodyFont,
+                                    fontSize = 10.sp,
                                     color = TextSecondary
                                 )
                                 Text(
-                                    text = "+12 dB (MAX BOOST)",
-                                    fontFamily = CrankrDisplayFont,
-                                    fontSize = 9.5.sp,
+                                    text = "+12 dB (Maksimal)",
+                                    fontFamily = CrankrBodyFont,
+                                    fontSize = 10.sp,
                                     color = if (preampGainDb >= 11.5f) accentColor else TextSecondary
                                 )
                             }
@@ -628,9 +628,9 @@ fun SettingsDialog(
 
                         // Equalizer Button
                         Surface(
-                            shape = RoundedCornerShape(12.dp),
+                            shape = RoundedCornerShape(16.dp),
                             color = Neutral,
-                            border = BorderStroke(1.dp, Border),
+                            border = BorderStroke(0.8.dp, Border),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .springPressable(0.97f)
@@ -640,7 +640,7 @@ fun SettingsDialog(
                                 }
                         ) {
                             Row(
-                                modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
@@ -649,35 +649,35 @@ fun SettingsDialog(
                                         imageVector = Icons.Default.Tune,
                                         contentDescription = null,
                                         tint = accentColor,
-                                        modifier = Modifier.size(16.dp)
+                                        modifier = Modifier.size(18.dp)
                                     )
-                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Spacer(modifier = Modifier.width(10.dp))
                                     Text(
-                                        text = "EQUALIZER & TONE CONTROLLER",
-                                        fontFamily = CrankrDisplayFont,
-                                        fontSize = 12.sp,
-                                        fontWeight = FontWeight.Bold,
+                                        text = "Equalizer & Pengaturan Nada",
+                                        fontFamily = CrankrBodyFont,
+                                        fontSize = 13.5.sp,
+                                        fontWeight = FontWeight.SemiBold,
                                         color = TextWhite
                                     )
                                 }
                                 Text(
-                                    text = "ATUR >",
-                                    fontFamily = CrankrDisplayFont,
-                                    fontSize = 11.sp,
+                                    text = "Atur ›",
+                                    fontFamily = CrankrBodyFont,
+                                    fontSize = 12.sp,
                                     color = accentColor,
-                                    fontWeight = FontWeight.Bold
+                                    fontWeight = FontWeight.SemiBold
                                 )
                             }
                         }
                     }
 
-                    // SEKSI 2: CACHE & PENYIMPANAN
-                    SettingsSection(title = "CACHE & PENYIMPANAN") {
+                    // SEKSI 2: Penyimpanan & Unduhan
+                    SettingsSection(title = "Penyimpanan & Unduhan") {
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(Neutral, RoundedCornerShape(12.dp))
-                                .border(1.dp, Border, RoundedCornerShape(12.dp))
+                                .background(Neutral, RoundedCornerShape(16.dp))
+                                .border(0.8.dp, Border, RoundedCornerShape(16.dp))
                                 .padding(14.dp)
                         ) {
                             Row(
@@ -686,16 +686,16 @@ fun SettingsDialog(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "CACHE STREAMING (SIMPLECACHE)",
-                                    fontFamily = CrankrDisplayFont,
-                                    fontSize = 11.5.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    text = "Penyimpanan Cache",
+                                    fontFamily = CrankrBodyFont,
+                                    fontSize = 13.5.sp,
+                                    fontWeight = FontWeight.SemiBold,
                                     color = TextWhite
                                 )
                                 Text(
                                     text = cacheSizeFormatted,
-                                    fontFamily = CrankrDisplayFont,
-                                    fontSize = 12.sp,
+                                    fontFamily = CrankrBodyFont,
+                                    fontSize = 12.5.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = accentColor
                                 )
@@ -712,7 +712,7 @@ fun SettingsDialog(
                                         val mb = freed.toDouble() / (1024 * 1024)
                                         Toast.makeText(context, "Cache dibersihkan (%.1f MB)".format(mb), Toast.LENGTH_SHORT).show()
                                     },
-                                    shape = RoundedCornerShape(8.dp),
+                                    shape = RoundedCornerShape(10.dp),
                                     colors = ButtonDefaults.buttonColors(
                                         containerColor = Surface,
                                         contentColor = TextWhite
@@ -720,14 +720,14 @@ fun SettingsDialog(
                                     border = BorderStroke(1.dp, Border),
                                     modifier = Modifier
                                         .weight(1f)
-                                        .height(36.dp),
+                                        .height(38.dp),
                                     contentPadding = PaddingValues(horizontal = 8.dp)
                                 ) {
                                     Text(
-                                        text = "BERSIHKAN CACHE",
-                                        fontFamily = CrankrDisplayFont,
-                                        fontSize = 10.5.sp,
-                                        fontWeight = FontWeight.Bold
+                                        text = "Bersihkan Cache",
+                                        fontFamily = CrankrBodyFont,
+                                        fontSize = 11.5.sp,
+                                        fontWeight = FontWeight.SemiBold
                                     )
                                 }
 
@@ -736,7 +736,7 @@ fun SettingsDialog(
                                         onDismiss()
                                         onOpenDownloads()
                                     },
-                                    shape = RoundedCornerShape(8.dp),
+                                    shape = RoundedCornerShape(10.dp),
                                     colors = ButtonDefaults.buttonColors(
                                         containerColor = Surface,
                                         contentColor = TextWhite
@@ -744,14 +744,14 @@ fun SettingsDialog(
                                     border = BorderStroke(1.dp, Border),
                                     modifier = Modifier
                                         .weight(1f)
-                                        .height(36.dp),
+                                        .height(38.dp),
                                     contentPadding = PaddingValues(horizontal = 8.dp)
                                 ) {
                                     Text(
-                                        text = "KELOLA UNDUHAN",
-                                        fontFamily = CrankrDisplayFont,
-                                        fontSize = 10.5.sp,
-                                        fontWeight = FontWeight.Bold
+                                        text = "Kelola Unduhan",
+                                        fontFamily = CrankrBodyFont,
+                                        fontSize = 11.5.sp,
+                                        fontWeight = FontWeight.SemiBold
                                     )
                                 }
                             }
@@ -780,14 +780,14 @@ fun SettingsDialog(
                             ) {
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
-                                        text = "Listen Together",
-                                        fontFamily = CrankrDisplayFont,
+                                        text = "Dengar Bersama",
+                                        fontFamily = CrankrBodyFont,
                                         fontSize = 13.5.sp,
                                         fontWeight = FontWeight.SemiBold,
                                         color = TextWhite
                                     )
                                     Text(
-                                        text = "Dengarkan musik bersama teman secara real-time",
+                                        text = "Dengarkan musik bersama teman secara langsung",
                                         fontFamily = CrankrBodyFont,
                                         fontSize = 11.sp,
                                         color = TextSecondary
@@ -795,7 +795,7 @@ fun SettingsDialog(
                                 }
                                 Text(
                                     text = "Masuk ›",
-                                    fontFamily = CrankrDisplayFont,
+                                    fontFamily = CrankrBodyFont,
                                     fontSize = 12.sp,
                                     color = accentColor,
                                     fontWeight = FontWeight.SemiBold
@@ -827,7 +827,7 @@ fun SettingsDialog(
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
                                         text = "Tentang Developer",
-                                        fontFamily = CrankrDisplayFont,
+                                        fontFamily = CrankrBodyFont,
                                         fontSize = 13.5.sp,
                                         fontWeight = FontWeight.SemiBold,
                                         color = TextWhite
@@ -841,7 +841,7 @@ fun SettingsDialog(
                                 }
                                 Text(
                                     text = "Lihat ›",
-                                    fontFamily = CrankrDisplayFont,
+                                    fontFamily = CrankrBodyFont,
                                     fontSize = 12.sp,
                                     color = accentColor,
                                     fontWeight = FontWeight.SemiBold
@@ -850,8 +850,8 @@ fun SettingsDialog(
                         }
                     }
 
-                    // SEKSI 5: PEMBARUAN APLIKASI (OTA)
-                    SettingsSection(title = "Pembaruan Sistem") {
+                    // SEKSI 5: PEMBARUAN APLIKASI
+                    SettingsSection(title = "Pembaruan Aplikasi") {
                         GlassSurface(
                             shape = RoundedCornerShape(16.dp),
                             containerColor = Color.White.copy(alpha = 0.05f),
@@ -870,7 +870,7 @@ fun SettingsDialog(
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
                                         text = "Cek Pembaruan Aplikasi",
-                                        fontFamily = CrankrDisplayFont,
+                                        fontFamily = CrankrBodyFont,
                                         fontSize = 13.5.sp,
                                         fontWeight = FontWeight.SemiBold,
                                         color = TextWhite
@@ -884,7 +884,7 @@ fun SettingsDialog(
                                 }
                                 Text(
                                     text = "Periksa ›",
-                                    fontFamily = CrankrDisplayFont,
+                                    fontFamily = CrankrBodyFont,
                                     fontSize = 12.sp,
                                     color = accentColor,
                                     fontWeight = FontWeight.SemiBold
@@ -906,12 +906,12 @@ private fun SettingsSection(
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = title,
-            fontFamily = CrankrDisplayFont,
-            fontSize = 11.sp,
-            fontWeight = FontWeight.Bold,
+            fontFamily = CrankrBodyFont,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.SemiBold,
             color = TextSecondary,
-            letterSpacing = 1.sp,
-            modifier = Modifier.padding(bottom = 6.dp)
+            letterSpacing = 0.4.sp,
+            modifier = Modifier.padding(start = 2.dp, bottom = 8.dp)
         )
         content()
     }
