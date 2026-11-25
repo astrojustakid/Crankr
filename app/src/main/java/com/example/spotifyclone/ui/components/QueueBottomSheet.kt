@@ -92,8 +92,8 @@ fun QueueBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetGesturesEnabled = draggedTrackId == null,
-        shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
-        containerColor = DarkCharcoal,
+        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+        containerColor = Surface.copy(alpha = 0.96f),
         dragHandle = {
             BottomSheetDefaults.DragHandle(color = TextMuted)
         }

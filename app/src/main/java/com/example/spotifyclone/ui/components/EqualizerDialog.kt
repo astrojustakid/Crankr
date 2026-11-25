@@ -51,17 +51,17 @@ fun EqualizerDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        shape = RoundedCornerShape(16.dp),
-        containerColor = Surface,
+        shape = RoundedCornerShape(24.dp),
+        containerColor = Surface.copy(alpha = 0.96f),
         titleContentColor = TextWhite,
         textContentColor = TextSecondary,
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
                     modifier = Modifier
-                        .size(36.dp)
+                        .size(38.dp)
                         .clip(CircleShape)
-                        .background(accentColor.copy(alpha = 0.15f)),
+                        .background(accentColor.copy(alpha = 0.16f)),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
@@ -74,16 +74,15 @@ fun EqualizerDialog(
                 Spacer(modifier = Modifier.width(12.dp))
                 Column {
                     Text(
-                        text = "AUDIO EQUALIZER",
-                        fontSize = 17.sp,
+                        text = "Audio Equalizer",
+                        fontSize = 18.sp,
                         fontFamily = CrankrDisplayFont,
                         fontWeight = FontWeight.Bold,
-                        letterSpacing = 0.8.sp,
                         color = TextWhite
                     )
                     Text(
                         text = "DSP Hardware Audio & Filter Frekuensi",
-                        fontSize = 11.sp,
+                        fontSize = 11.5.sp,
                         fontFamily = CrankrBodyFont,
                         color = TextSecondary
                     )

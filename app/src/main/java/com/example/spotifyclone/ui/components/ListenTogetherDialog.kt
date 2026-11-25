@@ -63,9 +63,9 @@ fun ListenTogetherDialog(
             modifier = Modifier
                 .fillMaxWidth(0.92f)
                 .wrapContentHeight()
-                .clip(RoundedCornerShape(3.dp))
-                .background(DarkCharcoal)
-                .border(1.dp, BorderSubtle, RoundedCornerShape(3.dp))
+                .clip(RoundedCornerShape(24.dp))
+                .background(Surface.copy(alpha = 0.96f))
+                .border(androidx.compose.foundation.BorderStroke(0.8.dp, glassHairlineBrush()), RoundedCornerShape(24.dp))
                 .padding(20.dp)
         ) {
             Column(
@@ -82,32 +82,31 @@ fun ListenTogetherDialog(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
                             modifier = Modifier
-                                .size(34.dp)
-                                .clip(RoundedCornerShape(3.dp))
-                                .background(CrimsonRedSoft),
+                                .size(38.dp)
+                                .clip(CircleShape)
+                                .background(Primary.copy(alpha = 0.16f)),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Groups,
                                 contentDescription = null,
-                                tint = CrimsonRed,
+                                tint = Primary,
                                 modifier = Modifier.size(20.dp)
                             )
                         }
-                        Spacer(modifier = Modifier.width(10.dp))
+                        Spacer(modifier = Modifier.width(12.dp))
                         Column {
                             Text(
-                                text = "LISTEN TOGETHER",
+                                text = "Listen Together",
                                 fontFamily = CrankrDisplayFont,
-                                fontSize = 16.sp,
+                                fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = TextWhite,
-                                letterSpacing = 1.sp
+                                color = TextWhite
                             )
                             Text(
                                 text = "Sinkronisasi Musik Real-time",
                                 fontFamily = CrankrBodyFont,
-                                fontSize = 11.sp,
+                                fontSize = 11.5.sp,
                                 color = TextSecondary
                             )
                         }

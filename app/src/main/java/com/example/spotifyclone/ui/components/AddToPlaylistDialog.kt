@@ -35,18 +35,17 @@ fun AddToPlaylistDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        shape = RoundedCornerShape(4.dp),
-        containerColor = DarkCharcoal,
+        shape = RoundedCornerShape(24.dp),
+        containerColor = Surface.copy(alpha = 0.96f),
         titleContentColor = TextWhite,
         textContentColor = TextSecondary,
         title = {
             Column {
                 Text(
-                    text = "TAMBAHKAN KE PLAYLIST",
+                    text = "Tambahkan ke Playlist",
                     fontSize = 18.sp,
                     fontFamily = CrankrDisplayFont,
                     fontWeight = FontWeight.Bold,
-                    letterSpacing = 0.5.sp,
                     color = TextWhite
                 )
                 Spacer(modifier = Modifier.height(4.dp))
@@ -54,7 +53,7 @@ fun AddToPlaylistDialog(
                     text = "${track.title} • ${track.artist}",
                     fontSize = 12.5.sp,
                     fontFamily = CrankrBodyFont,
-                    color = CrimsonRed,
+                    color = Primary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -70,8 +69,8 @@ fun AddToPlaylistDialog(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(3.dp))
-                        .background(CardBackground)
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(androidx.compose.ui.graphics.Color.White.copy(alpha = 0.06f))
                         .clickable {
                             onDismiss()
                             onCreateNewPlaylist()
@@ -82,14 +81,14 @@ fun AddToPlaylistDialog(
                     Box(
                         modifier = Modifier
                             .size(36.dp)
-                            .clip(RoundedCornerShape(2.dp))
-                            .background(CrimsonRedSoft),
+                            .clip(androidx.compose.foundation.shape.CircleShape)
+                            .background(Primary.copy(alpha = 0.16f)),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Default.Add,
                             contentDescription = null,
-                            tint = CrimsonRed,
+                            tint = Primary,
                             modifier = Modifier.size(18.dp)
                         )
                     }

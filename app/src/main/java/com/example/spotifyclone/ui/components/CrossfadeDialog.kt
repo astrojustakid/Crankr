@@ -34,12 +34,12 @@ fun CrossfadeDialog(
 
     Dialog(onDismissRequest = onDismiss) {
         Card(
-            shape = RoundedCornerShape(3.dp),
-            colors = CardDefaults.cardColors(containerColor = DarkCharcoal),
+            shape = RoundedCornerShape(24.dp),
+            colors = CardDefaults.cardColors(containerColor = Surface.copy(alpha = 0.96f)),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 16.dp)
-                .border(1.dp, BorderSubtle, RoundedCornerShape(3.dp))
+                .border(androidx.compose.foundation.BorderStroke(0.8.dp, glassHairlineBrush()), RoundedCornerShape(24.dp))
         ) {
             Column(
                 modifier = Modifier
@@ -53,42 +53,29 @@ fun CrossfadeDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Box(
-                                modifier = Modifier
-                                    .size(7.dp)
-                                    .clip(RoundedCornerShape(1.dp))
-                                    .background(CrimsonRed)
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = "CROSSFADE & GAPLESS",
-                                fontFamily = CrankrDisplayFont,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = TextWhite,
-                                letterSpacing = 1.sp
-                            )
-                        }
+                        Text(
+                            text = "Crossfade & Gapless",
+                            fontFamily = CrankrDisplayFont,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = TextWhite
+                        )
                         Text(
                             text = "Transisi mulus tanpa jeda hening antar lagu",
                             fontFamily = CrankrBodyFont,
-                            fontSize = 11.sp,
+                            fontSize = 11.5.sp,
                             color = TextSecondary
                         )
                     }
 
-                    IconButton(
+                    GlassIconButton(
+                        icon = Icons.Default.Close,
+                        contentDescription = "Tutup",
                         onClick = onDismiss,
-                        modifier = Modifier.size(28.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = "Tutup",
-                            tint = TextSecondary,
-                            modifier = Modifier.size(18.dp)
-                        )
-                    }
+                        size = 32.dp,
+                        iconSize = 16.dp,
+                        iconTint = TextSecondary
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))

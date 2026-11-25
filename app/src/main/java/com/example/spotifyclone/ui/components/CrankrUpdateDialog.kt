@@ -66,9 +66,9 @@ fun CrankrUpdateDialog(
         )
     ) {
         Card(
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = CardBackground),
-            border = BorderStroke(1.5.dp, CrimsonRed.copy(alpha = 0.65f)),
+            shape = RoundedCornerShape(24.dp),
+            colors = CardDefaults.cardColors(containerColor = Surface.copy(alpha = 0.96f)),
+            border = BorderStroke(0.8.dp, glassHairlineBrush()),
             modifier = Modifier
                 .fillMaxWidth(0.92f)
                 .padding(vertical = 20.dp)

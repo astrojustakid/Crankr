@@ -45,44 +45,25 @@ val AuraLiquidPalette = CrankrPaletteTokens(
     homeTopGlow = Color(0xFF102246)
 )
 
+// True OLED Monochrome (gabungan Kinetic Mono + Pure OLED agar tegas & hemat baterai)
 val KineticMonoPalette = CrankrPaletteTokens(
     primary = Color(0xFFFAFAFA),
-    onPrimary = Color(0xFF09090B),
+    onPrimary = Color(0xFF000000),
     primaryBright = Color(0xFFFFFFFF),
     primaryDark = Color(0xFFD4D4D8),
-    primaryContainer = Color(0xFF27272A),
+    primaryContainer = Color(0xFF202024),
     accentSoft = Color(0x1FFAFAFA),
     secondary = Color(0xFFF4F4F5),
     tertiary = Color(0xFF8B8B94),
-    background = Color(0xFF0D0D0F),
-    surface = Color(0xFF141417),
-    cardSurface = Color(0xFF18181C),
-    elevated = Color(0xFF202026),
-    border = Color(0xFF27272A),
-    borderSubtle = Color(0xFF1F1F24),
+    background = Color(0xFF000000),
+    surface = Color(0xFF0D0D10),
+    cardSurface = Color(0xFF151519),
+    elevated = Color(0xFF1E1E24),
+    border = Color(0xFF27272E),
+    borderSubtle = Color(0xFF1A1A20),
     textPrimary = Color(0xFFFAFAFA),
     textMuted = Color(0xFF63636B),
-    homeTopGlow = Color(0xFF18181D)
-)
-
-val PureOledPalette = CrankrPaletteTokens(
-    primary = Color(0xFFFFFFFF),
-    onPrimary = Color(0xFF000000),
-    primaryBright = Color(0xFFFFFFFF),
-    primaryDark = Color(0xFFCCCCCC),
-    primaryContainer = Color(0xFF1C1C1E),
-    accentSoft = Color(0x1FFFFFFF),
-    secondary = Color(0xFFFFFFFF),
-    tertiary = Color(0xFF98989F),
-    background = Color(0xFF000000),
-    surface = Color(0xFF0B0B0D),
-    cardSurface = Color(0xFF121215),
-    elevated = Color(0xFF1A1A1E),
-    border = Color(0xFF242429),
-    borderSubtle = Color(0xFF18181C),
-    textPrimary = Color(0xFFFFFFFF),
-    textMuted = Color(0xFF63636A),
-    homeTopGlow = Color(0xFF000000)
+    homeTopGlow = Color(0xFF121216)
 )
 
 val VelvetCrimsonPalette = CrankrPaletteTokens(
@@ -102,7 +83,67 @@ val VelvetCrimsonPalette = CrankrPaletteTokens(
     borderSubtle = Color(0xFF1F1F26),
     textPrimary = Color(0xFFF5F4F0),
     textMuted = Color(0xFF6E6E78),
-    homeTopGlow = Color(0xFF240B0E)
+    homeTopGlow = Color(0xFF2B0A0F)
+)
+
+val MidnightJadePalette = CrankrPaletteTokens(
+    primary = Color(0xFF10E58B),
+    onPrimary = Color(0xFF031910),
+    primaryBright = Color(0xFF5CF2B0),
+    primaryDark = Color(0xFF059669),
+    primaryContainer = Color(0xFF0A3323),
+    accentSoft = Color(0x2410E58B),
+    secondary = Color(0xFFECFDF5),
+    tertiary = Color(0xFF84A899),
+    background = Color(0xFF050C09),
+    surface = Color(0xFF0B1612),
+    cardSurface = Color(0xFF11211B),
+    elevated = Color(0xFF172C24),
+    border = Color(0xFF1E3A30),
+    borderSubtle = Color(0xFF142921),
+    textPrimary = Color(0xFFECFDF5),
+    textMuted = Color(0xFF5A7A6D),
+    homeTopGlow = Color(0xFF0B2E20)
+)
+
+val SunsetAmberPalette = CrankrPaletteTokens(
+    primary = Color(0xFFF59E0B),
+    onPrimary = Color(0xFF180E03),
+    primaryBright = Color(0xFFFBBF24),
+    primaryDark = Color(0xFFD97706),
+    primaryContainer = Color(0xFF382208),
+    accentSoft = Color(0x26F59E0B),
+    secondary = Color(0xFFF5EDE2),
+    tertiary = Color(0xFFA89885),
+    background = Color(0xFF100B08),
+    surface = Color(0xFF1A120D),
+    cardSurface = Color(0xFF241A13),
+    elevated = Color(0xFF2E2118),
+    border = Color(0xFF3D2C20),
+    borderSubtle = Color(0xFF2A1E16),
+    textPrimary = Color(0xFFF5EDE2),
+    textMuted = Color(0xFF7D6B5B),
+    homeTopGlow = Color(0xFF331D0B)
+)
+
+val SolarisGoldPalette = CrankrPaletteTokens(
+    primary = Color(0xFFEAB308),
+    onPrimary = Color(0xFF141002),
+    primaryBright = Color(0xFFFDE047),
+    primaryDark = Color(0xFFCA8A04),
+    primaryContainer = Color(0xFF2E260A),
+    accentSoft = Color(0x24EAB308),
+    secondary = Color(0xFFFAF8F0),
+    tertiary = Color(0xFF9E9A8E),
+    background = Color(0xFF0A0A0E),
+    surface = Color(0xFF13131A),
+    cardSurface = Color(0xFF1B1B24),
+    elevated = Color(0xFF23232F),
+    border = Color(0xFF323140),
+    borderSubtle = Color(0xFF22222C),
+    textPrimary = Color(0xFFFAF8F0),
+    textMuted = Color(0xFF6F6C64),
+    homeTopGlow = Color(0xFF26200C)
 )
 
 object CrankrThemeState {
@@ -110,9 +151,11 @@ object CrankrThemeState {
 
     fun applyPreset(presetId: String) {
         activePalette = when (presetId) {
-            "kinetic_mono" -> KineticMonoPalette
-            "pure_oled" -> PureOledPalette
+            "kinetic_mono", "pure_oled" -> KineticMonoPalette
             "velvet_crimson" -> VelvetCrimsonPalette
+            "midnight_jade" -> MidnightJadePalette
+            "sunset_amber" -> SunsetAmberPalette
+            "solaris_gold" -> SolarisGoldPalette
             else -> AuraLiquidPalette
         }
     }

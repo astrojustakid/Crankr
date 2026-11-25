@@ -1,7 +1,7 @@
 ﻿{
-    "versionCode":  79,
-    "versionName":  "1.78",
+    "versionCode":  81,
+    "versionName":  "1.80",
     "downloadUrl":  "https://github.com/astrojustakid/Crankr/releases/latest/download/crankr.apk",
-    "changelog":  "[FITUR BARU]\n- Home Carousel kini memuat semua Playlist Saya (termasuk hasil impor \u0026 Lagu Disukai) dan menghapus duplikat section Playlist Saya di bawah\r\n- Penerapan Glassmorphism Crankr 2.0 pada Playlist Detail, Search Screen, \u0026 Pengaturan (bebas slop)\r\n- Pembersihan baris bawah Now Playing (hapus Lirik duplikat \u0026 Stream, pindahkan Kecepatan Putar ke menu titik tiga)\n\n[PERBAIKAN BUG]\n- Perbaikan kontras tombol Putar pada Playlist Detail agar mengikuti OnPrimary tema aktif",
+    "changelog":  "[FITUR BARU]\n- Penambahan 3 tema baru yang kontras \u0026 ikonik: Midnight Jade (Emerald), Sunset Amber (Warm Espresso), \u0026 Solaris Gold (Champagne Gold), serta penggabungan Pure OLED ke Kinetic Mono True OLED\r\n- Penyeragaman Crankr 2.0 Frosted Glassmorphism ke seluruh menu \u0026 dialog tersisa (Equalizer, Sleep Timer, Crossfade, Antrean, Add to Playlist, Statistik, Listen Together, OTA Update, Album Detail, Unduhan Offline, \u0026 Tentang Crankr)\n\n[CATATAN]\n- Audit menyeluruh memastikan tidak ada lagi dialog kaku 2dp/3dp atau warna hardcoded yang tertinggal saat ganti tema live",
     "mandatory":  false
 }

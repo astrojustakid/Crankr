@@ -9,12 +9,16 @@ import kotlinx.coroutines.flow.asStateFlow
 enum class AppThemePreset(val id: String, val label: String) {
     AURA_LIQUID("aura_liquid", "Aura Liquid"),
     KINETIC_MONO("kinetic_mono", "Kinetic Mono"),
-    PURE_OLED("pure_oled", "Pure OLED"),
-    VELVET_CRIMSON("velvet_crimson", "Velvet Crimson");
+    VELVET_CRIMSON("velvet_crimson", "Velvet Crimson"),
+    MIDNIGHT_JADE("midnight_jade", "Midnight Jade"),
+    SUNSET_AMBER("sunset_amber", "Sunset Amber"),
+    SOLARIS_GOLD("solaris_gold", "Solaris Gold");
 
     companion object {
-        fun fromId(id: String?): AppThemePreset =
-            entries.firstOrNull { it.id == id } ?: AURA_LIQUID
+        fun fromId(id: String?): AppThemePreset {
+            if (id == "pure_oled") return KINETIC_MONO
+            return entries.firstOrNull { it.id == id } ?: AURA_LIQUID
+        }
     }
 }
 

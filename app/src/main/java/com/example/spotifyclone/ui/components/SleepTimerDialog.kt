@@ -53,35 +53,33 @@ fun SleepTimerDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        shape = RoundedCornerShape(4.dp),
-        containerColor = DarkCharcoal,
+        shape = RoundedCornerShape(24.dp),
+        containerColor = Surface.copy(alpha = 0.96f),
         titleContentColor = TextWhite,
         textContentColor = TextSecondary,
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
                     modifier = Modifier
-                        .size(36.dp)
-                        .clip(RoundedCornerShape(3.dp))
-                        .background(CrimsonRedSoft)
-                        .border(1.dp, CrimsonRed.copy(alpha = 0.5f), RoundedCornerShape(3.dp)),
+                        .size(38.dp)
+                        .clip(androidx.compose.foundation.shape.CircleShape)
+                        .background(Primary.copy(alpha = 0.16f)),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Default.Bedtime,
                         contentDescription = null,
-                        tint = CrimsonRed,
+                        tint = Primary,
                         modifier = Modifier.size(20.dp)
                     )
                 }
-                Spacer(modifier = Modifier.width(10.dp))
+                Spacer(modifier = Modifier.width(12.dp))
                 Column {
                     Text(
-                        text = "RETRO SLEEP TIMER",
-                        fontSize = 17.sp,
+                        text = "Sleep Timer",
+                        fontSize = 18.sp,
                         fontFamily = CrankrDisplayFont,
                         fontWeight = FontWeight.Bold,
-                        letterSpacing = 0.8.sp,
                         color = TextWhite
                     )
                     Text(
@@ -94,7 +92,7 @@ fun SleepTimerDialog(
                         },
                         fontSize = 12.sp,
                         fontFamily = CrankrBodyFont,
-                        color = if (currentSecondsRemaining != null || currentMode != null) Color(0xFFFFE600) else TextSecondary
+                        color = if (currentSecondsRemaining != null || currentMode != null) Primary else TextSecondary
                     )
                 }
             }

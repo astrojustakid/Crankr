@@ -52,7 +52,15 @@ fun AboutScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(PitchBlack)
+            .background(
+                androidx.compose.ui.graphics.Brush.verticalGradient(
+                    colorStops = arrayOf(
+                        0.0f to HomeTopGlow,
+                        0.32f to Surface,
+                        1.0f to PitchBlack
+                    )
+                )
+            )
     ) {
         Column(
             modifier = Modifier
@@ -68,64 +76,29 @@ fun AboutScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Surface(
-                        shape = RoundedCornerShape(2.dp),
-                        color = DarkCharcoal,
-                        border = BorderStroke(1.dp, BorderSubtle),
-                        modifier = Modifier
-                            .size(36.dp)
-                            .clickable { onDismiss() }
-                    ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Kembali",
-                                tint = TextWhite,
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-                    }
+                    com.example.spotifyclone.ui.components.GlassIconButton(
+                        icon = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Kembali",
+                        onClick = onDismiss,
+                        size = 38.dp,
+                        iconSize = 19.dp
+                    )
 
                     Spacer(modifier = Modifier.width(12.dp))
 
                     Column {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Box(
-                                modifier = Modifier
-                                    .size(width = 3.dp, height = 15.dp)
-                                    .background(punchyRed)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = "CRANKR",
-                                fontFamily = CrankrDisplayFont,
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = TextWhite,
-                                letterSpacing = 1.2.sp
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Surface(
-                                shape = RoundedCornerShape(2.dp),
-                                color = punchyRed.copy(alpha = 0.18f),
-                                border = BorderStroke(1.dp, punchyRed.copy(alpha = 0.7f))
-                            ) {
-                                Text(
-                                    text = "v1.0 PROD",
-                                    fontFamily = CrankrDisplayFont,
-                                    fontSize = 10.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = punchyRed,
-                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                                )
-                            }
-                        }
+                        Text(
+                            text = "Tentang Crankr",
+                            fontFamily = CrankrDisplayFont,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = TextWhite
+                        )
                         Text(
                             text = "Developer Profile",
-                            fontFamily = CrankrDisplayFont,
-                            fontSize = 11.sp,
-                            color = TextSecondary,
-                            letterSpacing = 0.8.sp
+                            fontFamily = CrankrBodyFont,
+                            fontSize = 11.5.sp,
+                            color = TextSecondary
                         )
                     }
                 }

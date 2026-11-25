@@ -76,37 +76,24 @@ fun AlbumDetailScreen(
                         .fillMaxWidth()
                         .background(
                             Brush.verticalGradient(
-                                colors = listOf(
-                                    DarkCharcoal,
-                                    PitchBlack
+                                colorStops = arrayOf(
+                                    0.0f to HomeTopGlow,
+                                    0.55f to Surface,
+                                    1.0f to PitchBlack
                                 )
                             )
                         )
                         .statusBarsPadding()
                         .padding(horizontal = 16.dp, vertical = 12.dp)
                 ) {
-                    // Back Navigation Button
-                    Surface(
+                    // Back Navigation Glass Button
+                    com.example.spotifyclone.ui.components.GlassIconButton(
+                        icon = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Kembali ke Artis",
                         onClick = onBackClick,
-                        shape = CircleShape,
-                        color = CardBackground,
-                        border = BorderStroke(1.dp, BorderSubtle),
-                        modifier = Modifier
-                            .size(40.dp)
-                            .springPressable(scaleDown = 0.92f)
-                    ) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Kembali ke Artis",
-                                tint = TextWhite,
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-                    }
+                        size = 40.dp,
+                        iconSize = 20.dp
+                    )
 
                     Spacer(modifier = Modifier.height(16.dp))
 

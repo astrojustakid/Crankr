@@ -170,8 +170,10 @@ fun SettingsDialog(
                                             val dotColor = when (preset) {
                                                 AppThemePreset.AURA_LIQUID -> Color(0xFF38BDF8)
                                                 AppThemePreset.KINETIC_MONO -> Color(0xFFFAFAFA)
-                                                AppThemePreset.PURE_OLED -> Color(0xFFFFFFFF)
                                                 AppThemePreset.VELVET_CRIMSON -> Color(0xFFE50914)
+                                                AppThemePreset.MIDNIGHT_JADE -> Color(0xFF10E58B)
+                                                AppThemePreset.SUNSET_AMBER -> Color(0xFFF59E0B)
+                                                AppThemePreset.SOLARIS_GOLD -> Color(0xFFEAB308)
                                             }
                                             Surface(
                                                 shape = RoundedCornerShape(10.dp),

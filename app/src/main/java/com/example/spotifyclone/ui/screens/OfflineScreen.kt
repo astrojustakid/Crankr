@@ -60,40 +60,37 @@ fun OfflineScreen(
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
-            .background(PitchBlack)
+            .background(
+                androidx.compose.ui.graphics.Brush.verticalGradient(
+                    colorStops = arrayOf(
+                        0.0f to HomeTopGlow,
+                        0.30f to Surface,
+                        1.0f to PitchBlack
+                    )
+                )
+            )
             .padding(horizontal = 16.dp),
         contentPadding = PaddingValues(bottom = 24.dp)
     ) {
         // Screen Header
         item {
             Spacer(modifier = Modifier.height(18.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = "DOWNLOADS",
-                    fontSize = 28.sp,
-                    fontFamily = CrankrDisplayFont,
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 1.sp,
-                    color = TextWhite
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Box(
-                    modifier = Modifier
-                        .size(8.dp)
-                        .background(CrimsonRed)
-                )
-            }
+            Text(
+                text = "Unduhan Offline",
+                fontSize = 24.sp,
+                fontFamily = CrankrDisplayFont,
+                fontWeight = FontWeight.Bold,
+                color = TextWhite
+            )
             Spacer(modifier = Modifier.height(14.dp))
         }
 
-        // Storage & Offline Mode Switch Card
+        // Storage & Offline Mode Glass Card
         item {
-            Card(
-                shape = RoundedCornerShape(3.dp),
-                colors = CardDefaults.cardColors(containerColor = CardBackground),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .border(1.dp, BorderSubtle, RoundedCornerShape(3.dp))
+            com.example.spotifyclone.ui.components.GlassSurface(
+                shape = RoundedCornerShape(18.dp),
+                containerColor = Color.White.copy(alpha = 0.06f),
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Row(

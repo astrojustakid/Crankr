@@ -34,61 +34,48 @@ fun CrankrStatsDialog(
 
     Dialog(onDismissRequest = onDismiss) {
         Card(
-            shape = RoundedCornerShape(3.dp),
-            colors = CardDefaults.cardColors(containerColor = DarkCharcoal),
+            shape = RoundedCornerShape(24.dp),
+            colors = CardDefaults.cardColors(containerColor = Surface.copy(alpha = 0.96f)),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 16.dp)
-                .border(1.5.dp, CrimsonRed, RoundedCornerShape(3.dp))
+                .border(androidx.compose.foundation.BorderStroke(0.8.dp, glassHairlineBrush()), RoundedCornerShape(24.dp))
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(20.dp)
             ) {
-                // Header with punk zine title and close button
+                // Header Crankr 2.0 Glass
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Box(
-                                modifier = Modifier
-                                    .size(8.dp)
-                                    .clip(RoundedCornerShape(1.dp))
-                                    .background(CrimsonRed)
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = "Statistik Crankr",
-                                fontFamily = CrankrDisplayFont,
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = TextWhite,
-                                letterSpacing = 0.5.sp
-                            )
-                        }
                         Text(
-                            text = "Laporan Mendengarkan Musik Punk Tech",
+                            text = "Statistik Crankr",
+                            fontFamily = CrankrDisplayFont,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = TextWhite
+                        )
+                        Text(
+                            text = "Ringkasan kebiasaan dengar musik",
                             fontFamily = CrankrBodyFont,
-                            fontSize = 11.sp,
+                            fontSize = 11.5.sp,
                             color = TextSecondary
                         )
                     }
 
-                    IconButton(
+                    GlassIconButton(
+                        icon = Icons.Default.Close,
+                        contentDescription = "Tutup",
                         onClick = onDismiss,
-                        modifier = Modifier.size(28.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = "Tutup",
-                            tint = TextSecondary,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
+                        size = 32.dp,
+                        iconSize = 16.dp,
+                        iconTint = TextSecondary
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
