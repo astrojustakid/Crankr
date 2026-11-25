@@ -1,7 +1,7 @@
 ﻿{
-    "versionCode":  93,
-    "versionName":  "1.92",
+    "versionCode":  94,
+    "versionName":  "1.93",
     "downloadUrl":  "https://github.com/astrojustakid/Crankr/releases/latest/download/crankr.apk",
-    "changelog":  "[PERBAIKAN BUG]\n- Perbaikan tuntas fitur download lagu di DownloadUtil (menjalankan di Dispatchers.IO, validasi ketat YouTube videoId 11 karakter termasuk parsing dari streamUrl, serta fallback multi-lapis MusicStreamResolver + videoId alternatif)\n\n[CATATAN]\n- Seluruh modul terkunci tetap aman.",
+    "changelog":  "[PERBAIKAN BUG]\n- Menampilkan seluruh profil artis yang cocok pada hasil pencarian termasuk artis berbeda dengan nama yang sama (berlaku untuk Bandcamp maupun YouTube Music, deduplikasi ketat berdasarkan ID unik, bukan nama)\n\n[CATATAN]\n- Seluruh modul terkunci tetap aman.",
     "mandatory":  false
 }

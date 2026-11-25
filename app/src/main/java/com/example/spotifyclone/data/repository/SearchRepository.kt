@@ -7,6 +7,9 @@ import com.example.spotifyclone.service.spotify.SpotifyApiService
 import com.example.spotifyclone.util.CrankrCatalogFilter
 import com.example.spotifyclone.util.MetadataSanitizer
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
@@ -29,10 +32,11 @@ data class SearchArtistProfile(
 }
 
 /**
- * Data pembungkus hasil pencarian: profil artis resmi (jika ada) dan daftar lagu resmi.
+ * Data pembungkus hasil pencarian: profil artis resmi (utama & seluruh artis yang cocok) dan daftar lagu resmi.
  */
 data class SearchResultData(
     val matchedArtist: SearchArtistProfile? = null,
+    val matchedArtists: List<SearchArtistProfile> = listOfNotNull(matchedArtist),
     val tracks: List<Track> = emptyList()
 )
 
@@ -58,6 +62,14 @@ class SearchRepository(
 
     companion object {
         const val NETWORK_TIMEOUT_MS = 8000
+
+        // State reaktif berisi seluruh artis yang cocok pada pencarian terakhir (mendukung nama artis duplikat)
+        private val _latestMatchedArtists = MutableStateFlow<List<SearchArtistProfile>>(emptyList())
+        val latestMatchedArtists: StateFlow<List<SearchArtistProfile>> = _latestMatchedArtists.asStateFlow()
+
+        fun clearLatestMatchedArtists() {
+            _latestMatchedArtists.value = emptyList()
+        }
 
         // Database ID Spotify resmi artis skena untuk pencocokan instan tanpa latensi
         val KNOWN_SCENE_ARTIST_IDS = mapOf(
@@ -104,84 +116,28 @@ class SearchRepository(
         }
 
         // 1. Prioritas Utama: YouTube Music InnerTube API murni (WEB_REMIX) & Bandcamp Underground
+        val bcSearchResult = try {
+            bandcampRepository.search(mappedQuery)
+        } catch (_: Exception) {
+            null
+        }
         val bcTracks = try {
             bandcampRepository.searchTracks(mappedQuery).take(8)
         } catch (_: Exception) {
             emptyList()
         }
-
-        try {
-            val ytmResult = youTubeMusicRepository.searchCatalog(mappedQuery, limit)
-            if (ytmResult.tracks.isNotEmpty() || ytmResult.matchedArtist != null) {
-                val combined = mutableListOf<Track>()
-                combined.addAll(ytmResult.tracks)
-                val existingKeys = ytmResult.tracks.map { "${it.title.lowercase()} ${it.artist.lowercase()}" }.toSet()
-                bcTracks.forEach { bc ->
-                    val key = "${bc.title.lowercase()} ${bc.artist.lowercase()}"
-                    if (key !in existingKeys) {
-                        combined.add(bc)
-                    }
-                }
-                return@withContext ytmResult.copy(tracks = combined)
+        val qLowerMap = mappedQuery.lowercase().trim()
+        val bcMatchedArtists = bcSearchResult?.artists.orEmpty()
+            .filter { artist ->
+                val aName = artist.name.lowercase().trim()
+                aName == qLowerMap ||
+                    aName.startsWith("$qLowerMap ") || aName.endsWith(" $qLowerMap") ||
+                    qLowerMap.startsWith("$aName ") || qLowerMap.endsWith(" $aName") ||
+                    (qLowerMap.length >= 3 && aName.contains(qLowerMap)) ||
+                    (aName.length >= 3 && qLowerMap.contains(aName))
             }
-        } catch (e: Exception) {
-            // Lanjut ke fallback jika ada kendala
-        }
-
-        // Jika YouTube Music kosong tetapi Bandcamp memiliki lagu rilis
-        if (bcTracks.isNotEmpty()) {
-            return@withContext SearchResultData(tracks = bcTracks)
-        }
-
-        // 2. Fallback Spotify Web API (type=track,artist)
-        try {
-            val spotifyResult = searchOfficialSpotifyCatalogWithArtist(mappedQuery, limit)
-            if (spotifyResult.tracks.isNotEmpty() || spotifyResult.matchedArtist != null) {
-                return@withContext spotifyResult
-            }
-        } catch (_: Exception) {
-        }
-
-        // 3. Fallback pencarian penggalan lirik sebelum resolver mentah
-        try {
-            val lyricsFallback = searchByLyrics(mappedQuery, limit)
-            if (lyricsFallback.tracks.isNotEmpty()) {
-                return@withContext lyricsFallback
-            }
-        } catch (_: Exception) {}
-
-        // 4. Fallback stream resolver jika Spotify gagal, terapkan sanitasi ketat
-        val rawResults = MusicStreamResolver.searchTracks(mappedQuery)
-        val sanitized = MetadataSanitizer.sanitizeTracks(rawResults).take(limit)
-
-        SearchResultData(matchedArtist = null, tracks = sanitized)
-    }
-
-    /**
-     * Pencarian khusus katalog rilisan musisi dan label underground Bandcamp.
-     * Mengembalikan profil artis resmi Bandcamp dan daftar trek Bandcamp eksklusif
-     * tanpa campuran hasil YouTube Music atau Spotify.
-     * Jika ditemukan kecocokan artis (matchedArtist), hasil trek disaring secara ketat
-     * agar HANYA menampilkan lagu resmi milik band tersebut.
-     */
-    suspend fun searchBandcampCatalog(query: String, limit: Int = 20): SearchResultData = withContext(Dispatchers.IO) {
-        val cleanQuery = query.trim()
-        if (cleanQuery.isBlank()) return@withContext SearchResultData()
-
-        try {
-            val searchResult = bandcampRepository.search(cleanQuery)
-            val matchedArtistEntity = searchResult.artists.firstOrNull {
-                it.name.equals(cleanQuery, ignoreCase = true)
-            } ?: searchResult.artists.firstOrNull {
-                val aName = it.name.lowercase().trim()
-                val qLower = cleanQuery.lowercase().trim()
-                aName.startsWith("$qLower ") || aName.endsWith(" $qLower") ||
-                qLower.startsWith("$aName ") || qLower.endsWith(" $aName") ||
-                (qLower.length >= 4 && aName.contains(qLower)) ||
-                (aName.length >= 4 && qLower.contains(aName))
-            }
-
-            val matchedArtist = matchedArtistEntity?.let { artist ->
+            .distinctBy { it.id }
+            .map { artist ->
                 SearchArtistProfile(
                     id = "bc_${artist.id}",
                     name = artist.name,
@@ -192,21 +148,127 @@ class SearchRepository(
                 )
             }
 
+        try {
+            val ytmResult = youTubeMusicRepository.searchCatalog(mappedQuery, limit)
+            val allArtists = (ytmResult.matchedArtists + bcMatchedArtists).distinctBy { it.id }.take(12)
+            if (ytmResult.tracks.isNotEmpty() || allArtists.isNotEmpty()) {
+                val combined = mutableListOf<Track>()
+                combined.addAll(ytmResult.tracks)
+                val existingKeys = ytmResult.tracks.map { "${it.title.lowercase()} ${it.artist.lowercase()}" }.toSet()
+                bcTracks.forEach { bc ->
+                    val key = "${bc.title.lowercase()} ${bc.artist.lowercase()}"
+                    if (key !in existingKeys) {
+                        combined.add(bc)
+                    }
+                }
+                _latestMatchedArtists.value = allArtists
+                return@withContext ytmResult.copy(
+                    matchedArtist = allArtists.firstOrNull(),
+                    matchedArtists = allArtists,
+                    tracks = combined
+                )
+            }
+        } catch (e: Exception) {
+            // Lanjut ke fallback jika ada kendala
+        }
+
+        // Jika YouTube Music kosong tetapi Bandcamp memiliki lagu atau artis rilis
+        if (bcTracks.isNotEmpty() || bcMatchedArtists.isNotEmpty()) {
+            _latestMatchedArtists.value = bcMatchedArtists
+            return@withContext SearchResultData(
+                matchedArtist = bcMatchedArtists.firstOrNull(),
+                matchedArtists = bcMatchedArtists,
+                tracks = bcTracks
+            )
+        }
+
+        // 2. Fallback Spotify Web API (type=track,artist)
+        try {
+            val spotifyResult = searchOfficialSpotifyCatalogWithArtist(mappedQuery, limit)
+            if (spotifyResult.tracks.isNotEmpty() || spotifyResult.matchedArtist != null) {
+                _latestMatchedArtists.value = spotifyResult.matchedArtists
+                return@withContext spotifyResult
+            }
+        } catch (_: Exception) {
+        }
+
+        // 3. Fallback pencarian penggalan lirik sebelum resolver mentah
+        try {
+            val lyricsFallback = searchByLyrics(mappedQuery, limit)
+            if (lyricsFallback.tracks.isNotEmpty()) {
+                _latestMatchedArtists.value = emptyList()
+                return@withContext lyricsFallback
+            }
+        } catch (_: Exception) {}
+
+        // 4. Fallback stream resolver jika Spotify gagal, terapkan sanitasi ketat
+        val rawResults = MusicStreamResolver.searchTracks(mappedQuery)
+        val sanitized = MetadataSanitizer.sanitizeTracks(rawResults).take(limit)
+        _latestMatchedArtists.value = emptyList()
+
+        SearchResultData(matchedArtist = null, matchedArtists = emptyList(), tracks = sanitized)
+    }
+
+    /**
+     * Pencarian khusus katalog rilisan musisi dan label underground Bandcamp.
+     * Mengembalikan SELURUH profil artis/label Bandcamp yang cocok (termasuk jika ada beberapa artis dengan nama sama)
+     * dan daftar trek Bandcamp eksklusif.
+     */
+    suspend fun searchBandcampCatalog(query: String, limit: Int = 20): SearchResultData = withContext(Dispatchers.IO) {
+        val cleanQuery = query.trim()
+        if (cleanQuery.isBlank()) {
+            _latestMatchedArtists.value = emptyList()
+            return@withContext SearchResultData()
+        }
+
+        try {
+            val searchResult = bandcampRepository.search(cleanQuery)
+            val qLower = cleanQuery.lowercase().trim()
+
+            // Kumpulkan SEMUA artis Bandcamp yang cocok (exact match dulu, lalu partial) — deduplikasi hanya berdasarkan ID unik!
+            val exactEntities = searchResult.artists.filter {
+                it.name.equals(cleanQuery, ignoreCase = true)
+            }
+            val partialEntities = searchResult.artists.filter { artist ->
+                !artist.name.equals(cleanQuery, ignoreCase = true) && run {
+                    val aName = artist.name.lowercase().trim()
+                    aName.startsWith("$qLower ") || aName.endsWith(" $qLower") ||
+                        qLower.startsWith("$aName ") || qLower.endsWith(" $aName") ||
+                        (qLower.length >= 3 && aName.contains(qLower)) ||
+                        (aName.length >= 3 && qLower.contains(aName))
+                }
+            }
+            val allMatchedEntities = (exactEntities + partialEntities).distinctBy { it.id }.take(12)
+
+            val allMatchedProfiles = allMatchedEntities.map { artist ->
+                SearchArtistProfile(
+                    id = "bc_${artist.id}",
+                    name = artist.name,
+                    photoUrl = artist.photoUrl,
+                    followers = 0,
+                    genres = artist.tags.ifEmpty { listOfNotNull(artist.genre) },
+                    source = "bandcamp"
+                )
+            }
+
+            val primaryArtistEntity = allMatchedEntities.firstOrNull()
+            val matchedBandIds = allMatchedEntities.map { it.id }.toSet()
+            val matchedArtistNamesLower = allMatchedEntities.map { it.name.lowercase().trim() }.toSet()
             val finalTracks = mutableListOf<Track>()
 
-            if (matchedArtistEntity != null && matchedArtistEntity.id > 0L) {
-                // 1. Prioritas utama: Ambil lagu resmi langsung dari diskografi musisi tersebut
-                val officialBandTracks = bandcampRepository.getArtistTracks(matchedArtistEntity.id, limit = limit)
+            if (primaryArtistEntity != null && primaryArtistEntity.id > 0L) {
+                // 1. Prioritas utama: Ambil lagu resmi langsung dari diskografi artis teratas
+                val officialBandTracks = bandcampRepository.getArtistTracks(primaryArtistEntity.id, limit = limit)
                 finalTracks.addAll(officialBandTracks)
 
-                // 2. Trek dari hasil pencarian umum disaring secara KETAT:
-                // HANYA meloloskan lagu yang memiliki bandId yang sama atau nama musisi yang persis sama
+                // 2. Sertakan juga trek dari hasil pencarian yang cocok dengan salah satu artis yang ditemukan
                 val searchTracks = bandcampRepository.searchTracks(cleanQuery)
                 val filteredSearchTracks = searchTracks.filter { track ->
-                    val isSameBandId = track.id.startsWith("bc_${matchedArtistEntity.id}_") ||
-                        track.spotifyArtistId == "bc_${matchedArtistEntity.id}"
-                    val isExactArtist = track.artist.equals(matchedArtistEntity.name, ignoreCase = true)
-                    isSameBandId || isExactArtist
+                    val matchesAnyId = matchedBandIds.any { bid ->
+                        track.id.startsWith("bc_${bid}_") || track.spotifyArtistId == "bc_$bid"
+                    }
+                    val matchesAnyName = track.artist.lowercase().trim() in matchedArtistNamesLower
+                    matchesAnyId || matchesAnyName
                 }
                 for (st in filteredSearchTracks) {
                     if (finalTracks.none { it.id == st.id }) {
@@ -214,9 +276,7 @@ class SearchRepository(
                     }
                 }
             } else {
-                // Jika tidak ada profil artis spesifik, saring lagu agar relevan secara ketat dengan kueri pengguna
                 val searchTracks = bandcampRepository.searchTracks(cleanQuery)
-                val qLower = cleanQuery.lowercase().trim()
                 val relevantTracks = searchTracks.filter { track ->
                     val aLower = track.artist.lowercase().trim()
                     val tLower = track.title.lowercase().trim()
@@ -225,11 +285,15 @@ class SearchRepository(
                 finalTracks.addAll(relevantTracks)
             }
 
+            _latestMatchedArtists.value = allMatchedProfiles
+
             SearchResultData(
-                matchedArtist = matchedArtist,
+                matchedArtist = allMatchedProfiles.firstOrNull(),
+                matchedArtists = allMatchedProfiles,
                 tracks = finalTracks.take(limit)
             )
         } catch (e: Exception) {
+            _latestMatchedArtists.value = emptyList()
             SearchResultData()
         }
     }

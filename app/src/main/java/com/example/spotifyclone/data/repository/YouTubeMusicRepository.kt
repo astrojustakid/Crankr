@@ -482,12 +482,16 @@ class YouTubeMusicRepository(private val context: Context? = null) {
     }
 
     /**
-     * Pencarian profil musisi / band resmi pada katalog YouTube Music InnerTube API (Filter Artists).
-     * Mengembalikan SearchArtistProfile lengkap dengan ID kanal resmi (browseId berawalan UC).
+     * Pencarian seluruh profil musisi / band yang cocok pada katalog YouTube Music InnerTube API (Filter Artists).
+     * Deduplikasi ketat berdasarkan channelId (UC...), BUKAN nama — sehingga dua band berbeda dengan nama sama tetap tampil semua.
      */
-    suspend fun searchArtistProfile(query: String): SearchArtistProfile? = withContext(Dispatchers.IO) {
+    suspend fun searchArtistProfiles(query: String, limit: Int = 8): List<SearchArtistProfile> = withContext(Dispatchers.IO) {
         val cleanQuery = query.trim()
-        if (cleanQuery.isBlank()) return@withContext null
+        if (cleanQuery.isBlank()) return@withContext emptyList()
+
+        val exactMatches = mutableListOf<SearchArtistProfile>()
+        val partialMatches = mutableListOf<SearchArtistProfile>()
+        val seenIds = mutableSetOf<String>()
 
         try {
             val conn = createInnerTubeConnection(SEARCH_ENDPOINT)
@@ -511,9 +515,9 @@ class YouTubeMusicRepository(private val context: Context? = null) {
                     ?.optJSONObject("tabRenderer")
                     ?.optJSONObject("content")
                     ?.optJSONObject("sectionListRenderer")
-                    ?.optJSONArray("contents") ?: return@withContext null
+                    ?.optJSONArray("contents") ?: return@withContext emptyList()
 
-                var fallbackCandidate: SearchArtistProfile? = null
+                val cleanQ = cleanQuery.lowercase().trim()
 
                 for (s in 0 until sectionList.length()) {
                     val sec = sectionList.optJSONObject(s) ?: continue
@@ -531,75 +535,74 @@ class YouTubeMusicRepository(private val context: Context? = null) {
                                 ?.optJSONObject("navigationEndpoint")?.optJSONObject("browseEndpoint")?.optString("browseId")
                             ?: ""
 
-                        if (browseId.startsWith("UC")) {
+                        if (browseId.startsWith("UC") && seenIds.add(browseId)) {
                             val name = extractTitle(renderer).trim()
                             if (name.isBlank()) continue
 
-                            // Validasi kecocokan nama musisi secara akurat untuk mencegah pemetaan artis yang salah
-                            val cleanQ = cleanQuery.lowercase().trim()
                             val cleanN = name.lowercase().trim()
-                            val isExactMatch = cleanN == cleanQ ||
-                                cleanN == "$cleanQ - topic" ||
-                                cleanN.removeSuffix(" - topic").trim() == cleanQ
+                            val cleanNoTopic = cleanN.removeSuffix(" - topic").trim()
+                            val isExactMatch = cleanN == cleanQ || cleanNoTopic == cleanQ
 
-                            val isWordBoundaryMatch = cleanN.startsWith("$cleanQ ") ||
+                            val isRelevantPartial = cleanN.startsWith("$cleanQ ") ||
                                 cleanN.endsWith(" $cleanQ") ||
-                                cleanN.contains(" $cleanQ ")
+                                cleanN.contains(" $cleanQ ") ||
+                                (cleanQ.length >= 3 && (cleanN.contains(cleanQ) || cleanQ.contains(cleanNoTopic)))
 
                             val thumb = extractThumbnail(renderer)
                             val cleanThumb = formatHighResImageUrl(thumb, 800)
 
-                            if (isExactMatch) {
-                                // Simpan asosiasi nama artis -> channel ID ke cache
-                                artistChannelMap[name.lowercase().trim()] = browseId
-                                artistChannelMap[cleanQuery.lowercase().trim()] = browseId
+                            val profile = SearchArtistProfile(
+                                id = browseId,
+                                name = name,
+                                photoUrl = cleanThumb.ifBlank { null },
+                                followers = 0,
+                                genres = listOf("YouTube Music"),
+                                source = "youtube"
+                            )
 
-                                return@withContext SearchArtistProfile(
-                                    id = browseId,
-                                    name = name,
-                                    photoUrl = cleanThumb.ifBlank { null },
-                                    followers = 0,
-                                    genres = listOf("YouTube Music Official")
-                                )
-                            } else if (isWordBoundaryMatch && fallbackCandidate == null) {
-                                fallbackCandidate = SearchArtistProfile(
-                                    id = browseId,
-                                    name = name,
-                                    photoUrl = cleanThumb.ifBlank { null },
-                                    followers = 0,
-                                    genres = listOf("YouTube Music Official")
-                                )
+                            if (isExactMatch) {
+                                exactMatches.add(profile)
+                            } else if (isRelevantPartial) {
+                                partialMatches.add(profile)
                             }
                         }
                     }
-                }
-                if (fallbackCandidate != null) {
-                    artistChannelMap[fallbackCandidate.name.lowercase().trim()] = fallbackCandidate.id
-                    artistChannelMap[cleanQuery.lowercase().trim()] = fallbackCandidate.id
-                    return@withContext fallbackCandidate
                 }
             } else {
                 conn.disconnect()
             }
         } catch (e: Exception) {
-            Log.w("YouTubeMusicRepo", "Error searchArtistProfile: ${e.message}")
+            Log.w("YouTubeMusicRepo", "Error searchArtistProfiles: ${e.message}")
         }
 
-        null
+        val combined = (exactMatches + partialMatches).take(limit)
+        combined.firstOrNull()?.let { top ->
+            artistChannelMap[top.name.lowercase().trim()] = top.id
+            artistChannelMap[cleanQuery.lowercase().trim()] = top.id
+        }
+        combined
     }
 
     /**
-     * Pencarian gabungan terintegrasi satu pintu: Profil artis resmi + Lagu-lagu resmi YouTube Music.
+     * Pencarian profil musisi / band resmi utama pada katalog YouTube Music InnerTube API (Filter Artists).
+     */
+    suspend fun searchArtistProfile(query: String): SearchArtistProfile? {
+        return searchArtistProfiles(query, limit = 1).firstOrNull()
+    }
+
+    /**
+     * Pencarian gabungan terintegrasi satu pintu: Seluruh profil artis yang cocok + Lagu-lagu resmi YouTube Music.
      */
     suspend fun searchCatalog(query: String, limit: Int = 20): SearchResultData = withContext(Dispatchers.IO) {
         val cleanQuery = query.trim()
         if (cleanQuery.isBlank()) return@withContext SearchResultData()
 
-        val matchedArtist = searchArtistProfile(cleanQuery)
+        val matchedArtists = searchArtistProfiles(cleanQuery, limit = 8)
         val songs = searchSongs(cleanQuery, limit)
 
         SearchResultData(
-            matchedArtist = matchedArtist,
+            matchedArtist = matchedArtists.firstOrNull(),
+            matchedArtists = matchedArtists,
             tracks = songs
         )
     }

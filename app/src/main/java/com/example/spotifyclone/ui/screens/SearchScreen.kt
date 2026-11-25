@@ -75,6 +75,7 @@ import coil.compose.AsyncImage
 import com.example.spotifyclone.R
 import com.example.spotifyclone.data.model.Track
 import com.example.spotifyclone.data.repository.SearchArtistProfile
+import com.example.spotifyclone.data.repository.SearchRepository
 import com.example.spotifyclone.theme.*
 import com.example.spotifyclone.ui.components.TrackItem
 import com.example.spotifyclone.ui.components.springPressable
@@ -152,6 +153,29 @@ fun SearchScreen(
             "⚡ Bandcamp" -> searchResults.filter { it.isBandcamp }
             "Unduhan" -> searchResults.filter { it.isDownloaded }
             else -> searchResults
+        }
+    }
+
+    val repoMatchedArtists by SearchRepository.latestMatchedArtists.collectAsState()
+    val visibleMatchedArtists = remember(repoMatchedArtists, matchedArtist, selectedCategory, searchQuery) {
+        if (searchQuery.isBlank()) {
+            emptyList()
+        } else {
+            val base = if (repoMatchedArtists.isNotEmpty()) {
+                if (matchedArtist != null && repoMatchedArtists.none { it.id == matchedArtist.id }) {
+                    listOf(matchedArtist) + repoMatchedArtists
+                } else {
+                    repoMatchedArtists
+                }
+            } else {
+                listOfNotNull(matchedArtist)
+            }
+            val filtered = when (selectedCategory) {
+                "⚡ Bandcamp" -> base.filter { it.isBandcamp }
+                "Lagu", "Unduhan" -> emptyList()
+                else -> base
+            }
+            filtered.distinctBy { it.id }
         }
     }
 
@@ -509,28 +533,37 @@ fun SearchScreen(
                 item {
                     SearchSkeletonLoadingView()
                 }
-            } else if (displaySearchResults.isNotEmpty() || matchedArtist != null) {
-                val isBandcampOnly = selectedCategory == "⚡ Bandcamp"
-                val shouldShowArtist = if (isBandcampOnly) {
-                    matchedArtist?.isBandcamp == true
-                } else {
-                    matchedArtist != null
-                }
+            } else if (displaySearchResults.isNotEmpty() || visibleMatchedArtists.isNotEmpty()) {
+                val shouldShowArtists = visibleMatchedArtists.isNotEmpty()
 
-                if (shouldShowArtist && matchedArtist != null) {
-                    item {
+                if (shouldShowArtists) {
+                    if (visibleMatchedArtists.size > 1) {
+                        item {
+                            Text(
+                                text = "ARTIS (${visibleMatchedArtists.size})",
+                                fontFamily = CrankrDisplayFont,
+                                color = TextSecondary,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 1.sp,
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
+                            )
+                        }
+                    }
+                    itemsIndexed(visibleMatchedArtists, key = { idx, artist -> "artist_${artist.id}_$idx" }) { _, artist ->
                         OfficialArtistProfileCard(
-                            artist = matchedArtist,
+                            artist = artist,
                             onClick = {
-                                onArtistClick?.invoke(matchedArtist.name, matchedArtist.id)
+                                onArtistClick?.invoke(artist.name, artist.id)
                             }
                         )
                     }
                 }
 
                 item {
-                    val headerTitle = if (shouldShowArtist && matchedArtist != null) {
-                        "TREK RESMI OLEH ${matchedArtist.name.uppercase()}"
+                    val primaryArtist = visibleMatchedArtists.firstOrNull()
+                    val headerTitle = if (shouldShowArtists && primaryArtist != null && visibleMatchedArtists.size == 1) {
+                        "TREK RESMI OLEH ${primaryArtist.name.uppercase()}"
                     } else {
                         "HASIL PENCARIAN (${displaySearchResults.size})${if (selectedCategory != "Semua") " • $selectedCategory" else ""}"
                     }
