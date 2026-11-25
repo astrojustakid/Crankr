@@ -92,6 +92,8 @@ fun HomeScreen(
     // Track actions
     onGenreSelect: (String) -> Unit,
     onTrackClick: (Track) -> Unit,
+    onRecentTrackClick: ((Track, List<Track>) -> Unit)? = null,
+    onGenreTrackClick: ((Track, List<Track>, String) -> Unit)? = null,
     onSearchTrackClick: ((Track) -> Unit)? = null,
     onDownloadClick: (Track) -> Unit,
     onFavoriteClick: (String) -> Unit,
@@ -756,7 +758,13 @@ fun HomeScreen(
                             modifier = Modifier
                                 .width(122.dp)
                                 .springPressable(0.982f)
-                                .clickable { onTrackClick(track) }
+                                .clickable {
+                                    if (onRecentTrackClick != null) {
+                                        onRecentTrackClick(track, displayRecentlyPlayed)
+                                    } else {
+                                        onTrackClick(track)
+                                    }
+                                }
                         ) {
                             Column(modifier = Modifier.padding(8.dp)) {
                                 Box(
@@ -1120,7 +1128,13 @@ fun HomeScreen(
                 isCurrent = currentTrack?.id == track.id,
                 isFavorite = favoriteIds.contains(track.id),
                 downloadProgress = downloadProgressMap[track.id],
-                onClick = { onTrackClick(track) },
+                onClick = {
+                    if (selectedGenre != "All" && onGenreTrackClick != null) {
+                        onGenreTrackClick(track, filteredTracks, selectedGenre)
+                    } else {
+                        onTrackClick(track)
+                    }
+                },
                 onDownloadClick = { onDownloadClick(track) },
                 onFavoriteClick = { onFavoriteClick(track.id) },
                 onAddToPlaylistClick = { onAddToPlaylistClick(track) },

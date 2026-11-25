@@ -1,7 +1,7 @@
 ﻿{
-    "versionCode":  88,
-    "versionName":  "1.87",
+    "versionCode":  89,
+    "versionName":  "1.88",
     "downloadUrl":  "https://github.com/astrojustakid/Crankr/releases/latest/download/crankr.apk",
-    "changelog":  "[FITUR BARU]\n- Tipografi baru Plus Jakarta Sans Full Family (5 bobot statis asli 400-800: Regular, Medium, SemiBold, Bold, ExtraBold) dengan tracking judul tajam di seluruh layar Crankr\n\n[PERBAIKAN BUG]\n- Memperbaiki bug bobot font di Type.kt yang sebelumnya merender semua teks Bold/SemiBold menjadi tipis 400 Regular\n\n[CATATAN]\n- Diterapkan atas izin tertulis pengguna.",
+    "changelog":  "[PERBAIKAN BUG]\n- Memperbaiki bug klik lagu di \u0027Baru Saja Diputar\u0027 dan bubble genre di Home yang sebelumnya memutar lagu pertama tangga lagu (Terbelah Jadi Dua) dengan memisahkan antrean onRecentTrackClick, onGenreTrackClick, serta pengaman safePool di MainSpotifyApp\n\n[CATATAN]\n- Seluruh modul terkunci tetap aman.",
     "mandatory":  false
 }

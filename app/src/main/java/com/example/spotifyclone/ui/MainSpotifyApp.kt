@@ -591,9 +591,32 @@ fun MainSpotifyApp(
                                         onGetBackupJson = { viewModel.exportPlaylistsJson() },
                                         onRestoreJson = { viewModel.restorePlaylistsFromJson(it) },
                                         onGenreSelect = { viewModel.setSelectedGenre(it) },
-                                        onTrackClick = {
-                                            val playPool = if (selectedGenre == "All") (popularTracks.ifEmpty { allTracks }) else allTracks
-                                            viewModel.playTrack(it, playPool, "Lagu Populer")
+                                        onTrackClick = { clickedTrack ->
+                                            val basePool = if (selectedGenre == "All") (popularTracks.ifEmpty { allTracks }) else allTracks
+                                            val safePool = if (basePool.any { it.id == clickedTrack.id }) {
+                                                basePool
+                                            } else {
+                                                listOf(clickedTrack) + basePool
+                                            }
+                                            viewModel.playTrack(clickedTrack, safePool, "Lagu Populer")
+                                            homeViewModel.refreshRecentlyPlayed()
+                                        },
+                                        onRecentTrackClick = { clickedTrack, recentList ->
+                                            val safeRecent = if (recentList.any { it.id == clickedTrack.id }) {
+                                                recentList
+                                            } else {
+                                                listOf(clickedTrack) + recentList
+                                            }
+                                            viewModel.playTrack(clickedTrack, safeRecent, "Baru Saja Diputar")
+                                            homeViewModel.refreshRecentlyPlayed()
+                                        },
+                                        onGenreTrackClick = { clickedTrack, genreList, genreName ->
+                                            val safeGenre = if (genreList.any { it.id == clickedTrack.id }) {
+                                                genreList
+                                            } else {
+                                                listOf(clickedTrack) + genreList
+                                            }
+                                            viewModel.playTrack(clickedTrack, safeGenre, genreName)
                                             homeViewModel.refreshRecentlyPlayed()
                                         },
                                         onSearchTrackClick = { viewModel.playTrack(it, searchQuickResults, "Hasil Pencarian") },
